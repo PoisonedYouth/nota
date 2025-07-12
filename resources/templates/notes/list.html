@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::content})}">
+<body>
+    <div th:fragment="content">
+        <div class="container">
+            <div class="notes-header">
+                <h2>Meine Notizen</h2>
+                <div class="notes-count" th:text="|${#lists.size(notes)} Notizen|"></div>
+            </div>
+            
+            <div id="notes-container" class="notes-grid">
+                <div th:each="note : ${notes}">
+                    <div th:replace="notes/fragments :: note-card(note=${note})"></div>
+                </div>
+            </div>
+            
+            <!-- Platzhalter für leere Liste -->
+            <div th:if="${#lists.isEmpty(notes)}" class="empty-state">
+                <p>Noch keine Notizen vorhanden</p>
+                <button class="btn btn-primary"
+                        hx-get="/notes/modal/new"
+                        hx-target="#modal-container">
+                    Erste Notiz erstellen
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

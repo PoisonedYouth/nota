@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="modal-content" class="modal-backdrop" id="create-note-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Neue Notiz erstellen</h3>
+                <button class="close-btn" 
+                        onclick="document.getElementById('create-note-modal').remove()">
+                    ×
+                </button>
+            </div>
+
+            <form hx-post="/notes/new"
+                  hx-target="#notes-container"
+                  hx-swap="afterbegin"
+                  hx-trigger="submit"
+                  hx-on="htmx:afterRequest: if(event.detail.successful) { 
+                    document.getElementById('create-note-modal').remove();
+                    htmx.ajax('GET', '/notes/count', {target: '.notes-count'});
+                  }">
+
+                <div class="form-group">
+                    <label for="title">Titel</label>
+                    <input type="text" 
+                           id="title" 
+                           name="title" 
+                           class="form-control"
+                           placeholder="Notiz-Titel eingeben..."
+                           required
+                           autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="content">Inhalt</label>
+                    <textarea id="content" 
+                              name="content" 
+                              class="form-control"
+                              rows="10"
+                              placeholder="Notiz-Inhalt eingeben..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" 
+                            class="btn btn-secondary"
+                            onclick="document.getElementById('create-note-modal').remove()">
+                        Abbrechen
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="htmx-indicator">
+                            Speichern...
+                        </span>
+                        <span class="htmx-indicator-hide">
+                            Notiz speichern
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

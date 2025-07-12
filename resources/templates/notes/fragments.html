@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Einzelne Notiz-Karte -->
+    <div th:fragment="note-card(note)" 
+         class="note-card"
+         th:id="|note-${note?.id}|">
+        <h3 class="note-title" th:text="${note?.title}"></h3>
+        <p class="note-content" th:text="${note?.getContentPreview()}"></p>
+        <div class="note-meta">
+            <span class="note-date" th:text="${note?.getFormattedDate()}"></span>
+        </div>
+    </div>
+</body>
+</html>

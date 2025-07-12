@@ -1,0 +1,35 @@
+product: jvm/app
+
+dependencies:
+  # Spring Boot
+  - $spring.boot.starter.web
+  - $spring.boot.starter.thymeleaf
+  - $spring.boot.starter.data.jpa
+  - $spring.boot.starter.actuator
+  - $spring.boot.devtools
+
+  # Kotlin
+  - org.jetbrains.kotlin:kotlin-reflect
+  - org.jetbrains.kotlin:kotlin-stdlib-jdk8
+  - com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2
+
+  # Database
+  - com.h2database:h2:2.3.232
+  - org.postgresql:postgresql:42.7.7
+
+  # Configuration Processor
+  - $spring.boot.configuration.processor
+
+test-dependencies:
+  - $spring.boot.starter.test
+  - $kotlin.test.junit5
+  - io.mockk:mockk:1.13.8
+  - io.kotest:kotest-assertions-core-jvm:5.8.1
+  - io.kotest:kotest-runner-junit5:5.8.1
+
+settings:
+  kotlin:
+    languageVersion: "2.2"
+  springBoot: enabled
+  jvm:
+    mainClass: com.poisonedyouth.nota.ApplicationKt

@@ -1,0 +1,31 @@
+# Amper build output
+.amper/
+
+# IntelliJ IDEA
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf
+.idea/libraries
+.idea/artifacts
+.idea/compiler.xml
+.idea/jarRepositories.xml
+.idea/modules.xml
+.idea/*.iml
+.idea/modules
+*.iml
+*.ipr
+
+# Gradle
+.gradle/
+build/
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
