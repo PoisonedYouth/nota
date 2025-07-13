@@ -25,7 +25,7 @@ fi
 
 # Run detekt
 echo "Running detekt..."
-detekt --config "$PWD/tools/default-detekt-config.yml" --input src/
+java -jar "$PWD/tools/detekt-cli-1.23.8-all.jar" --config "$PWD/tools/default-detekt-config.yml" --input src/
 DETEKT_EXIT_CODE=$?
 
 # Check if there are any errors
@@ -43,7 +43,7 @@ else
         read -p "Do you want to run detekt with the --auto-correct flag? (y/n) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            detekt --config "$PWD/tools/default-detekt-config.yml" --input src/ --auto-correct
+            java -jar "$PWD/tools/detekt-cli-1.23.8-all.jar" --config "$PWD/tools/default-detekt-config.yml" --input src/ --auto-correct
             echo "Auto-correctable issues fixed!"
             exit 0
         else

@@ -20,7 +20,7 @@ class NoteService(
     }
 
     fun findAllNotes(): List<NoteDto> {
-        return noteRepository.findAllByOrderByUpdatedAtDesc()
+        return noteRepository.findAllByArchivedFalseOrderByUpdatedAtDesc()
             .map { NoteDto.fromEntity(it) }
     }
 
@@ -28,5 +28,18 @@ class NoteService(
         return noteRepository.findById(id)
             .map { NoteDto.fromEntity(it) }
             .orElse(null)
+    }
+
+    fun archiveNote(id: Long): Boolean {
+        val note = noteRepository.findById(id).orElse(null) ?: return false
+        note.archived = true
+        note.updatedAt = java.time.LocalDateTime.now()
+        noteRepository.save(note)
+        return true
+    }
+
+    fun findAllArchivedNotes(): List<NoteDto> {
+        return noteRepository.findAllByArchivedTrueOrderByUpdatedAtDesc()
+            .map { NoteDto.fromEntity(it) }
     }
 }

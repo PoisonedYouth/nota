@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface NoteRepository : JpaRepository<Note, Long> {
     fun findAllByOrderByUpdatedAtDesc(): List<Note>
+    fun findAllByArchivedFalseOrderByUpdatedAtDesc(): List<Note>
+    fun findAllByArchivedTrueOrderByUpdatedAtDesc(): List<Note>
 }

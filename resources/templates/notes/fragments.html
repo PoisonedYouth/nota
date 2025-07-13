@@ -2,14 +2,32 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
     <!-- Einzelne Notiz-Karte -->
-    <div th:fragment="note-card(note)" 
+    <div th:fragment="note-card(note)"
          class="note-card"
          th:id="|note-${note?.id}|">
         <h3 class="note-title" th:text="${note?.title}"></h3>
         <p class="note-content" th:text="${note?.getContentPreview()}"></p>
         <div class="note-meta">
             <span class="note-date" th:text="${note?.getFormattedDate()}"></span>
+            <button th:if="${!note?.archived}"
+                    class="btn btn-danger btn-sm"
+                    th:attr="hx-delete=@{/notes/{id}(id=${note?.id})}"
+                    hx-confirm="Notiz archivieren?"
+                    hx-target="closest .note-card"
+                    hx-swap="outerHTML swap:0.5s">
+                Archivieren
+            </button>
         </div>
+    </div>
+
+    <!-- Archive response fragment that removes note card and updates count -->
+    <div th:fragment="archive-response">
+        <!-- Empty content to remove the note card -->
+
+        <!-- Out-of-band swap to update notes count -->
+        <div class="notes-count"
+             th:text="|${#lists.size(notes)} Notizen|"
+             hx-swap-oob="true"></div>
     </div>
 </body>
 </html>

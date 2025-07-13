@@ -3,8 +3,10 @@ package com.poisonedyouth.nota.notes
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
@@ -65,5 +67,30 @@ class NoteController(
         val notes = noteService.findAllNotes()
         model.addAttribute("notes", notes)
         return "notes/list :: .notes-count"
+    }
+
+    @DeleteMapping("/{id}")
+    fun archiveNote(
+        @PathVariable id: Long,
+        @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
+        model: Model,
+    ): String {
+        noteService.archiveNote(id)
+
+        return if (htmxRequest != null) {
+            // HTMX Request: Return archive response with OOB swap to update notes count
+            val notes = noteService.findAllNotes()
+            model.addAttribute("notes", notes)
+            "notes/fragments :: archive-response"
+        } else {
+            // Normal Request: Redirect to the list
+            "redirect:/notes"
+        }
+    }
+
+    @GetMapping("/archive")
+    fun listArchivedNotes(model: Model): String {
+        model.addAttribute("notes", noteService.findAllArchivedNotes())
+        return "notes/archive"
     }
 }

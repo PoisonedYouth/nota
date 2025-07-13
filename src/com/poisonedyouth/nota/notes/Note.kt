@@ -26,4 +26,7 @@ class Note(
 
     @Column(nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
+
+    @Column(nullable = false)
+    var archived: Boolean = false,
 )

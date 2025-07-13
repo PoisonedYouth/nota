@@ -103,3 +103,5 @@ The project enforces strict code style and quality standards:
 - **Web Framework**: HTMX integration for dynamic updates
 - **Templates**: Thymeleaf templating engine
 - **Configuration**: Spring Boot auto-configuration with custom settings in `module.yaml`
+
+- Delete unnecessary temporary files before commiting.

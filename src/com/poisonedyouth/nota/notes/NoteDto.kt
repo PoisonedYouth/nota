@@ -9,6 +9,7 @@ data class NoteDto(
     val content: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
+    val archived: Boolean,
 ) {
     companion object {
         fun fromEntity(note: Note): NoteDto {
@@ -18,6 +19,7 @@ data class NoteDto(
                 content = note.content,
                 createdAt = note.createdAt,
                 updatedAt = note.updatedAt,
+                archived = note.archived,
             )
         }
     }
