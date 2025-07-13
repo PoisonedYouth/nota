@@ -13,6 +13,7 @@ class NoteService(
         val note = Note(
             title = createNoteDto.title,
             content = createNoteDto.content,
+            dueDate = createNoteDto.dueDate,
         )
 
         val savedNote = noteRepository.save(note)
@@ -33,7 +34,7 @@ class NoteService(
     fun archiveNote(id: Long): Boolean {
         val note = noteRepository.findById(id).orElse(null) ?: return false
         note.archived = true
-        note.updatedAt = java.time.LocalDateTime.now()
+        note.archivedAt = java.time.LocalDateTime.now()
         noteRepository.save(note)
         return true
     }

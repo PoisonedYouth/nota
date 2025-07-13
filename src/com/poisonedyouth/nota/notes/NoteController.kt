@@ -26,7 +26,7 @@ class NoteController(
     @GetMapping("/new")
     fun showCreateForm(model: Model): String {
         model.addAttribute("createNoteDto", CreateNoteDto("", ""))
-        return "notes/create-form"
+        return "notes/create-modal"
     }
 
     @PostMapping("/new")
@@ -39,9 +39,9 @@ class NoteController(
         if (bindingResult.hasErrors()) {
             return if (htmxRequest != null) {
                 model.addAttribute("createNoteDto", createNoteDto)
-                "notes/create-form :: form"
+                "notes/create-modal :: modal-content"
             } else {
-                "notes/create-form"
+                "notes/create-modal"
             }
         }
 

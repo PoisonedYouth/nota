@@ -10,6 +10,8 @@ data class NoteDto(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val archived: Boolean,
+    val archivedAt: LocalDateTime?,
+    val dueDate: LocalDateTime?,
 ) {
     companion object {
         fun fromEntity(note: Note): NoteDto {
@@ -20,12 +22,18 @@ data class NoteDto(
                 createdAt = note.createdAt,
                 updatedAt = note.updatedAt,
                 archived = note.archived,
+                archivedAt = note.archivedAt,
+                dueDate = note.dueDate,
             )
         }
     }
 
     fun getFormattedDate(): String {
         return updatedAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
+    }
+
+    fun getFormattedDueDate(): String? {
+        return dueDate?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
     }
 
     fun getContentPreview(maxLength: Int = 100): String {

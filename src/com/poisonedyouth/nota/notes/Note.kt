@@ -5,6 +5,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.PrePersist
+import jakarta.persistence.PreUpdate
 import jakarta.persistence.Table
 import java.time.LocalDateTime
 
@@ -21,6 +23,9 @@ class Note(
     @Column(columnDefinition = "TEXT")
     var content: String = "",
 
+    @Column(nullable = true)
+    var dueDate: LocalDateTime? = null,
+
     @Column(nullable = false)
     var createdAt: LocalDateTime = LocalDateTime.now(),
 
@@ -29,4 +34,19 @@ class Note(
 
     @Column(nullable = false)
     var archived: Boolean = false,
-)
+
+    @Column(nullable = true)
+    var archivedAt: LocalDateTime? = null,
+) {
+    @PrePersist
+    fun onCreate() {
+        val now = LocalDateTime.now()
+        createdAt = now
+        updatedAt = now
+    }
+
+    @PreUpdate
+    fun onUpdate() {
+        updatedAt = LocalDateTime.now()
+    }
+}
