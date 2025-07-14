@@ -28,8 +28,26 @@ class NoteControllerTest {
         // Given
         val now = LocalDateTime.now()
         val notes = listOf(
-            NoteDto(id = 1L, title = "Note 1", content = "Content 1", createdAt = now, updatedAt = now, archived = false, archivedAt = null, dueDate = null),
-            NoteDto(id = 2L, title = "Note 2", content = "Content 2", createdAt = now, updatedAt = now, archived = false, archivedAt = null, dueDate = null),
+            NoteDto(
+                id = 1L,
+                title = "Note 1",
+                content = "Content 1",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = null,
+            ),
+            NoteDto(
+                id = 2L,
+                title = "Note 2",
+                content = "Content 2",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = null,
+            ),
         )
         every { noteService.findAllNotes() } returns notes
 
@@ -74,7 +92,16 @@ class NoteControllerTest {
         val noteId = 1L
         val now = LocalDateTime.now()
         val remainingNotes = listOf(
-            NoteDto(id = 2L, title = "Note 2", content = "Content 2", createdAt = now, updatedAt = now, archived = false, archivedAt = null, dueDate = null),
+            NoteDto(
+                id = 2L,
+                title = "Note 2",
+                content = "Content 2",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = null,
+            ),
         )
         every { noteService.archiveNote(noteId) } returns true
         every { noteService.findAllNotes() } returns remainingNotes

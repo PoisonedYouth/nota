@@ -5,48 +5,35 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.PrePersist
-import jakarta.persistence.PreUpdate
 import jakarta.persistence.Table
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "notes")
+@Suppress("LongParameterList")
 class Note(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    val id: Long? = null,
 
     @Column(nullable = false)
-    var title: String,
+    val title: String,
 
     @Column(columnDefinition = "TEXT")
-    var content: String = "",
+    val content: String = "",
 
     @Column(nullable = true)
-    var dueDate: LocalDateTime? = null,
+    val dueDate: LocalDateTime? = null,
 
     @Column(nullable = false)
-    var createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
-    var archived: Boolean = false,
+    val archived: Boolean = false,
 
     @Column(nullable = true)
-    var archivedAt: LocalDateTime? = null,
-) {
-    @PrePersist
-    fun onCreate() {
-        val now = LocalDateTime.now()
-        createdAt = now
-        updatedAt = now
-    }
-
-    @PreUpdate
-    fun onUpdate() {
-        updatedAt = LocalDateTime.now()
-    }
-}
+    val archivedAt: LocalDateTime? = null,
+)

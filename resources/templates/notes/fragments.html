@@ -10,14 +10,20 @@
         <div class="note-meta">
             <span class="note-date" th:text="${note?.getFormattedDate()}"></span>
             <span th:if="${note?.dueDate != null}" class="note-due-date" th:text="|Fällig: ${note?.getFormattedDueDate()}|"></span>
-            <button th:if="${!note?.archived}"
-                    class="btn btn-danger btn-sm"
-                    th:attr="hx-delete=@{/notes/{id}(id=${note?.id})}"
-                    hx-confirm="Notiz archivieren?"
-                    hx-target="closest .note-card"
-                    hx-swap="outerHTML swap:0.5s">
-                Archivieren
-            </button>
+            <div th:if="${!note?.archived}" class="note-actions">
+                <button class="btn btn-primary btn-sm"
+                        th:attr="hx-get=@{/notes/modal/{id}/edit(id=${note?.id})}"
+                        hx-target="#modal-container">
+                    Bearbeiten
+                </button>
+                <button class="btn btn-danger btn-sm"
+                        th:attr="hx-delete=@{/notes/{id}(id=${note?.id})}"
+                        hx-confirm="Notiz archivieren?"
+                        hx-target="closest .note-card"
+                        hx-swap="outerHTML swap:0.5s">
+                    Archivieren
+                </button>
+            </div>
         </div>
     </div>
 

@@ -55,6 +55,9 @@ Or run specific test files using the `run_test` command with full paths:
 - **Kotest** - Assertions and additional testing utilities
 - **Spring Boot Test** - Integration testing support
 
+### Testing Guidelines
+- Only use Kotest for assertions.
+
 ## Build Process
 
 **NO, Junie should NOT build the project** before submitting results unless specifically required. The test execution automatically handles necessary compilation.
@@ -104,4 +107,6 @@ The project enforces strict code style and quality standards:
 - **Templates**: Thymeleaf templating engine
 - **Configuration**: Spring Boot auto-configuration with custom settings in `module.yaml`
 
+## General Instructions
 - Delete unnecessary temporary files before commiting.
+- Write a new test for every bug that occurs when running the application.

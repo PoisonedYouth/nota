@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 
@@ -92,5 +93,83 @@ class NoteController(
     fun listArchivedNotes(model: Model): String {
         model.addAttribute("notes", noteService.findAllArchivedNotes())
         return "notes/archive"
+    }
+
+    @GetMapping("/{id}/edit")
+    fun showEditForm(
+        @PathVariable id: Long,
+        model: Model,
+    ): String {
+        val note = noteService.findNoteById(id)
+        if (note == null) {
+            return "redirect:/notes"
+        }
+
+        val updateNoteDto = UpdateNoteDto(
+            id = note.id,
+            title = note.title,
+            content = note.content,
+            dueDate = note.dueDate,
+        )
+
+        model.addAttribute("updateNoteDto", updateNoteDto)
+        model.addAttribute("note", note)
+        return "notes/edit-modal"
+    }
+
+    @GetMapping("/modal/{id}/edit")
+    fun showEditModal(
+        @PathVariable id: Long,
+        model: Model,
+    ): String {
+        val note = noteService.findNoteById(id)
+        if (note == null) {
+            return "redirect:/notes"
+        }
+
+        val updateNoteDto = UpdateNoteDto(
+            id = note.id,
+            title = note.title,
+            content = note.content,
+            dueDate = note.dueDate,
+        )
+
+        model.addAttribute("updateNoteDto", updateNoteDto)
+        model.addAttribute("note", note)
+        return "notes/edit-modal :: modal-content"
+    }
+
+    @PutMapping("/{id}")
+    fun updateNote(
+        @PathVariable id: Long,
+        @ModelAttribute updateNoteDto: UpdateNoteDto,
+        bindingResult: BindingResult,
+        model: Model,
+        @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
+    ): String {
+        if (bindingResult.hasErrors()) {
+            val note = noteService.findNoteById(id)
+            return if (htmxRequest != null) {
+                model.addAttribute("updateNoteDto", updateNoteDto)
+                model.addAttribute("note", note)
+                "notes/edit-modal :: modal-content"
+            } else {
+                "notes/edit-modal"
+            }
+        }
+
+        val updatedNote = noteService.updateNote(updateNoteDto)
+        if (updatedNote == null) {
+            return "redirect:/notes"
+        }
+
+        return if (htmxRequest != null) {
+            // HTMX Request: Return updated note card
+            model.addAttribute("note", updatedNote)
+            "notes/fragments :: note-card"
+        } else {
+            // Normal Request: Redirect to the list
+            "redirect:/notes"
+        }
     }
 }
