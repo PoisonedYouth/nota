@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 @RequestMapping("/notes")
+@Suppress("TooManyFunctions")
 class NoteController(
     private val noteService: NoteService,
 ) {
@@ -170,6 +172,25 @@ class NoteController(
         } else {
             // Normal Request: Redirect to the list
             "redirect:/notes"
+        }
+    }
+
+    @GetMapping("/search")
+    fun searchNotes(
+        @RequestParam(value = "q", required = false, defaultValue = "") query: String,
+        model: Model,
+        @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
+    ): String {
+        val notes = noteService.searchNotes(query)
+        model.addAttribute("notes", notes)
+        model.addAttribute("searchQuery", query)
+
+        return if (htmxRequest != null) {
+            // HTMX Request: Return only the notes grid
+            "notes/list :: #notes-container"
+        } else {
+            // Normal Request: Return full page
+            "notes/list"
         }
     }
 }

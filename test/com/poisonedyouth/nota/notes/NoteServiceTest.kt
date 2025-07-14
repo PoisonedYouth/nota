@@ -204,4 +204,137 @@ class NoteServiceTest {
         result.dueDate shouldBe null
         verify { noteRepository.save(any()) }
     }
+
+    @Test
+    fun `searchNotes should return all notes when query is blank`() {
+        // Given
+        val now = LocalDateTime.now()
+        val note1 = Note(
+            id = 1L,
+            title = "First Note",
+            content = "Content 1",
+            dueDate = null,
+            createdAt = now,
+            updatedAt = now.plusHours(2),
+            archived = false,
+            archivedAt = null,
+        )
+        val note2 = Note(
+            id = 2L,
+            title = "Second Note",
+            content = "Content 2",
+            dueDate = null,
+            createdAt = now,
+            updatedAt = now.plusHours(1),
+            archived = false,
+            archivedAt = null,
+        )
+
+        every { noteRepository.findAllByArchivedFalseOrderByUpdatedAtDesc() } returns listOf(note1, note2)
+
+        // When
+        val result = noteService.searchNotes("  ")
+
+        // Then
+        result.size shouldBe 2
+        result[0].id shouldBe 1L
+        result[1].id shouldBe 2L
+        verify { noteRepository.findAllByArchivedFalseOrderByUpdatedAtDesc() }
+    }
+
+    @Test
+    fun `searchNotes should return matching notes when query is provided`() {
+        // Given
+        val now = LocalDateTime.now()
+        val matchingNote = Note(
+            id = 1L,
+            title = "Important Note",
+            content = "This is important content",
+            dueDate = null,
+            createdAt = now,
+            updatedAt = now,
+            archived = false,
+            archivedAt = null,
+        )
+
+        every {
+            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                "important",
+                "important",
+            )
+        } returns listOf(matchingNote)
+
+        // When
+        val result = noteService.searchNotes("important")
+
+        // Then
+        result.size shouldBe 1
+        result[0].id shouldBe 1L
+        result[0].title shouldBe "Important Note"
+        verify {
+            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                "important",
+                "important",
+            )
+        }
+    }
+
+    @Test
+    fun `searchNotes should return empty list when no matches found`() {
+        // Given
+        every {
+            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                "nonexistent",
+                "nonexistent",
+            )
+        } returns emptyList()
+
+        // When
+        val result = noteService.searchNotes("nonexistent")
+
+        // Then
+        result.size shouldBe 0
+        verify {
+            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                "nonexistent",
+                "nonexistent",
+            )
+        }
+    }
+
+    @Test
+    fun `searchNotes should trim query before searching`() {
+        // Given
+        val now = LocalDateTime.now()
+        val matchingNote = Note(
+            id = 1L,
+            title = "Test Note",
+            content = "Test content",
+            dueDate = null,
+            createdAt = now,
+            updatedAt = now,
+            archived = false,
+            archivedAt = null,
+        )
+
+        every {
+            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                "test",
+                "test",
+            )
+        } returns listOf(matchingNote)
+
+        // When
+        val result = noteService.searchNotes("  test  ")
+
+        // Then
+        result.size shouldBe 1
+        result[0].id shouldBe 1L
+        verify {
+            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                "test",
+                "test",
+            )
+        }
+    }
 }

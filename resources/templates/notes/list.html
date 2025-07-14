@@ -10,6 +10,19 @@
                 <a href="/notes/archive" class="btn btn-secondary">Archiv anzeigen</a>
             </div>
 
+            <!-- Search Form -->
+            <div class="search-container">
+                <form hx-get="/notes/search"
+                      hx-target="#notes-container"
+                      hx-trigger="submit, keyup delay:300ms from:input[name='q']">
+                    <input type="text"
+                           name="q"
+                           placeholder="Notizen durchsuchen..."
+                           th:value="${searchQuery}"
+                           class="search-input">
+                </form>
+            </div>
+
             <div id="notes-container" class="notes-grid">
                 <div th:each="note : ${notes}">
                     <div th:replace="notes/fragments :: note-card(note=${note})"></div>

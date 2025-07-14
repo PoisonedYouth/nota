@@ -69,4 +69,15 @@ class NoteService(
         val savedNote = noteRepository.save(updatedNote)
         return NoteDto.fromEntity(savedNote)
     }
+
+    fun searchNotes(query: String): List<NoteDto> {
+        if (query.isBlank()) {
+            return findAllNotes()
+        }
+
+        return noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+            query.trim(),
+            query.trim(),
+        ).map { NoteDto.fromEntity(it) }
+    }
 }

@@ -119,4 +119,118 @@ class NoteControllerTest {
         verify { noteService.archiveNote(noteId) }
         verify { noteService.findAllNotes() }
     }
+
+    @Test
+    fun `searchNotes should return list view with search results for regular request`() {
+        // Given
+        val query = "test"
+        val now = LocalDateTime.now()
+        val searchResults = listOf(
+            NoteDto(
+                id = 1L,
+                title = "Test Note",
+                content = "Test content",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = null,
+            ),
+        )
+        every { noteService.searchNotes(query) } returns searchResults
+
+        // When/Then
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").param("q", query))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("notes/list"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("searchQuery"))
+            .andExpect(MockMvcResultMatchers.model().attribute("notes", searchResults))
+            .andExpect(MockMvcResultMatchers.model().attribute("searchQuery", query))
+
+        verify { noteService.searchNotes(query) }
+    }
+
+    @Test
+    fun `searchNotes should return notes container fragment for HTMX request`() {
+        // Given
+        val query = "important"
+        val now = LocalDateTime.now()
+        val searchResults = listOf(
+            NoteDto(
+                id = 2L,
+                title = "Important Note",
+                content = "Important content",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = null,
+            ),
+        )
+        every { noteService.searchNotes(query) } returns searchResults
+
+        // When/Then
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/notes/search")
+                .param("q", query)
+                .header("HX-Request", "true"),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("notes/list :: #notes-container"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("searchQuery"))
+            .andExpect(MockMvcResultMatchers.model().attribute("notes", searchResults))
+            .andExpect(MockMvcResultMatchers.model().attribute("searchQuery", query))
+
+        verify { noteService.searchNotes(query) }
+    }
+
+    @Test
+    fun `searchNotes should handle empty query parameter`() {
+        // Given
+        val now = LocalDateTime.now()
+        val allNotes = listOf(
+            NoteDto(
+                id = 1L,
+                title = "Note 1",
+                content = "Content 1",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = null,
+            ),
+        )
+        every { noteService.searchNotes("") } returns allNotes
+
+        // When/Then
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search"))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("notes/list"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("searchQuery"))
+            .andExpect(MockMvcResultMatchers.model().attribute("notes", allNotes))
+            .andExpect(MockMvcResultMatchers.model().attribute("searchQuery", ""))
+
+        verify { noteService.searchNotes("") }
+    }
+
+    @Test
+    fun `searchNotes should return empty results when no matches found`() {
+        // Given
+        val query = "nonexistent"
+        every { noteService.searchNotes(query) } returns emptyList()
+
+        // When/Then
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").param("q", query))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("notes/list"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("searchQuery"))
+            .andExpect(MockMvcResultMatchers.model().attribute("notes", emptyList<NoteDto>()))
+            .andExpect(MockMvcResultMatchers.model().attribute("searchQuery", query))
+
+        verify { noteService.searchNotes(query) }
+    }
 }
