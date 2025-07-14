@@ -30,9 +30,11 @@ class NoteIntegrationTest
             noteRepository.deleteAll()
             userRepository.deleteAll()
 
+            // Use a unique username for each test run to avoid conflicts
+            val uniqueUsername = "testuser_integration_${System.currentTimeMillis()}"
             testUser = userRepository.save(
                 User(
-                    username = "testuser",
+                    username = uniqueUsername,
                     password = "password",
                 ),
             )

@@ -112,3 +112,5 @@ The project enforces strict code style and quality standards:
 - Write a new test for every bug that occurs when running the application.
 - Build project before finishing task.
 - Execute all tests before finishing task.
+- Run ktlint --format before finishing task.
+- Run make check before finishing task.

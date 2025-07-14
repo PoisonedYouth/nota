@@ -29,9 +29,11 @@ class EditFunctionalityTest {
     fun setup() {
         userRepository.deleteAll()
 
+        // Use a unique username for each test run to avoid conflicts
+        val uniqueUsername = "testuser_edit_${System.currentTimeMillis()}"
         testUser = userRepository.save(
             User(
-                username = "testuser",
+                username = uniqueUsername,
                 password = "password",
             ),
         )
