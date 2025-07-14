@@ -1,10 +1,12 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.user.UserDto
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.mock.web.MockHttpSession
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -15,10 +17,20 @@ class NoteControllerTest {
 
     private lateinit var mockMvc: MockMvc
     private lateinit var noteService: NoteService
+    private lateinit var mockSession: MockHttpSession
+    private lateinit var testUser: UserDto
 
     @BeforeEach
     fun setup() {
         noteService = mockk()
+        mockSession = MockHttpSession()
+        testUser = UserDto(
+            id = 1L,
+            username = "testuser",
+        )
+
+        mockSession.setAttribute("currentUser", testUser)
+
         val controller = NoteController(noteService)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
     }
@@ -49,10 +61,10 @@ class NoteControllerTest {
                 dueDate = null,
             ),
         )
-        every { noteService.findAllNotes() } returns notes
+        every { noteService.findAllNotes(1L) } returns notes
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -62,10 +74,10 @@ class NoteControllerTest {
     @Test
     fun `listNotes should return list view with empty list when no notes exist`() {
         // Given
-        every { noteService.findAllNotes() } returns emptyList()
+        every { noteService.findAllNotes(1L) } returns emptyList()
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -76,14 +88,14 @@ class NoteControllerTest {
     fun `archiveNote should return redirect for regular request`() {
         // Given
         val noteId = 1L
-        every { noteService.archiveNote(noteId) } returns true
+        every { noteService.archiveNote(noteId, 1L) } returns true
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/notes/$noteId"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/notes/$noteId").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/notes"))
 
-        verify { noteService.archiveNote(noteId) }
+        verify { noteService.archiveNote(noteId, 1L) }
     }
 
     @Test
@@ -103,21 +115,22 @@ class NoteControllerTest {
                 dueDate = null,
             ),
         )
-        every { noteService.archiveNote(noteId) } returns true
-        every { noteService.findAllNotes() } returns remainingNotes
+        every { noteService.archiveNote(noteId, 1L) } returns true
+        every { noteService.findAllNotes(1L) } returns remainingNotes
 
         // When/Then
         mockMvc.perform(
             MockMvcRequestBuilders.delete("/notes/$noteId")
-                .header("HX-Request", "true"),
+                .header("HX-Request", "true")
+                .session(mockSession),
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/fragments :: archive-response"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
             .andExpect(MockMvcResultMatchers.model().attribute("notes", remainingNotes))
 
-        verify { noteService.archiveNote(noteId) }
-        verify { noteService.findAllNotes() }
+        verify { noteService.archiveNote(noteId, 1L) }
+        verify { noteService.findAllNotes(1L) }
     }
 
     @Test
@@ -137,10 +150,10 @@ class NoteControllerTest {
                 dueDate = null,
             ),
         )
-        every { noteService.searchNotes(query) } returns searchResults
+        every { noteService.searchNotes(query, 1L) } returns searchResults
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").param("q", query))
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").param("q", query).session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -148,7 +161,7 @@ class NoteControllerTest {
             .andExpect(MockMvcResultMatchers.model().attribute("notes", searchResults))
             .andExpect(MockMvcResultMatchers.model().attribute("searchQuery", query))
 
-        verify { noteService.searchNotes(query) }
+        verify { noteService.searchNotes(query, 1L) }
     }
 
     @Test
@@ -168,13 +181,14 @@ class NoteControllerTest {
                 dueDate = null,
             ),
         )
-        every { noteService.searchNotes(query) } returns searchResults
+        every { noteService.searchNotes(query, 1L) } returns searchResults
 
         // When/Then
         mockMvc.perform(
             MockMvcRequestBuilders.get("/notes/search")
                 .param("q", query)
-                .header("HX-Request", "true"),
+                .header("HX-Request", "true")
+                .session(mockSession),
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list :: #notes-container"))
@@ -183,7 +197,7 @@ class NoteControllerTest {
             .andExpect(MockMvcResultMatchers.model().attribute("notes", searchResults))
             .andExpect(MockMvcResultMatchers.model().attribute("searchQuery", query))
 
-        verify { noteService.searchNotes(query) }
+        verify { noteService.searchNotes(query, 1L) }
     }
 
     @Test
@@ -202,10 +216,10 @@ class NoteControllerTest {
                 dueDate = null,
             ),
         )
-        every { noteService.searchNotes("") } returns allNotes
+        every { noteService.searchNotes("", 1L) } returns allNotes
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -213,17 +227,17 @@ class NoteControllerTest {
             .andExpect(MockMvcResultMatchers.model().attribute("notes", allNotes))
             .andExpect(MockMvcResultMatchers.model().attribute("searchQuery", ""))
 
-        verify { noteService.searchNotes("") }
+        verify { noteService.searchNotes("", 1L) }
     }
 
     @Test
     fun `searchNotes should return empty results when no matches found`() {
         // Given
         val query = "nonexistent"
-        every { noteService.searchNotes(query) } returns emptyList()
+        every { noteService.searchNotes(query, 1L) } returns emptyList()
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").param("q", query))
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").param("q", query).session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -231,6 +245,6 @@ class NoteControllerTest {
             .andExpect(MockMvcResultMatchers.model().attribute("notes", emptyList<NoteDto>()))
             .andExpect(MockMvcResultMatchers.model().attribute("searchQuery", query))
 
-        verify { noteService.searchNotes(query) }
+        verify { noteService.searchNotes(query, 1L) }
     }
 }

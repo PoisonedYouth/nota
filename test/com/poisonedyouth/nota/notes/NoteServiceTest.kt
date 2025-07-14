@@ -1,5 +1,7 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.user.User
+import com.poisonedyouth.nota.user.UserRepository
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -12,21 +14,31 @@ import java.util.Optional
 class NoteServiceTest {
 
     private lateinit var noteRepository: NoteRepository
+    private lateinit var userRepository: UserRepository
     private lateinit var noteService: NoteService
+    private lateinit var testUser: User
 
     @BeforeEach
     fun setup() {
         noteRepository = mockk()
-        noteService = NoteService(noteRepository)
+        userRepository = mockk()
+        noteService = NoteService(noteRepository, userRepository)
+
+        testUser = User(
+            id = 1L,
+            username = "testuser",
+            password = "password",
+        )
     }
 
     @Test
     fun `findAllNotes should return empty list when no notes exist`() {
         // Given
-        every { noteRepository.findAllByArchivedFalseOrderByUpdatedAtDesc() } returns emptyList()
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
+        every { noteRepository.findAllByUserAndArchivedFalseOrderByUpdatedAtDesc(testUser) } returns emptyList()
 
         // When
-        val result = noteService.findAllNotes()
+        val result = noteService.findAllNotes(1L)
 
         // Then
         result.size shouldBe 0
@@ -46,6 +58,7 @@ class NoteServiceTest {
                 updatedAt = now.plusHours(2),
                 archived = false,
                 archivedAt = null,
+                user = testUser,
             )
         val note2 =
             Note(
@@ -57,6 +70,7 @@ class NoteServiceTest {
                 updatedAt = now.plusHours(1),
                 archived = false,
                 archivedAt = null,
+                user = testUser,
             )
         val note3 =
             Note(
@@ -68,12 +82,14 @@ class NoteServiceTest {
                 updatedAt = now.plusHours(3),
                 archived = false,
                 archivedAt = null,
+                user = testUser,
             )
 
-        every { noteRepository.findAllByArchivedFalseOrderByUpdatedAtDesc() } returns listOf(note3, note1, note2)
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
+        every { noteRepository.findAllByUserAndArchivedFalseOrderByUpdatedAtDesc(testUser) } returns listOf(note3, note1, note2)
 
         // When
-        val result = noteService.findAllNotes()
+        val result = noteService.findAllNotes(1L)
 
         // Then
         result.size shouldBe 3
@@ -97,13 +113,15 @@ class NoteServiceTest {
                 updatedAt = now,
                 archived = false,
                 archivedAt = null,
+                user = testUser,
             )
 
-        every { noteRepository.findById(noteId) } returns Optional.of(note)
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
+        every { noteRepository.findByIdAndUser(noteId, testUser) } returns note
         every { noteRepository.save(any()) } returns note
 
         // When
-        val result = noteService.archiveNote(noteId)
+        val result = noteService.archiveNote(noteId, 1L)
 
         // Then
         result shouldBe true
@@ -120,10 +138,10 @@ class NoteServiceTest {
     fun `archiveNote should return false when note does not exist`() {
         // Given
         val noteId = 1L
-        every { noteRepository.findById(noteId) } returns Optional.empty()
+        every { userRepository.findById(1L) } returns Optional.empty()
 
         // When
-        val result = noteService.archiveNote(noteId)
+        val result = noteService.archiveNote(noteId, 1L)
 
         // Then
         result shouldBe false
@@ -144,6 +162,7 @@ class NoteServiceTest {
                 updatedAt = now.plusHours(2),
                 archived = true,
                 archivedAt = now.plusHours(2),
+                user = testUser,
             )
         val archivedNote2 =
             Note(
@@ -155,12 +174,14 @@ class NoteServiceTest {
                 updatedAt = now.plusHours(1),
                 archived = true,
                 archivedAt = now.plusHours(1),
+                user = testUser,
             )
 
-        every { noteRepository.findAllByArchivedTrueOrderByUpdatedAtDesc() } returns listOf(archivedNote1, archivedNote2)
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
+        every { noteRepository.findAllByUserAndArchivedTrueOrderByUpdatedAtDesc(testUser) } returns listOf(archivedNote1, archivedNote2)
 
         // When
-        val result = noteService.findAllArchivedNotes()
+        val result = noteService.findAllArchivedNotes(1L)
 
         // Then
         result.size shouldBe 2
@@ -173,12 +194,13 @@ class NoteServiceTest {
         // Given
         val dueDate = LocalDateTime.now().plusDays(7)
         val createNoteDto = CreateNoteDto(title = "Test Note", content = "Test Content", dueDate = dueDate)
-        val savedNote = Note(id = 1L, title = "Test Note", content = "Test Content", dueDate = dueDate)
+        val savedNote = Note(id = 1L, title = "Test Note", content = "Test Content", dueDate = dueDate, user = testUser)
 
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
         every { noteRepository.save(any()) } returns savedNote
 
         // When
-        val result = noteService.createNote(createNoteDto)
+        val result = noteService.createNote(createNoteDto, 1L)
 
         // Then
         result.title shouldBe "Test Note"
@@ -191,12 +213,13 @@ class NoteServiceTest {
     fun `createNote should create note without due date when not provided`() {
         // Given
         val createNoteDto = CreateNoteDto(title = "Test Note", content = "Test Content")
-        val savedNote = Note(id = 1L, title = "Test Note", content = "Test Content", dueDate = null)
+        val savedNote = Note(id = 1L, title = "Test Note", content = "Test Content", dueDate = null, user = testUser)
 
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
         every { noteRepository.save(any()) } returns savedNote
 
         // When
-        val result = noteService.createNote(createNoteDto)
+        val result = noteService.createNote(createNoteDto, 1L)
 
         // Then
         result.title shouldBe "Test Note"
@@ -218,6 +241,7 @@ class NoteServiceTest {
             updatedAt = now.plusHours(2),
             archived = false,
             archivedAt = null,
+            user = testUser,
         )
         val note2 = Note(
             id = 2L,
@@ -228,18 +252,20 @@ class NoteServiceTest {
             updatedAt = now.plusHours(1),
             archived = false,
             archivedAt = null,
+            user = testUser,
         )
 
-        every { noteRepository.findAllByArchivedFalseOrderByUpdatedAtDesc() } returns listOf(note1, note2)
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
+        every { noteRepository.findAllByUserAndArchivedFalseOrderByUpdatedAtDesc(testUser) } returns listOf(note1, note2)
 
         // When
-        val result = noteService.searchNotes("  ")
+        val result = noteService.searchNotes("  ", 1L)
 
         // Then
         result.size shouldBe 2
         result[0].id shouldBe 1L
         result[1].id shouldBe 2L
-        verify { noteRepository.findAllByArchivedFalseOrderByUpdatedAtDesc() }
+        verify { noteRepository.findAllByUserAndArchivedFalseOrderByUpdatedAtDesc(testUser) }
     }
 
     @Test
@@ -255,24 +281,28 @@ class NoteServiceTest {
             updatedAt = now,
             archived = false,
             archivedAt = null,
+            user = testUser,
         )
 
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
         every {
-            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+            noteRepository.findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                testUser,
                 "important",
                 "important",
             )
         } returns listOf(matchingNote)
 
         // When
-        val result = noteService.searchNotes("important")
+        val result = noteService.searchNotes("important", 1L)
 
         // Then
         result.size shouldBe 1
         result[0].id shouldBe 1L
         result[0].title shouldBe "Important Note"
         verify {
-            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+            noteRepository.findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                testUser,
                 "important",
                 "important",
             )
@@ -282,20 +312,23 @@ class NoteServiceTest {
     @Test
     fun `searchNotes should return empty list when no matches found`() {
         // Given
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
         every {
-            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+            noteRepository.findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                testUser,
                 "nonexistent",
                 "nonexistent",
             )
         } returns emptyList()
 
         // When
-        val result = noteService.searchNotes("nonexistent")
+        val result = noteService.searchNotes("nonexistent", 1L)
 
         // Then
         result.size shouldBe 0
         verify {
-            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+            noteRepository.findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                testUser,
                 "nonexistent",
                 "nonexistent",
             )
@@ -315,23 +348,27 @@ class NoteServiceTest {
             updatedAt = now,
             archived = false,
             archivedAt = null,
+            user = testUser,
         )
 
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
         every {
-            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+            noteRepository.findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                testUser,
                 "test",
                 "test",
             )
         } returns listOf(matchingNote)
 
         // When
-        val result = noteService.searchNotes("  test  ")
+        val result = noteService.searchNotes("  test  ", 1L)
 
         // Then
         result.size shouldBe 1
         result[0].id shouldBe 1L
         verify {
-            noteRepository.findAllByArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+            noteRepository.findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                testUser,
                 "test",
                 "test",
             )

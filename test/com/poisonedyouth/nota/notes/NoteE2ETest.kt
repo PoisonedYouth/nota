@@ -1,5 +1,7 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.user.User
+import com.poisonedyouth.nota.user.UserRepository
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -23,14 +25,25 @@ class NoteE2ETest
         private val restTemplate: TestRestTemplate,
         private val noteRepository: NoteRepository,
         private val noteService: NoteService,
+        private val userRepository: UserRepository,
     ) {
 
         @LocalServerPort
         private var port: Int = 0
 
+        private lateinit var testUser: User
+
         @BeforeEach
         fun setup() {
             noteRepository.deleteAll()
+            userRepository.deleteAll()
+
+            testUser = userRepository.save(
+                User(
+                    username = "testuser",
+                    password = "password",
+                ),
+            )
         }
 
         @Test
@@ -46,12 +59,19 @@ class NoteE2ETest
         fun `should create and retrieve notes correctly`() {
             // Given
             val now = LocalDateTime.now()
-            val note1 = Note(title = "E2E Test Note 1", content = "E2E Test Content 1", createdAt = now, updatedAt = now)
-            val note2 = Note(title = "E2E Test Note 2", content = "E2E Test Content 2", createdAt = now, updatedAt = now.plusHours(1))
+            val note1 = Note(title = "E2E Test Note 1", content = "E2E Test Content 1", createdAt = now, updatedAt = now, user = testUser)
+            val note2 =
+                Note(
+                    title = "E2E Test Note 2",
+                    content = "E2E Test Content 2",
+                    createdAt = now,
+                    updatedAt = now.plusHours(1),
+                    user = testUser,
+                )
             noteRepository.saveAll(listOf(note1, note2))
 
             // When
-            val notes = noteService.findAllNotes()
+            val notes = noteService.findAllNotes(testUser.id!!)
 
             // Then
             notes.size shouldBe 2

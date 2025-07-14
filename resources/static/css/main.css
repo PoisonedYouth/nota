@@ -283,3 +283,238 @@ textarea.form-control {
 .note-card {
     animation: slideIn 0.3s ease-out;
 }
+
+/* Login Form Styles */
+.login-form {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.login-form h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.login-form .form-group {
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+.login-form .form-group:last-of-type {
+    margin-bottom: 2rem;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    background: var(--card-background);
+    color: var(--text-primary);
+    transition: all 0.2s;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+}
+
+.login-form label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.login-form .btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.error-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 0.75rem;
+    }
+
+    /* Navigation */
+    .navbar .container {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .navbar-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    .navbar-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .user-info form {
+        display: block !important;
+    }
+
+    .user-info .btn {
+        width: 100%;
+    }
+
+    /* Notes Header */
+    .notes-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .notes-header h2 {
+        text-align: center;
+        font-size: 1.25rem;
+    }
+
+    .notes-count {
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    /* Search */
+    .search-input {
+        max-width: none;
+        font-size: 1rem;
+        padding: 1rem;
+    }
+
+    /* Notes Grid */
+    .notes-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .note-card {
+        padding: 1rem;
+    }
+
+    .note-title {
+        font-size: 1rem;
+    }
+
+    .note-content {
+        font-size: 0.875rem;
+    }
+
+    /* Login Form */
+    .login-form {
+        margin: 1rem auto;
+        padding: 1.5rem;
+        max-width: none;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .login-form h1 {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Modal */
+    .modal {
+        width: 95%;
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+    }
+
+    .modal-header,
+    .modal-footer,
+    .form-group {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+
+    .empty-state p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra small screens */
+    .container {
+        padding: 0 0.5rem;
+    }
+
+    .navbar {
+        padding: 0.75rem 0;
+    }
+
+    .logo {
+        font-size: 1.25rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .notes-header h2 {
+        font-size: 1.125rem;
+    }
+
+    .search-input {
+        padding: 0.875rem;
+    }
+
+    .note-card {
+        padding: 0.875rem;
+    }
+
+    .login-form {
+        padding: 1rem;
+    }
+
+    .login-form h1 {
+        font-size: 1.125rem;
+    }
+}

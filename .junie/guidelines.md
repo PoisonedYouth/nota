@@ -110,3 +110,5 @@ The project enforces strict code style and quality standards:
 ## General Instructions
 - Delete unnecessary temporary files before commiting.
 - Write a new test for every bug that occurs when running the application.
+- Build project before finishing task.
+- Execute all tests before finishing task.

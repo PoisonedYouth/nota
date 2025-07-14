@@ -1,5 +1,7 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.user.User
+import com.poisonedyouth.nota.user.UserRepository
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.BeforeEach
@@ -18,17 +20,28 @@ class NoteIntegrationTest
     constructor(
         private val noteRepository: NoteRepository,
         private val noteService: NoteService,
+        private val userRepository: UserRepository,
     ) {
+
+        private lateinit var testUser: User
 
         @BeforeEach
         fun setup() {
             noteRepository.deleteAll()
+            userRepository.deleteAll()
+
+            testUser = userRepository.save(
+                User(
+                    username = "testuser",
+                    password = "password",
+                ),
+            )
         }
 
         @Test
         fun `should return empty list when no notes exist`() {
             // When
-            val notes = noteService.findAllNotes()
+            val notes = noteService.findAllNotes(testUser.id!!)
 
             // Then
             notes.size shouldBe 0
@@ -38,12 +51,13 @@ class NoteIntegrationTest
         fun `should return notes ordered by updatedAt desc`() {
             // Given
             val now = LocalDateTime.now()
-            val note1 = Note(title = "Test Note 1", content = "Test Content 1", createdAt = now, updatedAt = now)
-            val note2 = Note(title = "Test Note 2", content = "Test Content 2", createdAt = now, updatedAt = now.plusHours(1))
+            val note1 = Note(title = "Test Note 1", content = "Test Content 1", createdAt = now, updatedAt = now, user = testUser)
+            val note2 =
+                Note(title = "Test Note 2", content = "Test Content 2", createdAt = now, updatedAt = now.plusHours(1), user = testUser)
             noteRepository.saveAll(listOf(note1, note2))
 
             // When
-            val notes = noteService.findAllNotes()
+            val notes = noteService.findAllNotes(testUser.id!!)
 
             // Then
             notes.size shouldBe 2
@@ -55,11 +69,11 @@ class NoteIntegrationTest
         fun `should convert Note entities to NoteDtos with correct methods`() {
             // Given
             val now = LocalDateTime.now()
-            val note = Note(title = "Test Note", content = "Test Content", createdAt = now, updatedAt = now)
+            val note = Note(title = "Test Note", content = "Test Content", createdAt = now, updatedAt = now, user = testUser)
             val savedNote = noteRepository.save(note)
 
             // When
-            val notes = noteService.findAllNotes()
+            val notes = noteService.findAllNotes(testUser.id!!)
 
             // Then
             notes.size shouldBe 1
@@ -85,7 +99,7 @@ class NoteIntegrationTest
             )
 
             // When
-            val createdNote = noteService.createNote(createNoteDto)
+            val createdNote = noteService.createNote(createNoteDto, testUser.id!!)
 
             // Then
             createdNote.title shouldBe "New Test Note"
@@ -101,11 +115,11 @@ class NoteIntegrationTest
         @Test
         fun `should find note by id`() {
             // Given
-            val note = Note(title = "Test Note", content = "Test Content")
+            val note = Note(title = "Test Note", content = "Test Content", user = testUser)
             val savedNote = noteRepository.save(note)
 
             // When
-            val foundNote = noteService.findNoteById(savedNote.id!!)
+            val foundNote = noteService.findNoteById(savedNote.id!!, testUser.id!!)
 
             // Then
             foundNote?.id shouldBe savedNote.id
@@ -116,7 +130,7 @@ class NoteIntegrationTest
         @Test
         fun `should return null when note with id does not exist`() {
             // When
-            val foundNote = noteService.findNoteById(999L)
+            val foundNote = noteService.findNoteById(999L, testUser.id!!)
 
             // Then
             foundNote shouldBe null

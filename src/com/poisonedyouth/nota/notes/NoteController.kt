@@ -1,5 +1,7 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.user.UserDto
+import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
@@ -20,9 +22,19 @@ class NoteController(
     private val noteService: NoteService,
 ) {
 
+    private fun getCurrentUser(session: HttpSession): UserDto? {
+        return session.getAttribute("currentUser") as? UserDto
+    }
+
+    private fun requireAuthentication(session: HttpSession): UserDto? {
+        return getCurrentUser(session)
+    }
+
     @GetMapping
-    fun listNotes(model: Model): String {
-        model.addAttribute("notes", noteService.findAllNotes())
+    fun listNotes(model: Model, session: HttpSession): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        model.addAttribute("notes", noteService.findAllNotes(user.id))
+        model.addAttribute("currentUser", user)
         return "notes/list"
     }
 
@@ -37,8 +49,11 @@ class NoteController(
         @ModelAttribute createNoteDto: CreateNoteDto,
         bindingResult: BindingResult,
         model: Model,
+        session: HttpSession,
         @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
     ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+
         if (bindingResult.hasErrors()) {
             return if (htmxRequest != null) {
                 model.addAttribute("createNoteDto", createNoteDto)
@@ -48,7 +63,7 @@ class NoteController(
             }
         }
 
-        val newNote = noteService.createNote(createNoteDto)
+        val newNote = noteService.createNote(createNoteDto, user.id)
 
         return if (htmxRequest != null) {
             // HTMX Request: Nur die neue Notiz als Fragment zurückgeben
@@ -66,8 +81,9 @@ class NoteController(
     }
 
     @GetMapping("/count")
-    fun getNotesCount(model: Model): String {
-        val notes = noteService.findAllNotes()
+    fun getNotesCount(model: Model, session: HttpSession): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val notes = noteService.findAllNotes(user.id)
         model.addAttribute("notes", notes)
         return "notes/list :: .notes-count"
     }
@@ -77,12 +93,14 @@ class NoteController(
         @PathVariable id: Long,
         @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
         model: Model,
+        session: HttpSession,
     ): String {
-        noteService.archiveNote(id)
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        noteService.archiveNote(id, user.id)
 
         return if (htmxRequest != null) {
             // HTMX Request: Return archive response with OOB swap to update notes count
-            val notes = noteService.findAllNotes()
+            val notes = noteService.findAllNotes(user.id)
             model.addAttribute("notes", notes)
             "notes/fragments :: archive-response"
         } else {
@@ -92,8 +110,9 @@ class NoteController(
     }
 
     @GetMapping("/archive")
-    fun listArchivedNotes(model: Model): String {
-        model.addAttribute("notes", noteService.findAllArchivedNotes())
+    fun listArchivedNotes(model: Model, session: HttpSession): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        model.addAttribute("notes", noteService.findAllArchivedNotes(user.id))
         return "notes/archive"
     }
 
@@ -101,8 +120,10 @@ class NoteController(
     fun showEditForm(
         @PathVariable id: Long,
         model: Model,
+        session: HttpSession,
     ): String {
-        val note = noteService.findNoteById(id)
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val note = noteService.findNoteById(id, user.id)
         if (note == null) {
             return "redirect:/notes"
         }
@@ -123,8 +144,10 @@ class NoteController(
     fun showEditModal(
         @PathVariable id: Long,
         model: Model,
+        session: HttpSession,
     ): String {
-        val note = noteService.findNoteById(id)
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val note = noteService.findNoteById(id, user.id)
         if (note == null) {
             return "redirect:/notes"
         }
@@ -142,15 +165,19 @@ class NoteController(
     }
 
     @PutMapping("/{id}")
+    @Suppress("LongParameterList")
     fun updateNote(
         @PathVariable id: Long,
         @ModelAttribute updateNoteDto: UpdateNoteDto,
         bindingResult: BindingResult,
         model: Model,
+        session: HttpSession,
         @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
     ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+
         if (bindingResult.hasErrors()) {
-            val note = noteService.findNoteById(id)
+            val note = noteService.findNoteById(id, user.id)
             return if (htmxRequest != null) {
                 model.addAttribute("updateNoteDto", updateNoteDto)
                 model.addAttribute("note", note)
@@ -160,7 +187,7 @@ class NoteController(
             }
         }
 
-        val updatedNote = noteService.updateNote(updateNoteDto)
+        val updatedNote = noteService.updateNote(updateNoteDto, user.id)
         if (updatedNote == null) {
             return "redirect:/notes"
         }
@@ -179,9 +206,11 @@ class NoteController(
     fun searchNotes(
         @RequestParam(value = "q", required = false, defaultValue = "") query: String,
         model: Model,
+        session: HttpSession,
         @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
     ): String {
-        val notes = noteService.searchNotes(query)
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val notes = noteService.searchNotes(query, user.id)
         model.addAttribute("notes", notes)
         model.addAttribute("searchQuery", query)
 

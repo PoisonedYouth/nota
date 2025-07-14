@@ -1,7 +1,10 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.user.User
+import com.poisonedyouth.nota.user.UserRepository
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -17,6 +20,23 @@ class EditFunctionalityTest {
     @Autowired
     private lateinit var noteService: NoteService
 
+    @Autowired
+    private lateinit var userRepository: UserRepository
+
+    private lateinit var testUser: User
+
+    @BeforeEach
+    fun setup() {
+        userRepository.deleteAll()
+
+        testUser = userRepository.save(
+            User(
+                username = "testuser",
+                password = "password",
+            ),
+        )
+    }
+
     @Test
     fun `should update note successfully`() {
         // Create a note first
@@ -25,7 +45,7 @@ class EditFunctionalityTest {
             content = "Original Content",
             dueDate = LocalDateTime.of(2024, 12, 31, 23, 59),
         )
-        val createdNote = noteService.createNote(createDto)
+        val createdNote = noteService.createNote(createDto, testUser.id!!)
 
         // Update the note
         val updateDto = UpdateNoteDto(
@@ -34,7 +54,7 @@ class EditFunctionalityTest {
             content = "Updated Content",
             dueDate = LocalDateTime.of(2025, 1, 15, 12, 0),
         )
-        val updatedNote = noteService.updateNote(updateDto)
+        val updatedNote = noteService.updateNote(updateDto, testUser.id!!)
 
         // Verify the update
         updatedNote shouldNotBe null
@@ -54,7 +74,7 @@ class EditFunctionalityTest {
             content = "Content",
             dueDate = null,
         )
-        val result = noteService.updateNote(updateDto)
+        val result = noteService.updateNote(updateDto, testUser.id!!)
         result shouldBe null
     }
 
@@ -66,7 +86,7 @@ class EditFunctionalityTest {
             content = "Test Content",
             dueDate = LocalDateTime.now(),
         )
-        val createdNote = noteService.createNote(createDto)
+        val createdNote = noteService.createNote(createDto, testUser.id!!)
 
         // Update to remove due date
         val updateDto = UpdateNoteDto(
@@ -75,7 +95,7 @@ class EditFunctionalityTest {
             content = "Updated Content",
             dueDate = null,
         )
-        val updatedNote = noteService.updateNote(updateDto)
+        val updatedNote = noteService.updateNote(updateDto, testUser.id!!)
 
         // Verify the update
         updatedNote shouldNotBe null

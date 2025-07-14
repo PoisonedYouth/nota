@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nota - Intelligente Notizen</title>
-    
+
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
@@ -16,19 +16,27 @@
     <nav class="navbar">
         <div class="container">
             <h1 class="logo">Nota</h1>
-            <button class="btn btn-primary"
-                    hx-get="/notes/modal/new"
-                    hx-target="#modal-container"
-                    hx-trigger="click">
-                + Neue Notiz
-            </button>
+            <div class="navbar-actions">
+                <button class="btn btn-primary"
+                        hx-get="/notes/modal/new"
+                        hx-target="#modal-container"
+                        hx-trigger="click">
+                    + Neue Notiz
+                </button>
+                <div class="user-info" th:if="${currentUser}">
+                    <span class="username" th:text="'Welcome, ' + ${currentUser.username}"></span>
+                    <form th:action="@{/auth/logout}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-secondary">Logout</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </nav>
-    
+
     <main class="main-content">
         <div th:replace="${content}"></div>
     </main>
-    
+
     <!-- Modal Container für HTMX -->
     <div id="modal-container"></div>
 </body>
