@@ -31,10 +31,17 @@ class NoteController(
     }
 
     @GetMapping
-    fun listNotes(model: Model, session: HttpSession): String {
+    fun listNotes(
+        model: Model,
+        session: HttpSession,
+        @RequestParam(value = "sort", required = false, defaultValue = "updatedAt") sortBy: String,
+        @RequestParam(value = "order", required = false, defaultValue = "desc") sortOrder: String,
+    ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        model.addAttribute("notes", noteService.findAllNotes(user.id))
+        model.addAttribute("notes", noteService.findAllNotes(user.id, sortBy, sortOrder))
         model.addAttribute("currentUser", user)
+        model.addAttribute("currentSort", sortBy)
+        model.addAttribute("currentOrder", sortOrder)
         return "notes/list"
     }
 
@@ -98,26 +105,34 @@ class NoteController(
     }
 
     @GetMapping("/count")
-    fun getNotesCount(model: Model, session: HttpSession): String {
+    fun getNotesCount(
+        model: Model,
+        session: HttpSession,
+        @RequestParam(value = "sort", required = false, defaultValue = "updatedAt") sortBy: String,
+        @RequestParam(value = "order", required = false, defaultValue = "desc") sortOrder: String,
+    ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        val notes = noteService.findAllNotes(user.id)
+        val notes = noteService.findAllNotes(user.id, sortBy, sortOrder)
         model.addAttribute("notes", notes)
         return "notes/list :: .notes-count"
     }
 
     @DeleteMapping("/{id}")
+    @Suppress("LongParameterList")
     fun archiveNote(
         @PathVariable id: Long,
         @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
         model: Model,
         session: HttpSession,
+        @RequestParam(value = "sort", required = false, defaultValue = "updatedAt") sortBy: String,
+        @RequestParam(value = "order", required = false, defaultValue = "desc") sortOrder: String,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
         noteService.archiveNote(id, user.id)
 
         return if (htmxRequest != null) {
             // HTMX Request: Return archive response with OOB swap to update notes count
-            val notes = noteService.findAllNotes(user.id)
+            val notes = noteService.findAllNotes(user.id, sortBy, sortOrder)
             model.addAttribute("notes", notes)
             "notes/fragments :: archive-response"
         } else {
@@ -220,16 +235,21 @@ class NoteController(
     }
 
     @GetMapping("/search")
+    @Suppress("LongParameterList")
     fun searchNotes(
         @RequestParam(value = "q", required = false, defaultValue = "") query: String,
         model: Model,
         session: HttpSession,
         @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
+        @RequestParam(value = "sort", required = false, defaultValue = "updatedAt") sortBy: String,
+        @RequestParam(value = "order", required = false, defaultValue = "desc") sortOrder: String,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        val notes = noteService.searchNotes(query, user.id)
+        val notes = noteService.searchNotes(query, user.id, sortBy, sortOrder)
         model.addAttribute("notes", notes)
         model.addAttribute("searchQuery", query)
+        model.addAttribute("currentSort", sortBy)
+        model.addAttribute("currentOrder", sortOrder)
 
         return if (htmxRequest != null) {
             // HTMX Request: Return only the notes grid

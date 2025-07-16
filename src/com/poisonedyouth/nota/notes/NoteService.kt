@@ -1,6 +1,7 @@
 package com.poisonedyouth.nota.notes
 
 import com.poisonedyouth.nota.user.UserRepository
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -10,6 +11,11 @@ class NoteService(
     private val noteRepository: NoteRepository,
     private val userRepository: UserRepository,
 ) {
+
+    private fun createSort(sortBy: String, sortOrder: String): Sort {
+        val direction = if (sortOrder.lowercase() == "asc") Sort.Direction.ASC else Sort.Direction.DESC
+        return Sort.by(direction, sortBy)
+    }
 
     fun createNote(createNoteDto: CreateNoteDto, userId: Long): NoteDto {
         val user = userRepository.findById(userId).orElseThrow {
@@ -26,11 +32,12 @@ class NoteService(
         return NoteDto.fromEntity(savedNote)
     }
 
-    fun findAllNotes(userId: Long): List<NoteDto> {
+    fun findAllNotes(userId: Long, sortBy: String = "updatedAt", sortOrder: String = "desc"): List<NoteDto> {
         val user = userRepository.findById(userId).orElseThrow {
             IllegalArgumentException("User not found")
         }
-        return noteRepository.findAllByUserAndArchivedFalseOrderByUpdatedAtDesc(user)
+        val sort = createSort(sortBy, sortOrder)
+        return noteRepository.findAllByUserAndArchivedFalse(user, sort)
             .map { NoteDto.fromEntity(it) }
     }
 
@@ -86,18 +93,19 @@ class NoteService(
         return NoteDto.fromEntity(savedNote)
     }
 
-    fun searchNotes(query: String, userId: Long): List<NoteDto> {
+    fun searchNotes(query: String, userId: Long, sortBy: String = "updatedAt", sortOrder: String = "desc"): List<NoteDto> {
         if (query.isBlank()) {
-            return findAllNotes(userId)
+            return findAllNotes(userId, sortBy, sortOrder)
         }
 
         val user = userRepository.findById(userId).orElseThrow {
             IllegalArgumentException("User not found")
         }
-        return noteRepository.findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+        val sort = createSort(sortBy, sortOrder)
+        return noteRepository.findAllByUserAndArchivedFalseAndQuery(
             user,
             query.trim(),
-            query.trim(),
+            sort,
         ).map { NoteDto.fromEntity(it) }
     }
 }

@@ -10,16 +10,37 @@
                 <a href="/notes/archive" class="btn btn-secondary">Archiv anzeigen</a>
             </div>
 
-            <!-- Search Form -->
-            <div class="search-container">
-                <form hx-get="/notes/search"
+            <!-- Search and Sorting Form -->
+            <div class="search-sorting-container">
+                <form id="search-sort-form"
+                      hx-get="/notes/search"
                       hx-target="#notes-container"
-                      hx-trigger="submit, keyup delay:300ms from:input[name='q']">
-                    <input type="text"
-                           name="q"
-                           placeholder="Notizen durchsuchen..."
-                           th:value="${searchQuery}"
-                           class="search-input">
+                      hx-trigger="submit, keyup delay:300ms from:input[name='q'], change from:select">
+
+                    <!-- Search Input -->
+                    <div class="search-container">
+                        <input type="text"
+                               name="q"
+                               placeholder="Notizen durchsuchen..."
+                               th:value="${searchQuery}"
+                               class="search-input">
+                    </div>
+
+                    <!-- Sorting Options -->
+                    <div class="sorting-container">
+                        <label for="sort-select">Sortieren nach:</label>
+                        <select id="sort-select" name="sort" th:value="${currentSort ?: 'updatedAt'}">
+                            <option value="title" th:selected="${currentSort == 'title'}">Titel (A-Z)</option>
+                            <option value="createdAt" th:selected="${currentSort == 'createdAt'}">Erstellungsdatum</option>
+                            <option value="updatedAt" th:selected="${currentSort == 'updatedAt'}">Änderungsdatum</option>
+                            <option value="dueDate" th:selected="${currentSort == 'dueDate'}">Fälligkeitsdatum</option>
+                        </select>
+
+                        <select id="order-select" name="order" th:value="${currentOrder ?: 'desc'}">
+                            <option value="asc" th:selected="${currentOrder == 'asc'}">Aufsteigend</option>
+                            <option value="desc" th:selected="${currentOrder == 'desc'}">Absteigend</option>
+                        </select>
+                    </div>
                 </form>
             </div>
 
