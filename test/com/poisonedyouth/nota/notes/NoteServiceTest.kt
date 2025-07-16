@@ -2,6 +2,7 @@ package com.poisonedyouth.nota.notes
 
 import com.poisonedyouth.nota.user.User
 import com.poisonedyouth.nota.user.UserRepository
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -180,5 +181,141 @@ class NoteServiceTest {
         // Then
         result.size shouldBe 0
         verify { noteRepository.findAllByUserAndArchivedFalse(testUser, Sort.by(Sort.Direction.DESC, "updatedAt")) }
+    }
+
+    @Test
+    fun `createNote should throw exception when content is empty`() {
+        // Given
+        val createNoteDto = CreateNoteDto(
+            title = "Test Title",
+            content = "",
+            dueDate = null,
+        )
+
+        // When & Then
+        shouldThrow<IllegalArgumentException> {
+            noteService.createNote(createNoteDto, 1L)
+        }.message shouldBe "Note content cannot be empty"
+    }
+
+    @Test
+    fun `createNote should throw exception when content is blank`() {
+        // Given
+        val createNoteDto = CreateNoteDto(
+            title = "Test Title",
+            content = "   ",
+            dueDate = null,
+        )
+
+        // When & Then
+        shouldThrow<IllegalArgumentException> {
+            noteService.createNote(createNoteDto, 1L)
+        }.message shouldBe "Note content cannot be empty"
+    }
+
+    @Test
+    fun `createNote should create note when content is valid`() {
+        // Given
+        val createNoteDto = CreateNoteDto(
+            title = "Test Title",
+            content = "Valid content",
+            dueDate = null,
+        )
+        val savedNote = Note(
+            id = 1L,
+            title = "Test Title",
+            content = "Valid content",
+            dueDate = null,
+            user = testUser,
+        )
+
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
+        every { noteRepository.save(any()) } returns savedNote
+
+        // When
+        val result = noteService.createNote(createNoteDto, 1L)
+
+        // Then
+        result.title shouldBe "Test Title"
+        result.content shouldBe "Valid content"
+        verify { noteRepository.save(any()) }
+    }
+
+    @Test
+    fun `updateNote should throw exception when content is empty`() {
+        // Given
+        val updateNoteDto = UpdateNoteDto(
+            id = 1L,
+            title = "Updated Title",
+            content = "",
+            dueDate = null,
+        )
+
+        // When & Then
+        shouldThrow<IllegalArgumentException> {
+            noteService.updateNote(updateNoteDto, 1L)
+        }.message shouldBe "Note content cannot be empty"
+    }
+
+    @Test
+    fun `updateNote should throw exception when content is blank`() {
+        // Given
+        val updateNoteDto = UpdateNoteDto(
+            id = 1L,
+            title = "Updated Title",
+            content = "   ",
+            dueDate = null,
+        )
+
+        // When & Then
+        shouldThrow<IllegalArgumentException> {
+            noteService.updateNote(updateNoteDto, 1L)
+        }.message shouldBe "Note content cannot be empty"
+    }
+
+    @Test
+    fun `updateNote should update note when content is valid`() {
+        // Given
+        val now = LocalDateTime.now()
+        val existingNote = Note(
+            id = 1L,
+            title = "Original Title",
+            content = "Original content",
+            dueDate = null,
+            createdAt = now,
+            updatedAt = now,
+            archived = false,
+            archivedAt = null,
+            user = testUser,
+        )
+        val updateNoteDto = UpdateNoteDto(
+            id = 1L,
+            title = "Updated Title",
+            content = "Updated content",
+            dueDate = null,
+        )
+        val updatedNote = Note(
+            id = 1L,
+            title = "Updated Title",
+            content = "Updated content",
+            dueDate = null,
+            createdAt = now,
+            updatedAt = LocalDateTime.now(),
+            archived = false,
+            archivedAt = null,
+            user = testUser,
+        )
+
+        every { userRepository.findById(1L) } returns Optional.of(testUser)
+        every { noteRepository.findByIdAndUser(1L, testUser) } returns existingNote
+        every { noteRepository.save(any()) } returns updatedNote
+
+        // When
+        val result = noteService.updateNote(updateNoteDto, 1L)
+
+        // Then
+        result?.title shouldBe "Updated Title"
+        result?.content shouldBe "Updated content"
+        verify { noteRepository.save(any()) }
     }
 }

@@ -3,34 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Nota</title>
+    <title>Register - Nota</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div class="container">
         <div class="login-form">
-            <h1>Login to Nota</h1>
+            <h1>Register for Nota</h1>
 
             <div th:if="${error}" class="error-message">
                 <p th:text="${error}"></p>
             </div>
 
-            <form th:action="@{/auth/login}" method="post" th:object="${loginDto}">
+            <form th:action="@{/auth/register}" method="post" th:object="${registerDto}">
                 <div class="form-group">
                     <label for="username">Username:</label>
                     <input type="text" id="username" th:field="*{username}" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" th:field="*{password}" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-primary">Register</button>
             </form>
 
             <p>
-                <a th:href="@{/auth/register}">Don't have an account? Register here</a>
+                <a th:href="@{/auth/login}">Already have an account? Login here</a>
             </p>
         </div>
     </div>

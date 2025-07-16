@@ -18,6 +18,10 @@ class NoteService(
     }
 
     fun createNote(createNoteDto: CreateNoteDto, userId: Long): NoteDto {
+        if (createNoteDto.content.isBlank()) {
+            throw IllegalArgumentException("Note content cannot be empty")
+        }
+
         val user = userRepository.findById(userId).orElseThrow {
             IllegalArgumentException("User not found")
         }
@@ -74,6 +78,10 @@ class NoteService(
     }
 
     fun updateNote(updateNoteDto: UpdateNoteDto, userId: Long): NoteDto? {
+        if (updateNoteDto.content.isBlank()) {
+            throw IllegalArgumentException("Note content cannot be empty")
+        }
+
         val user = userRepository.findById(userId).orElse(null) ?: return null
         val note = noteRepository.findByIdAndUser(updateNoteDto.id, user) ?: return null
 

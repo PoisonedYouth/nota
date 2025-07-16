@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Successful - Nota</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="login-form">
+            <h1>Registration Successful!</h1>
+
+            <div class="success-message">
+                <p>Welcome, <strong th:text="${user.username}"></strong>!</p>
+                <p>Your account has been created successfully.</p>
+
+                <div class="password-info">
+                    <h3>Your Initial Password:</h3>
+                    <div class="password-display">
+                        <code th:text="${initialPassword}"></code>
+                    </div>
+                    <p class="warning">
+                        <strong>Important:</strong> Please save this password securely.
+                        You will need to change it on your first login.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/auth/login}" class="btn btn-primary">Login Now</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -2,10 +2,12 @@
 
 ## Key Style Guidelines
 - Use Kotlin idioms and conventions
+- Don't use the non null asserted operator (!!)
 - Maintain consistent indentation (4 spaces)
 - Follow Spring Boot naming conventions
 - Use meaningful variable and function names
 - Add appropriate documentation for public APIs
+
 
 ## General Instructions
 - Write different kind of tests for new functionality including unit tests, integration tests and end-to-end tests.

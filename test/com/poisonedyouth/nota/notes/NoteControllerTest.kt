@@ -27,6 +27,7 @@ class NoteControllerTest {
         testUser = UserDto(
             id = 1L,
             username = "testuser",
+            mustChangePassword = false,
         )
 
         mockSession.setAttribute("currentUser", testUser)

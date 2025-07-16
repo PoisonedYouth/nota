@@ -6,64 +6,21 @@
             <div class="modal-header">
                 <h3>Notiz bearbeiten</h3>
                 <button class="close-btn"
-                        th:onclick="|document.getElementById('edit-note-modal-${note?.id}').remove()|">
+                        th:attr="onclick=|document.getElementById('edit-note-modal-${note?.id}').remove()|">
                     ×
                 </button>
             </div>
 
-            <form th:attr="hx-put=@{/notes/{id}(id=${note?.id})}, hx-target='#note-' + ${note?.id}, hx-on='htmx:afterRequest: if(event.detail.successful) { document.getElementById(\'edit-note-modal-' + ${note?.id} + '\').remove(); }'"
-                  hx-swap="outerHTML"
-                  hx-trigger="submit">
-
-                <div class="form-group">
-                    <label for="title">Titel</label>
-                    <input type="text"
-                           id="title"
-                           name="title"
-                           class="form-control"
-                           placeholder="Notiz-Titel eingeben..."
-                           th:value="${updateNoteDto?.title}"
-                           required
-                           autofocus>
-                </div>
-
-                <div class="form-group">
-                    <label for="content">Inhalt</label>
-                    <textarea id="content"
-                              name="content"
-                              class="form-control"
-                              rows="10"
-                              placeholder="Notiz-Inhalt eingeben..."
-                              th:text="${updateNoteDto?.content}"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="dueDate">Fälligkeitsdatum</label>
-                    <input type="datetime-local"
-                           id="dueDate"
-                           name="dueDate"
-                           class="form-control"
-                           th:value="${updateNoteDto?.dueDate != null ? #temporals.format(updateNoteDto.dueDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
-                </div>
-
-                <input type="hidden" name="id" th:value="${updateNoteDto?.id}">
-
-                <div class="modal-footer">
-                    <button type="button"
-                            class="btn btn-secondary"
-                            th:onclick="|document.getElementById('edit-note-modal-${note?.id}').remove()|">
-                        Abbrechen
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <span class="htmx-indicator">
-                            Speichern...
-                        </span>
-                        <span class="htmx-indicator-hide">
-                            Änderungen speichern
-                        </span>
-                    </button>
-                </div>
-            </form>
+            <div th:replace="~{notes/fragments :: note-form(
+                formAction=@{/notes/{id}(id=${note?.id})},
+                formMethod='PUT',
+                formTarget='#note-' + ${note?.id},
+                formSwap='outerHTML',
+                formTrigger='submit',
+                formOnAfterRequest='htmx:afterRequest: if(event.detail.successful) { document.getElementById(\'edit-note-modal-' + ${note?.id} + '\').remove(); }',
+                note=${updateNoteDto},
+                submitButtonText='Änderungen speichern'
+            )}"></div>
         </div>
     </div>
 </body>

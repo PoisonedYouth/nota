@@ -33,5 +33,18 @@
 
     <!-- Modal Container für HTMX -->
     <div id="modal-container"></div>
+
+    <script>
+        // Handle modal cancel buttons with event delegation
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('cancel-modal-btn')) {
+                const modalId = event.target.getAttribute('data-modal-id');
+                const modalElement = document.getElementById(modalId);
+                if (modalElement) {
+                    modalElement.remove();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
