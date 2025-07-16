@@ -127,6 +127,9 @@ body {
     padding: 1.5rem;
     transition: all 0.2s;
     cursor: pointer;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
 }
 
 .note-card:hover {
@@ -146,11 +149,23 @@ body {
     font-size: 0.875rem;
     line-height: 1.5;
     margin-bottom: 1rem;
+    flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
 }
 
 .note-meta {
     font-size: 0.75rem;
     color: var(--text-secondary);
+    margin-top: auto;
+}
+
+.note-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 /* Modal */
