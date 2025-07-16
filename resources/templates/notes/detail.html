@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::content})}">
+<body>
+    <div th:fragment="content">
+        <div class="container">
+            <div class="note-detail-header">
+                <a href="/notes" class="btn btn-secondary">← Zurück zur Liste</a>
+                <div class="note-actions" th:if="${!note.archived}">
+                    <button class="btn btn-primary"
+                            th:attr="hx-get=@{/notes/modal/{id}/edit(id=${note.id})}"
+                            hx-target="#modal-container">
+                        Bearbeiten
+                    </button>
+                    <button class="btn btn-danger"
+                            th:attr="hx-delete=@{/notes/{id}(id=${note.id})}"
+                            hx-confirm="Notiz archivieren?"
+                            hx-target="body"
+                            hx-swap="innerHTML">
+                        Archivieren
+                    </button>
+                </div>
+            </div>
+
+            <div class="note-detail">
+                <h1 class="note-detail-title" th:text="${note.title}"></h1>
+
+                <div class="note-detail-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Erstellt:</span>
+                        <span class="meta-value" th:text="${note.getFormattedDate()}"></span>
+                    </div>
+                    <div class="meta-item" th:if="${note.updatedAt != note.createdAt}">
+                        <span class="meta-label">Zuletzt bearbeitet:</span>
+                        <span class="meta-value" th:text="${note.updatedAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd.MM.yyyy HH:mm'))}"></span>
+                    </div>
+                    <div class="meta-item" th:if="${note.dueDate != null}">
+                        <span class="meta-label">Fällig:</span>
+                        <span class="meta-value" th:text="${note.getFormattedDueDate()}"></span>
+                    </div>
+                    <div class="meta-item" th:if="${note.archived}">
+                        <span class="meta-label">Status:</span>
+                        <span class="meta-value archived-status">Archiviert</span>
+                        <span class="meta-value" th:if="${note.archivedAt != null}"
+                              th:text="'am ' + ${note.archivedAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd.MM.yyyy HH:mm'))}"></span>
+                    </div>
+                </div>
+
+                <div class="note-detail-content">
+                    <h3>Inhalt</h3>
+                    <div class="content-text" th:text="${note.content}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

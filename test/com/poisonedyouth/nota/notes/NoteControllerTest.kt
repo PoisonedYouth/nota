@@ -247,4 +247,58 @@ class NoteControllerTest {
 
         verify { noteService.searchNotes(query, 1L) }
     }
+
+    @Test
+    fun `showNoteDetail should return detail view when note exists`() {
+        // Given
+        val noteId = 1L
+        val now = LocalDateTime.now()
+        val note = NoteDto(
+            id = noteId,
+            title = "Test Note",
+            content = "This is the full content of the test note",
+            createdAt = now,
+            updatedAt = now,
+            archived = false,
+            archivedAt = null,
+            dueDate = now.plusDays(1),
+        )
+        every { noteService.findNoteById(noteId, 1L) } returns note
+
+        // When/Then
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes/$noteId").session(mockSession))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("notes/detail"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("note"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("currentUser"))
+            .andExpect(MockMvcResultMatchers.model().attribute("note", note))
+
+        verify { noteService.findNoteById(noteId, 1L) }
+    }
+
+    @Test
+    fun `showNoteDetail should redirect when note not found`() {
+        // Given
+        val noteId = 999L
+        every { noteService.findNoteById(noteId, 1L) } returns null
+
+        // When/Then
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes/$noteId").session(mockSession))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+            .andExpect(MockMvcResultMatchers.redirectedUrl("/notes"))
+
+        verify { noteService.findNoteById(noteId, 1L) }
+    }
+
+    @Test
+    fun `showNoteDetail should redirect when user not authenticated`() {
+        // Given
+        val noteId = 1L
+        val emptySession = MockHttpSession()
+
+        // When/Then
+        mockMvc.perform(MockMvcRequestBuilders.get("/notes/$noteId").session(emptySession))
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+            .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
+    }
 }

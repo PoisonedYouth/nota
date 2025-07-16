@@ -5,7 +5,11 @@
     <div th:fragment="note-card(note)"
          class="note-card"
          th:id="|note-${note?.id}|">
-        <h3 class="note-title" th:text="${note?.title}"></h3>
+        <h3 class="note-title">
+            <a th:href="@{/notes/{id}(id=${note?.id})}"
+               th:text="${note?.title}"
+               class="note-title-link"></a>
+        </h3>
         <p class="note-content" th:text="${note?.getContentPreview()}"></p>
         <div class="note-meta">
             <span class="note-date" th:text="${note?.getFormattedDate()}"></span>

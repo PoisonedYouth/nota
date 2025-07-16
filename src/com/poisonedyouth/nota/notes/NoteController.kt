@@ -38,6 +38,23 @@ class NoteController(
         return "notes/list"
     }
 
+    @GetMapping("/{id}")
+    fun showNoteDetail(
+        @PathVariable id: Long,
+        model: Model,
+        session: HttpSession,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val note = noteService.findNoteById(id, user.id)
+        if (note == null) {
+            return "redirect:/notes"
+        }
+
+        model.addAttribute("note", note)
+        model.addAttribute("currentUser", user)
+        return "notes/detail"
+    }
+
     @GetMapping("/new")
     fun showCreateForm(model: Model): String {
         model.addAttribute("createNoteDto", CreateNoteDto("", ""))
