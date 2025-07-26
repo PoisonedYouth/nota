@@ -245,4 +245,65 @@ class NoteE2ETest
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("note-due-soon"))))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Fällig:"))))
         }
+
+        @Test
+        fun `should search notes and return results in HTML`() {
+            // Given
+            val searchableNote = Note(
+                title = "Important Meeting",
+                content = "Discuss project timeline and deliverables",
+                user = testUser,
+            )
+            val anotherNote = Note(
+                title = "Shopping List",
+                content = "Buy groceries for the important dinner party",
+                user = testUser,
+            )
+            val unrelatedNote = Note(
+                title = "Random Note",
+                content = "Some random content here",
+                user = testUser,
+            )
+
+            noteRepository.save(searchableNote)
+            noteRepository.save(anotherNote)
+            noteRepository.save(unrelatedNote)
+
+            // When - search for "important"
+            val searchResult = mockMvc.perform(
+                get("/notes/search")
+                    .param("q", "important")
+                    .session(testSession),
+            )
+
+            // Then
+            searchResult.andExpect(status().isOk)
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Important Meeting")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("important dinner party")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Random Note"))))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("search-input"))) // Search form should be present
+        }
+
+        @Test
+        fun `should return empty search results when no matches found`() {
+            // Given
+            val note = Note(
+                title = "Test Note",
+                content = "Test content",
+                user = testUser,
+            )
+            noteRepository.save(note)
+
+            // When - search for non-existent term
+            val searchResult = mockMvc.perform(
+                get("/notes/search")
+                    .param("q", "nonexistent")
+                    .session(testSession),
+            )
+
+            // Then
+            searchResult.andExpect(status().isOk)
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Test Note"))))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("search-input"))) // Search form should still be present
+        }
     }

@@ -58,7 +58,7 @@ class UserController(
                 "redirect:/notes"
             }
         } else {
-            model.addAttribute("error", "Invalid username or password")
+            model.addAttribute("error", "Ungültiger Benutzername oder Passwort")
             model.addAttribute("loginDto", loginDto)
             "auth/login"
         }

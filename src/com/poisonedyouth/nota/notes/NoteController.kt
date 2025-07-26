@@ -268,20 +268,34 @@ class NoteController(
         @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
         @RequestParam(value = "sort", required = false, defaultValue = "updatedAt") sortBy: String,
         @RequestParam(value = "order", required = false, defaultValue = "desc") sortOrder: String,
+        @RequestParam(value = "all", required = false, defaultValue = "false") searchAll: String,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        val notes = noteService.searchNotes(query, user.id, sortBy, sortOrder)
+        val notes = if (searchAll == "true") {
+            noteService.searchAccessibleNotes(query, user.id, sortBy, sortOrder)
+        } else {
+            noteService.searchNotes(query, user.id, sortBy, sortOrder)
+        }
         model.addAttribute("notes", notes)
         model.addAttribute("searchQuery", query)
         model.addAttribute("currentSort", sortBy)
         model.addAttribute("currentOrder", sortOrder)
+        model.addAttribute("currentUser", user)
 
         return if (htmxRequest != null) {
             // HTMX Request: Return only the notes grid
-            "notes/list :: #notes-container"
+            if (searchAll == "true") {
+                "notes/all :: #notes-container"
+            } else {
+                "notes/list :: #notes-container"
+            }
         } else {
             // Normal Request: Return full page
-            "notes/list"
+            if (searchAll == "true") {
+                "notes/all"
+            } else {
+                "notes/list"
+            }
         }
     }
 

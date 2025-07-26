@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Nota</title>
+    <title>Registrieren - Nota</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div class="container">
         <div class="login-form">
-            <h1>Register for Nota</h1>
+            <h1>Bei Nota registrieren</h1>
 
             <div th:if="${error}" class="error-message">
                 <p th:text="${error}"></p>
@@ -17,15 +17,15 @@
 
             <form th:action="@{/auth/register}" method="post" th:object="${registerDto}">
                 <div class="form-group">
-                    <label for="username">Username:</label>
+                    <label for="username">Benutzername:</label>
                     <input type="text" id="username" th:field="*{username}" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Register</button>
+                <button type="submit" class="btn btn-primary">Registrieren</button>
             </form>
 
             <p>
-                <a th:href="@{/auth/login}">Already have an account? Login here</a>
+                <a th:href="@{/auth/login}">Bereits ein Konto? Hier anmelden</a>
             </p>
         </div>
     </div>

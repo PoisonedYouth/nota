@@ -316,4 +316,55 @@ class NoteControllerTest {
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
     }
+
+    @Test
+    fun `searchNotes should use searchAccessibleNotes when all parameter is true`() {
+        // Given
+        val query = "test"
+        val now = LocalDateTime.now()
+        val accessibleNotes = listOf(
+            NoteDto(
+                id = 1L,
+                title = "My Test Note",
+                content = "My test content",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = null,
+                userId = 1L,
+                user = testUser,
+            ),
+            NoteDto(
+                id = 2L,
+                title = "Shared Test Note",
+                content = "Shared test content",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = null,
+                userId = 2L,
+                user = UserDto(2L, "otheruser", false),
+            ),
+        )
+        every { noteService.searchAccessibleNotes(query, 1L) } returns accessibleNotes
+
+        // When/Then
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/notes/search")
+                .param("q", query)
+                .param("all", "true")
+                .header("HX-Request", "true")
+                .session(mockSession),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("notes/all :: #notes-container"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("searchQuery"))
+            .andExpect(MockMvcResultMatchers.model().attribute("notes", accessibleNotes))
+            .andExpect(MockMvcResultMatchers.model().attribute("searchQuery", query))
+
+        verify { noteService.searchAccessibleNotes(query, 1L) }
+    }
 }

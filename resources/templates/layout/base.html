@@ -18,9 +18,9 @@
             <h1 class="logo">Nota</h1>
             <div class="navbar-actions">
                 <div class="user-info" th:if="${currentUser}">
-                    <span class="username" th:text="'Welcome, ' + ${currentUser.username}"></span>
+                    <span class="username" th:text="'Willkommen, ' + ${currentUser.username}"></span>
                     <form th:action="@{/auth/logout}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-secondary">Logout</button>
+                        <button type="submit" class="btn btn-secondary">Abmelden</button>
                     </form>
                 </div>
             </div>

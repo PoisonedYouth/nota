@@ -241,4 +241,47 @@ class NoteIntegrationTest
             foundNote.isDueSoon() shouldBe false
             foundNote.getFormattedDueDate() shouldBe null
         }
+
+        @Test
+        fun `should search notes by title and content`() {
+            // Given
+            val note1 = Note(
+                title = "Important Meeting",
+                content = "Discuss project timeline",
+                user = testUser,
+            )
+            val note2 = Note(
+                title = "Shopping List",
+                content = "Buy groceries for the important dinner",
+                user = testUser,
+            )
+            val note3 = Note(
+                title = "Random Note",
+                content = "Some random content",
+                user = testUser,
+            )
+
+            noteRepository.save(note1)
+            noteRepository.save(note2)
+            noteRepository.save(note3)
+
+            // When - search by title
+            val titleResults = noteService.searchNotes("important", testUser.id!!)
+
+            // When - search by content
+            val contentResults = noteService.searchNotes("timeline", testUser.id!!)
+
+            // When - search with no matches
+            val noResults = noteService.searchNotes("nonexistent", testUser.id!!)
+
+            // Then
+            titleResults.size shouldBe 2 // Should find both notes containing "important"
+            titleResults.any { it.title.contains("Important Meeting") } shouldBe true
+            titleResults.any { it.content.contains("important dinner") } shouldBe true
+
+            contentResults.size shouldBe 1 // Should find note with "timeline" in content
+            contentResults[0].title shouldBe "Important Meeting"
+
+            noResults.size shouldBe 0 // Should find no matches
+        }
     }
