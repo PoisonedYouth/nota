@@ -1,5 +1,6 @@
 package com.poisonedyouth.nota.user
 
+import com.poisonedyouth.nota.activitylog.ActivityLogService
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 @RequestMapping("/auth")
 class UserController(
     private val userService: UserService,
+    private val activityLogService: ActivityLogService,
 ) {
 
     @GetMapping("/login")
@@ -52,6 +54,16 @@ class UserController(
         val user = userService.authenticate(loginDto)
         return if (user != null) {
             session.setAttribute("currentUser", user)
+
+            // Log the login activity
+            activityLogService.logActivity(
+                userId = user.id,
+                action = "LOGIN",
+                entityType = "USER",
+                entityId = user.id,
+                description = "Benutzer angemeldet",
+            )
+
             if (user.mustChangePassword) {
                 "redirect:/auth/change-password"
             } else {

@@ -15,7 +15,11 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <h1 class="logo">Nota</h1>
+            <div class="login-logo">
+                <div class="logo-icon">📝</div>
+                <h1 class="logo-text">Nota</h1>
+                <p class="logo-subtitle">Intelligente Notizen</p>
+            </div>
             <div class="navbar-actions">
                 <div class="user-info" th:if="${currentUser}">
                     <span class="username" th:text="'Willkommen, ' + ${currentUser.username}"></span>

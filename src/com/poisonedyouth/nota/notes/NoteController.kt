@@ -1,5 +1,6 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.activitylog.ActivityLogService
 import com.poisonedyouth.nota.user.UserDto
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
@@ -17,9 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 @RequestMapping("/notes")
-@Suppress("TooManyFunctions")
 class NoteController(
     private val noteService: NoteService,
+    private val activityLogService: ActivityLogService,
 ) {
 
     private fun getCurrentUser(session: HttpSession): UserDto? {
@@ -89,6 +90,15 @@ class NoteController(
 
         val newNote = noteService.createNote(createNoteDto, user.id)
 
+        // Log the activity
+        activityLogService.logActivity(
+            userId = user.id,
+            action = "CREATE",
+            entityType = "NOTE",
+            entityId = newNote.id,
+            description = "Notiz erstellt: '${newNote.title}'",
+        )
+
         return if (htmxRequest != null) {
             // HTMX Request: Nur die neue Notiz als Fragment zurückgeben
             model.addAttribute("note", newNote)
@@ -153,7 +163,19 @@ class NoteController(
         @RequestParam(value = "order", required = false, defaultValue = "desc") sortOrder: String,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val note = noteService.findAccessibleNoteById(id, user.id)
         noteService.archiveNote(id, user.id)
+
+        // Log the activity
+        if (note != null) {
+            activityLogService.logActivity(
+                userId = user.id,
+                action = "ARCHIVE",
+                entityType = "NOTE",
+                entityId = id,
+                description = "Notiz archiviert: '${note.title}'",
+            )
+        }
 
         return if (htmxRequest != null) {
             // HTMX Request: Return archive response with OOB swap to update notes count
@@ -248,6 +270,15 @@ class NoteController(
         if (updatedNote == null) {
             return "redirect:/notes"
         }
+
+        // Log the activity
+        activityLogService.logActivity(
+            userId = user.id,
+            action = "UPDATE",
+            entityType = "NOTE",
+            entityId = updatedNote.id,
+            description = "Notiz bearbeitet: '${updatedNote.title}'",
+        )
 
         return if (htmxRequest != null) {
             // HTMX Request: Return updated note card
@@ -344,6 +375,18 @@ class NoteController(
             }
         }
 
+        // Log the activity
+        val note = noteService.findNoteById(id, user.id)
+        if (note != null) {
+            activityLogService.logActivity(
+                userId = user.id,
+                action = "SHARE",
+                entityType = "NOTE",
+                entityId = id,
+                description = "Notiz geteilt: '${note.title}' mit Benutzer '${shareNoteDto.username}'",
+            )
+        }
+
         return if (htmxRequest != null) {
             val note = noteService.findNoteById(id, user.id)
             val shares = noteService.getNoteShares(id, user.id)
@@ -414,5 +457,18 @@ class NoteController(
         model.addAttribute("currentOrder", sortOrder)
         model.addAttribute("isAllView", true)
         return "notes/all"
+    }
+
+    @GetMapping("/activity-log")
+    fun showActivityLog(
+        model: Model,
+        session: HttpSession,
+        @RequestParam(value = "limit", required = false, defaultValue = "50") limit: Int,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val activities = activityLogService.getRecentActivities(user.id, limit)
+        model.addAttribute("activities", activities)
+        model.addAttribute("currentUser", user)
+        return "notes/activity-log"
     }
 }

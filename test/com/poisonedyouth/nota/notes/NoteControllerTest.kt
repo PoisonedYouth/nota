@@ -1,7 +1,10 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.activitylog.ActivityLogService
 import com.poisonedyouth.nota.user.UserDto
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
@@ -17,12 +20,14 @@ class NoteControllerTest {
 
     private lateinit var mockMvc: MockMvc
     private lateinit var noteService: NoteService
+    private lateinit var activityLogService: ActivityLogService
     private lateinit var mockSession: MockHttpSession
     private lateinit var testUser: UserDto
 
     @BeforeEach
     fun setup() {
         noteService = mockk()
+        activityLogService = mockk()
         mockSession = MockHttpSession()
         testUser = UserDto(
             id = 1L,
@@ -32,7 +37,7 @@ class NoteControllerTest {
 
         mockSession.setAttribute("currentUser", testUser)
 
-        val controller = NoteController(noteService)
+        val controller = NoteController(noteService, activityLogService)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
     }
 
@@ -93,7 +98,22 @@ class NoteControllerTest {
     fun `archiveNote should return redirect for regular request`() {
         // Given
         val noteId = 1L
+        val now = LocalDateTime.now()
+        val noteDto = NoteDto(
+            id = noteId,
+            title = "Test Note",
+            content = "Test content",
+            createdAt = now,
+            updatedAt = now,
+            archived = false,
+            archivedAt = null,
+            dueDate = null,
+            userId = 1L,
+            user = testUser,
+        )
+        every { noteService.findAccessibleNoteById(noteId, 1L) } returns noteDto
         every { noteService.archiveNote(noteId, 1L) } returns true
+        every { activityLogService.logActivity(any(), any(), any(), any(), any()) } just Runs
 
         // When/Then
         mockMvc.perform(MockMvcRequestBuilders.delete("/notes/$noteId").session(mockSession))
@@ -108,6 +128,18 @@ class NoteControllerTest {
         // Given
         val noteId = 1L
         val now = LocalDateTime.now()
+        val noteDto = NoteDto(
+            id = noteId,
+            title = "Test Note",
+            content = "Test content",
+            createdAt = now,
+            updatedAt = now,
+            archived = false,
+            archivedAt = null,
+            dueDate = null,
+            userId = 1L,
+            user = testUser,
+        )
         val remainingNotes = listOf(
             NoteDto(
                 id = 2L,
@@ -122,8 +154,10 @@ class NoteControllerTest {
                 user = testUser,
             ),
         )
+        every { noteService.findAccessibleNoteById(noteId, 1L) } returns noteDto
         every { noteService.archiveNote(noteId, 1L) } returns true
         every { noteService.findAllNotes(1L) } returns remainingNotes
+        every { activityLogService.logActivity(any(), any(), any(), any(), any()) } just Runs
 
         // When/Then
         mockMvc.perform(

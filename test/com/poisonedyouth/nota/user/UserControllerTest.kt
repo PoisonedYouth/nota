@@ -1,6 +1,9 @@
 package com.poisonedyouth.nota.user
 
+import com.poisonedyouth.nota.activitylog.ActivityLogService
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
@@ -14,11 +17,13 @@ class UserControllerTest {
 
     private lateinit var mockMvc: MockMvc
     private lateinit var userService: UserService
+    private lateinit var activityLogService: ActivityLogService
 
     @BeforeEach
     fun setup() {
         userService = mockk()
-        val controller = UserController(userService)
+        activityLogService = mockk()
+        val controller = UserController(userService, activityLogService)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
     }
 
@@ -93,6 +98,7 @@ class UserControllerTest {
         val userDto = UserDto(id = 1L, username = username, mustChangePassword = false)
 
         every { userService.authenticate(any()) } returns userDto
+        every { activityLogService.logActivity(any(), any(), any(), any(), any()) } just Runs
 
         // When/Then
         mockMvc.perform(
@@ -114,6 +120,7 @@ class UserControllerTest {
         val userDto = UserDto(id = 1L, username = username, mustChangePassword = true)
 
         every { userService.authenticate(any()) } returns userDto
+        every { activityLogService.logActivity(any(), any(), any(), any(), any()) } just Runs
 
         // When/Then
         mockMvc.perform(
@@ -145,7 +152,7 @@ class UserControllerTest {
             .andExpect(MockMvcResultMatchers.view().name("auth/login"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("loginDto"))
-            .andExpect(MockMvcResultMatchers.model().attribute("error", "Invalid username or password"))
+            .andExpect(MockMvcResultMatchers.model().attribute("error", "Ungültiger Benutzername oder Passwort"))
 
         verify { userService.authenticate(match { it.username == username && it.password == password }) }
     }

@@ -120,6 +120,6 @@ class UserRegistrationE2ETest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/login"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
-            .andExpect(MockMvcResultMatchers.model().attribute("error", "Invalid username or password"))
+            .andExpect(MockMvcResultMatchers.model().attribute("error", "Ungültiger Benutzername oder Passwort"))
     }
 }

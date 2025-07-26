@@ -255,7 +255,7 @@ class NoteSharingIntegrationTest
                     .session(session),
             )
                 .andExpect(status().isOk)
-                .andExpect(content().string(containsString("Notes Shared With Me")))
+                .andExpect(content().string(containsString("Mit mir geteilte Notizen")))
                 .andExpect(content().string(containsString("Shared Note")))
         }
 
@@ -266,7 +266,7 @@ class NoteSharingIntegrationTest
                     .session(session),
             )
                 .andExpect(status().isOk)
-                .andExpect(content().string(containsString("No shared notes found")))
+                .andExpect(content().string(containsString("Keine geteilten Notizen gefunden")))
         }
 
         @Test
@@ -298,7 +298,7 @@ class NoteSharingIntegrationTest
                     .session(session),
             )
                 .andExpect(status().isOk)
-                .andExpect(content().string(containsString("All Accessible Notes")))
+                .andExpect(content().string(containsString("Alle zugänglichen Notizen")))
                 .andExpect(content().string(containsString("Test Note"))) // Owned note
                 .andExpect(content().string(containsString("Shared Note"))) // Shared note
         }

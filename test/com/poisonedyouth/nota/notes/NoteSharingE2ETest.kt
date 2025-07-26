@@ -134,7 +134,7 @@ class NoteSharingE2ETest
             )
                 .andExpect(status().isOk)
                 .andExpect(content().string(containsString("E2E Test Note")))
-                .andExpect(content().string(containsString("Notes Shared With Me")))
+                .andExpect(content().string(containsString("Mit mir geteilte Notizen")))
 
             // Step 3: Shared user can see the note in all accessible notes
             println("[DEBUG_LOG] Step 3: Checking note appears in all accessible notes")
@@ -144,7 +144,7 @@ class NoteSharingE2ETest
             )
                 .andExpect(status().isOk)
                 .andExpect(content().string(containsString("E2E Test Note")))
-                .andExpect(content().string(containsString("All Accessible Notes")))
+                .andExpect(content().string(containsString("Alle zugänglichen Notizen")))
 
             // Step 4: Shared user can view the note details
             println("[DEBUG_LOG] Step 4: Checking shared user can view note details")
@@ -188,7 +188,7 @@ class NoteSharingE2ETest
                     .session(sharedSession),
             )
                 .andExpect(status().isOk)
-                .andExpect(content().string(containsString("No shared notes found")))
+                .andExpect(content().string(containsString("Keine geteilten Notizen gefunden")))
 
             // Step 8: Shared user cannot access note details directly
             println("[DEBUG_LOG] Step 8: Verifying direct access is denied")

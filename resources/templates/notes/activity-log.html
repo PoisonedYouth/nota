@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::content})}">
+<body>
+    <div th:fragment="content">
+        <div class="container">
+            <div class="notes-header">
+                <h2>Aktivitätsprotokoll</h2>
+                <div class="header-actions">
+                    <a href="/notes" class="btn btn-secondary">Zurück zu Notizen</a>
+                </div>
+            </div>
+
+            <div class="activity-log-container">
+                <div th:if="${#lists.isEmpty(activities)}" class="empty-state">
+                    <p>Noch keine Aktivitäten vorhanden</p>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(activities)}" class="activity-list">
+                    <div th:each="activity : ${activities}" class="activity-item">
+                        <div class="activity-icon">
+                            <span th:switch="${activity.action}">
+                                <span th:case="'CREATE'">➕</span>
+                                <span th:case="'UPDATE'">✏️</span>
+                                <span th:case="'ARCHIVE'">📦</span>
+                                <span th:case="'SHARE'">🔗</span>
+                                <span th:case="*">📝</span>
+                            </span>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-description" th:text="${activity.description}"></div>
+                            <div class="activity-meta">
+                                <span class="activity-time" th:text="${activity.formattedCreatedAt}"></span>
+                                <span class="activity-type" th:text="${activity.action}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
