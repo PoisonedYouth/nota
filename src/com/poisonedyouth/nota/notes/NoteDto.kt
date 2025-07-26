@@ -41,6 +41,17 @@ data class NoteDto(
         return dueDate?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
     }
 
+    fun isOverdue(): Boolean {
+        return dueDate?.isBefore(LocalDateTime.now()) ?: false
+    }
+
+    fun isDueSoon(): Boolean {
+        if (dueDate == null) return false
+        val now = LocalDateTime.now()
+        val twentyFourHoursFromNow = now.plusHours(24)
+        return dueDate.isAfter(now) && dueDate.isBefore(twentyFourHoursFromNow)
+    }
+
     fun getContentPreview(maxLength: Int = 100): String {
         return if (content.length > maxLength) {
             content.substring(0, maxLength) + "..."

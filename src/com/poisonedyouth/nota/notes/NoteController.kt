@@ -112,7 +112,7 @@ class NoteController(
         session: HttpSession,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        val note = noteService.findNoteById(id, user.id)
+        val note = noteService.findAccessibleNoteById(id, user.id)
         if (note == null) {
             return "redirect:/notes"
         }
@@ -204,7 +204,7 @@ class NoteController(
         session: HttpSession,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        val note = noteService.findNoteById(id, user.id)
+        val note = noteService.findAccessibleNoteById(id, user.id)
         if (note == null) {
             return "redirect:/notes"
         }

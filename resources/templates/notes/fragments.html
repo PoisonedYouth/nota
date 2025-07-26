@@ -3,7 +3,7 @@
 <body>
     <!-- Einzelne Notiz-Karte -->
     <div th:fragment="note-card(note)"
-         class="note-card"
+         th:class="|note-card ${note?.isOverdue() ? 'note-overdue' : ''} ${note?.isDueSoon() ? 'note-due-soon' : ''}|"
          th:id="|note-${note != null ? note.id : ''}|">
         <h3 class="note-title">
             <a th:href="@{/notes/{id}(id=${note != null ? note.id : ''})}"
@@ -14,6 +14,7 @@
         <div class="note-meta">
             <span class="note-date" th:text="${note?.getFormattedDate()}"></span>
             <span th:if="${note?.dueDate != null}" class="note-due-date" th:text="|Fällig: ${note?.getFormattedDueDate()}|"></span>
+            <span class="note-owner" th:text="|Ersteller: ${note?.user?.username}|"></span>
             <div th:if="${!note?.archived}" class="note-actions">
                 <button class="btn btn-primary btn-sm"
                         th:attr="hx-get=@{/notes/modal/{id}(id=${note != null ? note.id : ''})}"

@@ -1,6 +1,7 @@
 package com.poisonedyouth.nota.notes
 
 import com.poisonedyouth.nota.user.User
+import com.poisonedyouth.nota.user.UserDto
 import com.poisonedyouth.nota.user.UserRepository
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -8,30 +9,32 @@ import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.HttpStatus
+import org.springframework.mock.web.MockHttpSession
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
 class NoteE2ETest
     @Autowired
     constructor(
-        private val restTemplate: TestRestTemplate,
+        private val mockMvc: MockMvc,
         private val noteRepository: NoteRepository,
         private val noteService: NoteService,
         private val userRepository: UserRepository,
     ) {
 
-        @LocalServerPort
-        private var port: Int = 0
-
         private lateinit var testUser: User
+        private lateinit var testSession: MockHttpSession
 
         @BeforeEach
         fun setup() {
@@ -46,15 +49,29 @@ class NoteE2ETest
                     password = "password",
                 ),
             )
+
+            // Create session with authentication
+            testSession = MockHttpSession()
+            testSession.setAttribute(
+                "currentUser",
+                UserDto(
+                    id = testUser.id!!,
+                    username = testUser.username,
+                    mustChangePassword = testUser.mustChangePassword,
+                ),
+            )
         }
 
         @Test
         fun `should return 200 OK when accessing notes endpoint`() {
             // When
-            val response = restTemplate.getForEntity("http://localhost:$port/notes", String::class.java)
+            val result = mockMvc.perform(
+                get("/notes")
+                    .session(testSession),
+            )
 
             // Then
-            response.statusCode shouldBe HttpStatus.OK
+            result.andExpect(status().isOk)
         }
 
         @Test
@@ -91,5 +108,141 @@ class NoteE2ETest
             val firstNote = notes[0]
             firstNote.getContentPreview() shouldContain "E2E Test Content 2"
             firstNote.getFormattedDate() shouldContain now.plusHours(1).year.toString()
+        }
+
+        @Test
+        fun `should display owner information in note list view`() {
+            // Given
+            val note = Note(title = "Test Note", content = "Test Content", user = testUser)
+            noteRepository.save(note)
+
+            // When
+            val result = mockMvc.perform(
+                get("/notes")
+                    .session(testSession),
+            )
+
+            // Then
+            result.andExpect(status().isOk)
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ersteller: ${testUser.username}")))
+        }
+
+        @Test
+        fun `should display owner information in note detail view`() {
+            // Given
+            val note = Note(title = "Test Note", content = "Test Content", user = testUser)
+            val savedNote = noteRepository.save(note)
+
+            // When
+            val result = mockMvc.perform(
+                get("/notes/${savedNote.id}")
+                    .session(testSession),
+            )
+
+            // Then
+            result.andExpect(status().isOk)
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ersteller:")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(testUser.username)))
+        }
+
+        @Test
+        fun `should apply overdue CSS class to overdue notes in HTML`() {
+            // Given
+            val pastDueDate = LocalDateTime.now().minusHours(2)
+            val overdueNote = Note(
+                title = "Overdue Note",
+                content = "This note is overdue",
+                dueDate = pastDueDate,
+                user = testUser,
+            )
+            noteRepository.save(overdueNote)
+
+            // When
+            val result = mockMvc.perform(
+                get("/notes")
+                    .session(testSession),
+            )
+
+            // Then
+            result.andExpect(status().isOk)
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("note-overdue")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Overdue Note")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fällig:")))
+        }
+
+        @Test
+        fun `should apply due-soon CSS class to notes due within 24 hours in HTML`() {
+            // Given
+            val dueSoonDate = LocalDateTime.now().plusHours(12)
+            val dueSoonNote = Note(
+                title = "Due Soon Note",
+                content = "This note is due soon",
+                dueDate = dueSoonDate,
+                user = testUser,
+            )
+            noteRepository.save(dueSoonNote)
+
+            // When
+            val result = mockMvc.perform(
+                get("/notes")
+                    .session(testSession),
+            )
+
+            // Then
+            result.andExpect(status().isOk)
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("note-due-soon")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Due Soon Note")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fällig:")))
+        }
+
+        @Test
+        fun `should not apply special CSS classes to notes with future due dates in HTML`() {
+            // Given
+            val futureDueDate = LocalDateTime.now().plusDays(2)
+            val futureNote = Note(
+                title = "Future Note",
+                content = "This note is due in the future",
+                dueDate = futureDueDate,
+                user = testUser,
+            )
+            noteRepository.save(futureNote)
+
+            // When
+            val result = mockMvc.perform(
+                get("/notes")
+                    .session(testSession),
+            )
+
+            // Then
+            result.andExpect(status().isOk)
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Future Note")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fällig:")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("note-overdue"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("note-due-soon"))))
+        }
+
+        @Test
+        fun `should not apply special CSS classes to notes without due dates in HTML`() {
+            // Given
+            val noteWithoutDueDate = Note(
+                title = "No Due Date Note",
+                content = "This note has no due date",
+                dueDate = null,
+                user = testUser,
+            )
+            noteRepository.save(noteWithoutDueDate)
+
+            // When
+            val result = mockMvc.perform(
+                get("/notes")
+                    .session(testSession),
+            )
+
+            // Then
+            result.andExpect(status().isOk)
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("No Due Date Note")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("note-overdue"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("note-due-soon"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Fällig:"))))
         }
     }

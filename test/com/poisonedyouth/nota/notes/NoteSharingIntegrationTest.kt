@@ -302,4 +302,37 @@ class NoteSharingIntegrationTest
                 .andExpect(content().string(containsString("Test Note"))) // Owned note
                 .andExpect(content().string(containsString("Shared Note"))) // Shared note
         }
+
+        @Test
+        fun `should successfully open edit modal for shared note`() {
+            // Create a note owned by targetUser
+            val sharedNote = noteRepository.save(
+                Note(
+                    title = "Shared Note for Edit",
+                    content = "This note is shared with testuser for editing",
+                    user = targetUser,
+                    createdAt = LocalDateTime.now(),
+                    updatedAt = LocalDateTime.now(),
+                ),
+            )
+
+            // Share the note with testUser with write permission
+            noteShareRepository.save(
+                NoteShare(
+                    note = sharedNote,
+                    sharedWithUser = testUser,
+                    sharedByUser = targetUser,
+                    permission = "write",
+                    createdAt = LocalDateTime.now(),
+                ),
+            )
+
+            // Try to open edit modal for shared note - this should now work
+            mockMvc.perform(
+                get("/notes/modal/${sharedNote.id}/edit")
+                    .session(session),
+            )
+                .andExpect(status().isOk)
+                .andExpect(content().string(containsString("Shared Note for Edit")))
+        }
     }

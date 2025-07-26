@@ -32,6 +32,10 @@
 
                 <div class="note-detail-meta">
                     <div class="meta-item">
+                        <span class="meta-label">Ersteller:</span>
+                        <span class="meta-value" th:text="${note.user.username}"></span>
+                    </div>
+                    <div class="meta-item">
                         <span class="meta-label">Erstellt:</span>
                         <span class="meta-value" th:text="${note.getFormattedDate()}"></span>
                     </div>
