@@ -7,9 +7,11 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
+@Suppress("TooManyFunctions")
 class NoteService(
     private val noteRepository: NoteRepository,
     private val userRepository: UserRepository,
+    private val noteShareRepository: NoteShareRepository,
 ) {
 
     private fun createSort(sortBy: String, sortOrder: String): Sort {
@@ -115,5 +117,93 @@ class NoteService(
             query.trim(),
             sort,
         ).map { NoteDto.fromEntity(it) }
+    }
+
+    // Sharing functionality
+    fun shareNote(noteId: Long, shareNoteDto: ShareNoteDto, userId: Long): Boolean {
+        val user = userRepository.findById(userId).orElse(null) ?: return false
+        val note = noteRepository.findByIdAndUser(noteId, user) ?: return false
+
+        val targetUser = userRepository.findByUsername(shareNoteDto.username) ?: return false
+
+        // Don't allow sharing with self
+        if (targetUser.id == userId) return false
+
+        // Check if already shared
+        if (noteShareRepository.existsByNoteAndSharedWithUser(note, targetUser)) {
+            return false
+        }
+
+        val noteShare = NoteShare(
+            note = note,
+            sharedWithUser = targetUser,
+            sharedByUser = user,
+            permission = shareNoteDto.permission,
+        )
+
+        noteShareRepository.save(noteShare)
+        return true
+    }
+
+    fun revokeNoteShare(noteId: Long, targetUserId: Long, userId: Long): Boolean {
+        val user = userRepository.findById(userId).orElse(null) ?: return false
+        val note = noteRepository.findByIdAndUser(noteId, user) ?: return false
+        val targetUser = userRepository.findById(targetUserId).orElse(null) ?: return false
+
+        noteShareRepository.deleteByNoteAndSharedWithUser(note, targetUser)
+        return true
+    }
+
+    fun getNoteShares(noteId: Long, userId: Long): List<NoteShareDto> {
+        val user = userRepository.findById(userId).orElse(null) ?: return emptyList()
+        val note = noteRepository.findByIdAndUser(noteId, user) ?: return emptyList()
+
+        return noteShareRepository.findAllByNote(note)
+            .map { NoteShareDto.fromEntity(it) }
+    }
+
+    fun findAllSharedNotes(userId: Long, sortBy: String = "updatedAt", sortOrder: String = "desc"): List<NoteDto> {
+        val user = userRepository.findById(userId).orElseThrow {
+            IllegalArgumentException("User not found")
+        }
+        val sort = createSort(sortBy, sortOrder)
+        return noteShareRepository.findAllSharedWithUser(user)
+            .map { NoteDto.fromEntity(it) }
+    }
+
+    fun findAllAccessibleNotes(userId: Long, sortBy: String = "updatedAt", sortOrder: String = "desc"): List<NoteDto> {
+        val user = userRepository.findById(userId).orElseThrow {
+            IllegalArgumentException("User not found")
+        }
+        val sort = createSort(sortBy, sortOrder)
+        return noteRepository.findAllAccessibleByUserAndArchivedFalse(user, sort)
+            .map { NoteDto.fromEntity(it) }
+    }
+
+    fun findAccessibleNoteById(id: Long, userId: Long): NoteDto? {
+        val user = userRepository.findById(userId).orElse(null) ?: return null
+        return noteRepository.findByIdAndAccessibleByUser(id, user)
+            ?.let { NoteDto.fromEntity(it) }
+    }
+
+    fun searchAccessibleNotes(query: String, userId: Long, sortBy: String = "updatedAt", sortOrder: String = "desc"): List<NoteDto> {
+        if (query.isBlank()) {
+            return findAllAccessibleNotes(userId, sortBy, sortOrder)
+        }
+
+        val user = userRepository.findById(userId).orElseThrow {
+            IllegalArgumentException("User not found")
+        }
+        val sort = createSort(sortBy, sortOrder)
+        return noteRepository.findAllAccessibleByUserAndArchivedFalseAndQuery(
+            user,
+            query.trim(),
+            sort,
+        ).map { NoteDto.fromEntity(it) }
+    }
+
+    fun canUserAccessNote(noteId: Long, userId: Long): Boolean {
+        val user = userRepository.findById(userId).orElse(null) ?: return false
+        return noteRepository.findByIdAndAccessibleByUser(noteId, user) != null
     }
 }

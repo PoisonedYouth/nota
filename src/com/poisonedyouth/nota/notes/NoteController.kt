@@ -52,7 +52,7 @@ class NoteController(
         session: HttpSession,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        val note = noteService.findNoteById(id, user.id)
+        val note = noteService.findAccessibleNoteById(id, user.id)
         if (note == null) {
             return "redirect:/notes"
         }
@@ -101,6 +101,31 @@ class NoteController(
 
     @GetMapping("/modal/new")
     fun showCreateModal(): String {
+        return "notes/create-modal :: modal-content"
+    }
+
+    @GetMapping("/modal/{id}")
+    fun showUnifiedModal(
+        @PathVariable id: Long,
+        @RequestParam(value = "mode", required = false, defaultValue = "edit") mode: String,
+        model: Model,
+        session: HttpSession,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val note = noteService.findNoteById(id, user.id)
+        if (note == null) {
+            return "redirect:/notes"
+        }
+
+        model.addAttribute("note", note)
+        model.addAttribute("mode", mode)
+
+        if (mode == "share") {
+            val shares = noteService.getNoteShares(id, user.id)
+            model.addAttribute("shares", shares)
+            model.addAttribute("shareNoteDto", ShareNoteDto(""))
+        }
+
         return "notes/create-modal :: modal-content"
     }
 
@@ -258,5 +283,122 @@ class NoteController(
             // Normal Request: Return full page
             "notes/list"
         }
+    }
+
+    // Sharing endpoints
+
+    @PostMapping("/{id}/share")
+    @Suppress("LongParameterList")
+    fun shareNote(
+        @PathVariable id: Long,
+        @ModelAttribute shareNoteDto: ShareNoteDto,
+        bindingResult: BindingResult,
+        model: Model,
+        session: HttpSession,
+        @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+
+        if (bindingResult.hasErrors() || shareNoteDto.username.isBlank()) {
+            val note = noteService.findNoteById(id, user.id)
+            val shares = noteService.getNoteShares(id, user.id)
+            model.addAttribute("note", note)
+            model.addAttribute("shares", shares)
+            model.addAttribute("shareNoteDto", shareNoteDto)
+            model.addAttribute("mode", "share")
+            model.addAttribute("error", "Bitte geben Sie einen gültigen Benutzernamen ein")
+            return if (htmxRequest != null) {
+                "notes/create-modal :: modal-content"
+            } else {
+                "redirect:/notes"
+            }
+        }
+
+        val success = noteService.shareNote(id, shareNoteDto, user.id)
+        if (!success) {
+            val note = noteService.findNoteById(id, user.id)
+            val shares = noteService.getNoteShares(id, user.id)
+            model.addAttribute("note", note)
+            model.addAttribute("shares", shares)
+            model.addAttribute("shareNoteDto", shareNoteDto)
+            model.addAttribute("mode", "share")
+            model.addAttribute("error", "Notiz konnte nicht geteilt werden. Benutzer nicht gefunden oder Notiz bereits geteilt.")
+            return if (htmxRequest != null) {
+                "notes/create-modal :: modal-content"
+            } else {
+                "redirect:/notes"
+            }
+        }
+
+        return if (htmxRequest != null) {
+            val note = noteService.findNoteById(id, user.id)
+            val shares = noteService.getNoteShares(id, user.id)
+            model.addAttribute("note", note)
+            model.addAttribute("shares", shares)
+            model.addAttribute("shareNoteDto", ShareNoteDto(""))
+            model.addAttribute("mode", "share")
+            model.addAttribute("success", "Notiz erfolgreich geteilt!")
+            "notes/create-modal :: modal-content"
+        } else {
+            "redirect:/notes"
+        }
+    }
+
+    @DeleteMapping("/{id}/share/{userId}")
+    fun revokeShare(
+        @PathVariable id: Long,
+        @PathVariable userId: Long,
+        model: Model,
+        session: HttpSession,
+        @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+
+        noteService.revokeNoteShare(id, userId, user.id)
+
+        return if (htmxRequest != null) {
+            val note = noteService.findNoteById(id, user.id)
+            val shares = noteService.getNoteShares(id, user.id)
+            model.addAttribute("note", note)
+            model.addAttribute("shares", shares)
+            model.addAttribute("shareNoteDto", ShareNoteDto(""))
+            model.addAttribute("mode", "share")
+            "notes/create-modal :: modal-content"
+        } else {
+            "redirect:/notes"
+        }
+    }
+
+    @GetMapping("/shared")
+    fun listSharedNotes(
+        model: Model,
+        session: HttpSession,
+        @RequestParam(value = "sort", required = false, defaultValue = "updatedAt") sortBy: String,
+        @RequestParam(value = "order", required = false, defaultValue = "desc") sortOrder: String,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val sharedNotes = noteService.findAllSharedNotes(user.id, sortBy, sortOrder)
+        model.addAttribute("notes", sharedNotes)
+        model.addAttribute("currentSort", sortBy)
+        model.addAttribute("currentOrder", sortOrder)
+        model.addAttribute("isSharedView", true)
+        return "notes/shared"
+    }
+
+    @GetMapping("/all")
+    fun listAllAccessibleNotes(
+        model: Model,
+        session: HttpSession,
+        @RequestParam(value = "sort", required = false, defaultValue = "updatedAt") sortBy: String,
+        @RequestParam(value = "order", required = false, defaultValue = "desc") sortOrder: String,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val allNotes = noteService.findAllAccessibleNotes(user.id, sortBy, sortOrder)
+        model.addAttribute("notes", allNotes)
+        model.addAttribute("currentUser", user)
+        model.addAttribute("currentSort", sortBy)
+        model.addAttribute("currentOrder", sortOrder)
+        model.addAttribute("isAllView", true)
+        return "notes/all"
     }
 }

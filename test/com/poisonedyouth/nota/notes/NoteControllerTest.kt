@@ -50,6 +50,8 @@ class NoteControllerTest {
                 archived = false,
                 archivedAt = null,
                 dueDate = null,
+                userId = 1L,
+                user = testUser,
             ),
             NoteDto(
                 id = 2L,
@@ -60,6 +62,8 @@ class NoteControllerTest {
                 archived = false,
                 archivedAt = null,
                 dueDate = null,
+                userId = 1L,
+                user = testUser,
             ),
         )
         every { noteService.findAllNotes(1L) } returns notes
@@ -114,6 +118,8 @@ class NoteControllerTest {
                 archived = false,
                 archivedAt = null,
                 dueDate = null,
+                userId = 1L,
+                user = testUser,
             ),
         )
         every { noteService.archiveNote(noteId, 1L) } returns true
@@ -149,6 +155,8 @@ class NoteControllerTest {
                 archived = false,
                 archivedAt = null,
                 dueDate = null,
+                userId = 1L,
+                user = testUser,
             ),
         )
         every { noteService.searchNotes(query, 1L) } returns searchResults
@@ -180,6 +188,8 @@ class NoteControllerTest {
                 archived = false,
                 archivedAt = null,
                 dueDate = null,
+                userId = 1L,
+                user = testUser,
             ),
         )
         every { noteService.searchNotes(query, 1L) } returns searchResults
@@ -215,6 +225,8 @@ class NoteControllerTest {
                 archived = false,
                 archivedAt = null,
                 dueDate = null,
+                userId = 1L,
+                user = testUser,
             ),
         )
         every { noteService.searchNotes("", 1L) } returns allNotes
@@ -263,8 +275,10 @@ class NoteControllerTest {
             archived = false,
             archivedAt = null,
             dueDate = now.plusDays(1),
+            userId = 1L,
+            user = testUser,
         )
-        every { noteService.findNoteById(noteId, 1L) } returns note
+        every { noteService.findAccessibleNoteById(noteId, 1L) } returns note
 
         // When/Then
         mockMvc.perform(MockMvcRequestBuilders.get("/notes/$noteId").session(mockSession))
@@ -274,21 +288,21 @@ class NoteControllerTest {
             .andExpect(MockMvcResultMatchers.model().attributeExists("currentUser"))
             .andExpect(MockMvcResultMatchers.model().attribute("note", note))
 
-        verify { noteService.findNoteById(noteId, 1L) }
+        verify { noteService.findAccessibleNoteById(noteId, 1L) }
     }
 
     @Test
     fun `showNoteDetail should redirect when note not found`() {
         // Given
         val noteId = 999L
-        every { noteService.findNoteById(noteId, 1L) } returns null
+        every { noteService.findAccessibleNoteById(noteId, 1L) } returns null
 
         // When/Then
         mockMvc.perform(MockMvcRequestBuilders.get("/notes/$noteId").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/notes"))
 
-        verify { noteService.findNoteById(noteId, 1L) }
+        verify { noteService.findAccessibleNoteById(noteId, 1L) }
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.user.UserDto
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -12,6 +13,8 @@ data class NoteDto(
     val archived: Boolean,
     val archivedAt: LocalDateTime?,
     val dueDate: LocalDateTime?,
+    val userId: Long,
+    val user: UserDto,
 ) {
     companion object {
         fun fromEntity(note: Note): NoteDto {
@@ -24,6 +27,8 @@ data class NoteDto(
                 archived = note.archived,
                 archivedAt = note.archivedAt,
                 dueDate = note.dueDate,
+                userId = note.user.id ?: -1,
+                user = UserDto.fromEntity(note.user),
             )
         }
     }

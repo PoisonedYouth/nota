@@ -12,6 +12,11 @@
                             hx-target="#modal-container">
                         Bearbeiten
                     </button>
+                    <button class="btn btn-info"
+                            th:attr="hx-get=@{/notes/{id}/share-modal(id=${note.id})}"
+                            hx-target="#modal-container">
+                        Teilen
+                    </button>
                     <button class="btn btn-danger"
                             th:attr="hx-delete=@{/notes/{id}(id=${note.id})}"
                             hx-confirm="Notiz archivieren?"

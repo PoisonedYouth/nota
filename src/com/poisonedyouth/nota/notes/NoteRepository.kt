@@ -38,4 +38,47 @@ interface NoteRepository : JpaRepository<Note, Long> {
         @Param("query") query: String,
         sort: Sort,
     ): List<Note>
+
+    // Methods that consider shared notes
+    @Query(
+        """
+        SELECT DISTINCT n FROM Note n
+        LEFT JOIN NoteShare ns ON n.id = ns.note.id
+        WHERE (n.user = :user OR ns.sharedWithUser = :user)
+        AND n.archived = false
+    """,
+    )
+    fun findAllAccessibleByUserAndArchivedFalse(
+        @Param("user") user: User,
+        sort: Sort,
+    ): List<Note>
+
+    @Query(
+        """
+        SELECT n FROM Note n
+        LEFT JOIN NoteShare ns ON n.id = ns.note.id
+        WHERE (n.user = :user OR ns.sharedWithUser = :user)
+        AND n.id = :id
+    """,
+    )
+    fun findByIdAndAccessibleByUser(
+        @Param("id") id: Long,
+        @Param("user") user: User,
+    ): Note?
+
+    @Query(
+        """
+        SELECT DISTINCT n FROM Note n
+        LEFT JOIN NoteShare ns ON n.id = ns.note.id
+        WHERE (n.user = :user OR ns.sharedWithUser = :user)
+        AND n.archived = false
+        AND (LOWER(n.title) LIKE LOWER(CONCAT('%', :query, '%'))
+        OR LOWER(n.content) LIKE LOWER(CONCAT('%', :query, '%')))
+    """,
+    )
+    fun findAllAccessibleByUserAndArchivedFalseAndQuery(
+        @Param("user") user: User,
+        @Param("query") query: String,
+        sort: Sort,
+    ): List<Note>
 }

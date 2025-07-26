@@ -1,27 +1,126 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-    <div th:fragment="modal-content" class="modal-backdrop" id="create-note-modal">
+    <div th:fragment="modal-content" class="modal-backdrop" id="unified-note-modal">
         <div class="modal">
             <div class="modal-header">
-                <h3>Neue Notiz erstellen</h3>
+                <h3 th:text="${note != null ? (mode == 'share' ? 'Notiz teilen: ' + note.title : 'Notiz bearbeiten') : 'Neue Notiz erstellen'}">Neue Notiz erstellen</h3>
                 <button class="close-btn"
-                        onclick="document.getElementById('create-note-modal').remove()">
+                        onclick="document.getElementById('unified-note-modal').remove()">
                     ×
                 </button>
             </div>
 
-            <div th:replace="~{notes/fragments :: note-form(
-                formAction='/notes/new',
-                formMethod='POST',
-                formTarget='#notes-container',
-                formSwap='afterbegin',
-                formTrigger='submit',
-                formOnAfterRequest='htmx:afterRequest: if(event.detail.successful) { document.getElementById(\'create-note-modal\').remove(); htmx.ajax(\'GET\', \'/notes/count\', {target: \'.notes-count\'}); }',
-                note=null,
-                submitButtonText='Notiz speichern'
-            )}"></div>
+            <!-- Tab Navigation for existing notes -->
+            <div th:if="${note != null}" class="modal-tabs">
+                <button class="tab-btn"
+                        th:classappend="${mode != 'share' ? 'active' : ''}"
+                        onclick="showTab('note-tab')">
+                    Notiz bearbeiten
+                </button>
+                <button class="tab-btn"
+                        th:classappend="${mode == 'share' ? 'active' : ''}"
+                        onclick="showTab('share-tab')">
+                    Teilen
+                </button>
+            </div>
+
+            <!-- Note Creation/Editing Tab -->
+            <div id="note-tab" class="tab-content" th:classappend="${mode != 'share' ? 'active' : ''}">
+                <div th:replace="~{notes/fragments :: note-form(
+                    formAction=${note != null ? '/notes/' + note.id : '/notes/new'},
+                    formMethod=${note != null ? 'PUT' : 'POST'},
+                    formTarget='#notes-container',
+                    formSwap=${note != null ? 'outerHTML' : 'afterbegin'},
+                    formTrigger='submit',
+                    formOnAfterRequest='htmx:afterRequest: if(event.detail.successful) { document.getElementById(\'unified-note-modal\').remove(); htmx.ajax(\'GET\', \'/notes/count\', {target: \'.notes-count\'}); }',
+                    note=${note},
+                    submitButtonText=${note != null ? 'Notiz aktualisieren' : 'Notiz speichern'}
+                )}"></div>
+            </div>
+
+            <!-- Sharing Tab (only for existing notes) -->
+            <div th:if="${note != null}" id="share-tab" class="tab-content" th:classappend="${mode == 'share' ? 'active' : ''}">
+                <!-- Success/Error Messages -->
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+                <!-- Share Form -->
+                <form th:action="@{/notes/{id}/share(id=${note.id})}"
+                      method="post"
+                      hx-post th:hx-post="@{/notes/{id}/share(id=${note.id})}"
+                      hx-target="#unified-note-modal"
+                      hx-swap="outerHTML">
+                    <div class="form-group">
+                        <label for="username">Mit Benutzername teilen:</label>
+                        <input type="text"
+                               id="username"
+                               name="username"
+                               th:value="${shareNoteDto?.username}"
+                               placeholder="Benutzername eingeben"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="permission">Berechtigung:</label>
+                        <select id="permission" name="permission" th:value="${shareNoteDto?.permission}">
+                            <option value="read" th:selected="${shareNoteDto?.permission == 'read'}">Nur lesen</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Notiz teilen</button>
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('unified-note-modal').remove()">Abbrechen</button>
+                    </div>
+                </form>
+
+                <!-- Current Shares -->
+                <div th:if="${shares != null and not #lists.isEmpty(shares)}" class="shares-section">
+                    <h4>Aktuell geteilt mit:</h4>
+                    <div class="shares-list">
+                        <div th:each="share : ${shares}" class="share-item">
+                            <div class="share-info">
+                                <span class="username" th:text="${share.sharedWithUsername}"></span>
+                                <span class="permission" th:text="${share.permission}"></span>
+                                <span class="shared-date" th:text="${#temporals.format(T(java.time.LocalDateTime).parse(share.createdAt), 'dd.MM.yyyy')}"></span>
+                            </div>
+                            <button type="button"
+                                    class="btn btn-danger btn-small"
+                                    th:hx-delete="@{/notes/{noteId}/share/{userId}(noteId=${note.id}, userId=${share.sharedWithUserId})}"
+                                    hx-target="#unified-note-modal"
+                                    hx-swap="outerHTML"
+                                    hx-confirm="Sind Sie sicher, dass Sie den Zugriff für diesen Benutzer widerrufen möchten?">
+                                Widerrufen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${shares == null or #lists.isEmpty(shares)}" class="no-shares">
+                    <p>Diese Notiz ist derzeit mit niemandem geteilt.</p>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+    </script>
 </body>
 </html>

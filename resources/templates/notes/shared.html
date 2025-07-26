@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::content})}">
+<head>
+    <title>Shared Notes - Nota</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container">
+            <div class="page-header">
+                <h1>Notes Shared With Me</h1>
+                <div class="header-actions">
+                    <a href="/notes" class="btn btn-secondary">My Notes</a>
+                    <a href="/notes/all" class="btn btn-secondary">All Notes</a>
+                </div>
+            </div>
+
+            <!-- Search and Sort Controls -->
+            <div class="controls-section">
+                <form class="search-form"
+                      hx-get="/notes/search"
+                      hx-target="#notes-container"
+                      hx-trigger="input changed delay:300ms, search">
+                    <input type="text"
+                           name="q"
+                           placeholder="Search shared notes..."
+                           class="search-input"
+                           th:value="${searchQuery}">
+                    <input type="hidden" name="sort" th:value="${currentSort}">
+                    <input type="hidden" name="order" th:value="${currentOrder}">
+                    <input type="hidden" name="shared" value="true">
+                </form>
+
+                <div class="sort-controls">
+                    <label>Sort by:</label>
+                    <select hx-get="/notes/shared"
+                            hx-target="#notes-container"
+                            hx-include="[name='order']"
+                            name="sort">
+                        <option value="updatedAt" th:selected="${currentSort == 'updatedAt'}">Last Updated</option>
+                        <option value="createdAt" th:selected="${currentSort == 'createdAt'}">Created Date</option>
+                        <option value="title" th:selected="${currentSort == 'title'}">Title</option>
+                        <option value="dueDate" th:selected="${currentSort == 'dueDate'}">Due Date</option>
+                    </select>
+
+                    <select hx-get="/notes/shared"
+                            hx-target="#notes-container"
+                            hx-include="[name='sort']"
+                            name="order">
+                        <option value="desc" th:selected="${currentOrder == 'desc'}">Descending</option>
+                        <option value="asc" th:selected="${currentOrder == 'asc'}">Ascending</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Notes Grid -->
+            <div id="notes-container" class="notes-grid">
+                <div th:if="${#lists.isEmpty(notes)}" class="empty-state">
+                    <h3>No shared notes found</h3>
+                    <p>No notes have been shared with you yet.</p>
+                </div>
+
+                <div th:each="note : ${notes}" class="note-card shared-note">
+                    <div class="note-header">
+                        <h3 class="note-title">
+                            <a th:href="@{/notes/{id}(id=${note.id})}" th:text="${note.title}"></a>
+                        </h3>
+                        <div class="note-meta">
+                            <span class="shared-indicator">📤 Shared</span>
+                            <span class="note-date" th:text="${#temporals.format(note.updatedAt, 'MMM dd, yyyy')}"></span>
+                        </div>
+                    </div>
+
+                    <div class="note-content">
+                        <p th:text="${#strings.abbreviate(note.content, 150)}"></p>
+                    </div>
+
+                    <div class="note-footer">
+                        <div class="note-actions">
+                            <a th:href="@{/notes/{id}(id=${note.id})}" class="btn btn-primary btn-small">View</a>
+                        </div>
+                        <div class="note-info">
+                            <span th:if="${note.dueDate}"
+                                  class="due-date"
+                                  th:classappend="${note.dueDate.isBefore(T(java.time.LocalDateTime).now())} ? 'overdue' : ''"
+                                  th:text="'Due: ' + ${#temporals.format(note.dueDate, 'MMM dd, yyyy')}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

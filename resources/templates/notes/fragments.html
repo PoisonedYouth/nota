@@ -4,9 +4,9 @@
     <!-- Einzelne Notiz-Karte -->
     <div th:fragment="note-card(note)"
          class="note-card"
-         th:id="|note-${note?.id}|">
+         th:id="|note-${note != null ? note.id : ''}|">
         <h3 class="note-title">
-            <a th:href="@{/notes/{id}(id=${note?.id})}"
+            <a th:href="@{/notes/{id}(id=${note != null ? note.id : ''})}"
                th:text="${note?.title}"
                class="note-title-link"></a>
         </h3>
@@ -16,12 +16,17 @@
             <span th:if="${note?.dueDate != null}" class="note-due-date" th:text="|Fällig: ${note?.getFormattedDueDate()}|"></span>
             <div th:if="${!note?.archived}" class="note-actions">
                 <button class="btn btn-primary btn-sm"
-                        th:attr="hx-get=@{/notes/modal/{id}/edit(id=${note?.id})}"
+                        th:attr="hx-get=@{/notes/modal/{id}(id=${note != null ? note.id : ''})}"
                         hx-target="#modal-container">
                     Bearbeiten
                 </button>
+                <button class="btn btn-info btn-sm"
+                        th:attr="hx-get=@{/notes/modal/{id}(id=${note != null ? note.id : ''}, mode='share')}"
+                        hx-target="#modal-container">
+                    Teilen
+                </button>
                 <button class="btn btn-danger btn-sm"
-                        th:attr="hx-delete=@{/notes/{id}(id=${note?.id})}"
+                        th:attr="hx-delete=@{/notes/{id}(id=${note != null ? note.id : ''})}"
                         hx-confirm="Notiz archivieren?"
                         hx-target="closest .note-card"
                         hx-swap="outerHTML swap:0.5s">
@@ -72,12 +77,12 @@
                        th:value="${note?.dueDate != null ? #temporals.format(note.dueDate, 'yyyy-MM-dd''T''HH:mm') : ''}">
             </div>
 
-            <input type="hidden" name="id" th:value="${note?.id}" th:if="${note?.id != null}">
+            <input type="hidden" name="id" th:value="${note != null ? note.id : ''}" th:if="${note != null and note.id != null}">
 
             <div class="modal-footer">
                 <button type="button"
                         class="btn btn-secondary cancel-modal-btn"
-                        th:attr="data-modal-id=${note?.id != null ? 'edit-note-modal-' + note.id : 'create-note-modal'}">
+                        onclick="document.getElementById('unified-note-modal').remove()">
                     Abbrechen
                 </button>
                 <button type="submit" class="btn btn-primary">

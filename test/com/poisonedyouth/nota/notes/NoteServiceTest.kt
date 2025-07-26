@@ -17,6 +17,7 @@ class NoteServiceTest {
 
     private lateinit var noteRepository: NoteRepository
     private lateinit var userRepository: UserRepository
+    private lateinit var noteShareRepository: NoteShareRepository
     private lateinit var noteService: NoteService
     private lateinit var testUser: User
 
@@ -24,7 +25,8 @@ class NoteServiceTest {
     fun setup() {
         noteRepository = mockk()
         userRepository = mockk()
-        noteService = NoteService(noteRepository, userRepository)
+        noteShareRepository = mockk()
+        noteService = NoteService(noteRepository, userRepository, noteShareRepository)
 
         testUser = User(
             id = 1L,
