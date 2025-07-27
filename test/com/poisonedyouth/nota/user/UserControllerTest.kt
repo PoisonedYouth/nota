@@ -1,6 +1,6 @@
 package com.poisonedyouth.nota.user
 
-import com.poisonedyouth.nota.activitylog.ActivityLogService
+import com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -17,13 +17,13 @@ class UserControllerTest {
 
     private lateinit var mockMvc: MockMvc
     private lateinit var userService: UserService
-    private lateinit var activityLogService: ActivityLogService
+    private lateinit var activityEventPublisher: ActivityEventPublisher
 
     @BeforeEach
     fun setup() {
         userService = mockk()
-        activityLogService = mockk()
-        val controller = UserController(userService, activityLogService)
+        activityEventPublisher = mockk()
+        val controller = UserController(userService, activityEventPublisher)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
     }
 
@@ -98,7 +98,7 @@ class UserControllerTest {
         val userDto = UserDto(id = 1L, username = username, mustChangePassword = false)
 
         every { userService.authenticate(any()) } returns userDto
-        every { activityLogService.logActivity(any(), any(), any(), any(), any()) } just Runs
+        every { activityEventPublisher.publishLoginEvent(any()) } just Runs
 
         // When/Then
         mockMvc.perform(
@@ -120,7 +120,7 @@ class UserControllerTest {
         val userDto = UserDto(id = 1L, username = username, mustChangePassword = true)
 
         every { userService.authenticate(any()) } returns userDto
-        every { activityLogService.logActivity(any(), any(), any(), any(), any()) } just Runs
+        every { activityEventPublisher.publishLoginEvent(any()) } just Runs
 
         // When/Then
         mockMvc.perform(

@@ -1,6 +1,7 @@
 package com.poisonedyouth.nota.notes
 
 import com.poisonedyouth.nota.activitylog.ActivityLogService
+import com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher
 import com.poisonedyouth.nota.user.UserDto
 import io.mockk.Runs
 import io.mockk.every
@@ -21,6 +22,7 @@ class NoteControllerTest {
     private lateinit var mockMvc: MockMvc
     private lateinit var noteService: NoteService
     private lateinit var activityLogService: ActivityLogService
+    private lateinit var activityEventPublisher: ActivityEventPublisher
     private lateinit var mockSession: MockHttpSession
     private lateinit var testUser: UserDto
 
@@ -28,6 +30,7 @@ class NoteControllerTest {
     fun setup() {
         noteService = mockk()
         activityLogService = mockk()
+        activityEventPublisher = mockk()
         mockSession = MockHttpSession()
         testUser = UserDto(
             id = 1L,
@@ -37,7 +40,7 @@ class NoteControllerTest {
 
         mockSession.setAttribute("currentUser", testUser)
 
-        val controller = NoteController(noteService, activityLogService)
+        val controller = NoteController(noteService, activityLogService, activityEventPublisher)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
     }
 
@@ -113,7 +116,7 @@ class NoteControllerTest {
         )
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns noteDto
         every { noteService.archiveNote(noteId, 1L) } returns true
-        every { activityLogService.logActivity(any(), any(), any(), any(), any()) } just Runs
+        every { activityEventPublisher.publishArchiveNoteEvent(any(), any(), any()) } just Runs
 
         // When/Then
         mockMvc.perform(MockMvcRequestBuilders.delete("/notes/$noteId").session(mockSession))
@@ -157,7 +160,7 @@ class NoteControllerTest {
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns noteDto
         every { noteService.archiveNote(noteId, 1L) } returns true
         every { noteService.findAllNotes(1L) } returns remainingNotes
-        every { activityLogService.logActivity(any(), any(), any(), any(), any()) } just Runs
+        every { activityEventPublisher.publishArchiveNoteEvent(any(), any(), any()) } just Runs
 
         // When/Then
         mockMvc.perform(

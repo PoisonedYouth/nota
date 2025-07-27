@@ -92,9 +92,17 @@ class ActivityLogE2ETest {
         )
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
 
-        // Step 5: Check that all activities were logged
+        // Step 5: Check that all activities were logged (with retry for async processing)
         println("[DEBUG_LOG] Step 5: Checking logged activities")
-        val activities = activityLogService.getAllActivities(user.id)
+        var activities = listOf<com.poisonedyouth.nota.activitylog.ActivityLogDto>()
+        var attempts = 0
+        val maxAttempts = 10
+        while (attempts < maxAttempts && activities.size < 4) {
+            Thread.sleep(100) // Wait 100ms between attempts
+            activities = activityLogService.getAllActivities(user.id)
+            attempts++
+            println("[DEBUG_LOG] Attempt $attempts: Found ${activities.size} activities")
+        }
         activities.size shouldBe 4 // LOGIN, CREATE, UPDATE, ARCHIVE
 
         // Verify the activities (most recent first)
@@ -171,6 +179,9 @@ class ActivityLogE2ETest {
             entityId = 456L,
             description = "User 2 created a note",
         )
+
+        // Wait a bit for potential async processing (though this test uses direct service calls)
+        Thread.sleep(100)
 
         // Verify user 1 only sees their activities
         val user1Activities = activityLogService.getAllActivities(1L)

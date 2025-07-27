@@ -1,6 +1,7 @@
 package com.poisonedyouth.nota.notes
 
 import com.poisonedyouth.nota.activitylog.ActivityLogService
+import com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher
 import com.poisonedyouth.nota.user.UserDto
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam
 class NoteController(
     private val noteService: NoteService,
     private val activityLogService: ActivityLogService,
+    private val activityEventPublisher: ActivityEventPublisher,
 ) {
 
     private fun getCurrentUser(session: HttpSession): UserDto? {
@@ -90,14 +92,8 @@ class NoteController(
 
         val newNote = noteService.createNote(createNoteDto, user.id)
 
-        // Log the activity
-        activityLogService.logActivity(
-            userId = user.id,
-            action = "CREATE",
-            entityType = "NOTE",
-            entityId = newNote.id,
-            description = "Notiz erstellt: '${newNote.title}'",
-        )
+        // Publish create note event
+        activityEventPublisher.publishCreateNoteEvent(user.id, newNote.id, newNote.title)
 
         return if (htmxRequest != null) {
             // HTMX Request: Nur die neue Notiz als Fragment zurückgeben
@@ -166,15 +162,9 @@ class NoteController(
         val note = noteService.findAccessibleNoteById(id, user.id)
         noteService.archiveNote(id, user.id)
 
-        // Log the activity
+        // Publish archive note event
         if (note != null) {
-            activityLogService.logActivity(
-                userId = user.id,
-                action = "ARCHIVE",
-                entityType = "NOTE",
-                entityId = id,
-                description = "Notiz archiviert: '${note.title}'",
-            )
+            activityEventPublisher.publishArchiveNoteEvent(user.id, id, note.title)
         }
 
         return if (htmxRequest != null) {
@@ -271,14 +261,8 @@ class NoteController(
             return "redirect:/notes"
         }
 
-        // Log the activity
-        activityLogService.logActivity(
-            userId = user.id,
-            action = "UPDATE",
-            entityType = "NOTE",
-            entityId = updatedNote.id,
-            description = "Notiz bearbeitet: '${updatedNote.title}'",
-        )
+        // Publish update note event
+        activityEventPublisher.publishUpdateNoteEvent(user.id, updatedNote.id, updatedNote.title)
 
         return if (htmxRequest != null) {
             // HTMX Request: Return updated note card
@@ -375,16 +359,10 @@ class NoteController(
             }
         }
 
-        // Log the activity
+        // Publish share note event
         val note = noteService.findNoteById(id, user.id)
         if (note != null) {
-            activityLogService.logActivity(
-                userId = user.id,
-                action = "SHARE",
-                entityType = "NOTE",
-                entityId = id,
-                description = "Notiz geteilt: '${note.title}' mit Benutzer '${shareNoteDto.username}'",
-            )
+            activityEventPublisher.publishShareNoteEvent(user.id, id, note.title, shareNoteDto.username)
         }
 
         return if (htmxRequest != null) {
