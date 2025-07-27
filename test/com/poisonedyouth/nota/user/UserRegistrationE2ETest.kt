@@ -70,9 +70,9 @@ class UserRegistrationE2ETest {
 
         // Step 6: Verify authentication service works with hashed password
         val loginDto = LoginDto(username, initialPassword)
-        val authenticatedUser = userService.authenticate(loginDto)
-        authenticatedUser shouldNotBe null
-        authenticatedUser!!.username shouldBe username
+        val authenticationResult = userService.authenticate(loginDto)
+        require(authenticationResult is AuthenticationResult.Success) { "Expected Success but got $authenticationResult" }
+        authenticationResult.user.username shouldBe username
     }
 
     @Test

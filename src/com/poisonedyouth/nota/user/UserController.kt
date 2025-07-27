@@ -51,22 +51,31 @@ class UserController(
         session: HttpSession,
         model: Model,
     ): String {
-        val user = userService.authenticate(loginDto)
-        return if (user != null) {
-            session.setAttribute("currentUser", user)
+        val authResult = userService.authenticate(loginDto)
+        return when (authResult) {
+            is AuthenticationResult.Success -> {
+                val user = authResult.user
+                session.setAttribute("currentUser", user)
 
-            // Publish login event
-            activityEventPublisher.publishLoginEvent(user.id)
+                // Publish login event
+                activityEventPublisher.publishLoginEvent(user.id)
 
-            if (user.mustChangePassword) {
-                "redirect:/auth/change-password"
-            } else {
-                "redirect:/notes"
+                if (user.mustChangePassword) {
+                    "redirect:/auth/change-password"
+                } else {
+                    "redirect:/notes"
+                }
             }
-        } else {
-            model.addAttribute("error", "Ungültiger Benutzername oder Passwort")
-            model.addAttribute("loginDto", loginDto)
-            "auth/login"
+            is AuthenticationResult.UserDisabled -> {
+                model.addAttribute("error", "Ihr Konto ist vorübergehend deaktiviert. Bitte wenden Sie sich an den Administrator.")
+                model.addAttribute("loginDto", loginDto)
+                "auth/login"
+            }
+            is AuthenticationResult.InvalidCredentials -> {
+                model.addAttribute("error", "Ungültiger Benutzername oder Passwort")
+                model.addAttribute("loginDto", loginDto)
+                "auth/login"
+            }
         }
     }
 

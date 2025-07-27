@@ -8,11 +8,17 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
+@Suppress("TooManyFunctions") // Repository with various query methods
 interface NoteRepository : JpaRepository<Note, Long> {
     // User-filtered methods
     fun findAllByUserAndArchivedFalseOrderByUpdatedAtDesc(user: User): List<Note>
     fun findAllByUserAndArchivedTrueOrderByUpdatedAtDesc(user: User): List<Note>
     fun findByIdAndUser(id: Long, user: User): Note?
+
+    // Count methods for admin statistics
+    fun countByUser(user: User): Long
+    fun countByUserAndArchivedTrue(user: User): Long
+    fun countByArchivedTrue(): Long
 
     // User-filtered search methods
     fun findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(

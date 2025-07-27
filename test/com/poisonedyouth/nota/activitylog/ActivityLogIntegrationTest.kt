@@ -1,6 +1,7 @@
 package com.poisonedyouth.nota.activitylog
 
 import com.poisonedyouth.nota.user.UserDto
+import com.poisonedyouth.nota.user.UserRole
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +37,7 @@ class ActivityLogIntegrationTest {
     fun `showActivityLog should return activity log view for authenticated user`() {
         // Given
         val session = MockHttpSession()
-        val user = UserDto(1L, "testuser", false)
+        val user = UserDto(1L, "testuser", false, UserRole.USER)
         session.setAttribute("currentUser", user)
 
         // Create some test activities
@@ -78,7 +79,7 @@ class ActivityLogIntegrationTest {
     fun `showActivityLog should respect limit parameter`() {
         // Given
         val session = MockHttpSession()
-        val user = UserDto(1L, "testuser", false)
+        val user = UserDto(1L, "testuser", false, UserRole.USER)
         session.setAttribute("currentUser", user)
 
         // Create multiple test activities

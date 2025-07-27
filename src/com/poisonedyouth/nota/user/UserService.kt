@@ -25,13 +25,15 @@ class UserService(
             .joinToString("")
     }
 
-    fun authenticate(loginDto: LoginDto): UserDto? {
+    fun authenticate(loginDto: LoginDto): AuthenticationResult {
         val user = userRepository.findByUsername(loginDto.username)
         val hashedPassword = hashPassword(loginDto.password)
-        return if (user != null && user.password == hashedPassword) {
-            UserDto.fromEntity(user)
-        } else {
-            null
+
+        return when {
+            user == null -> AuthenticationResult.InvalidCredentials
+            user.password != hashedPassword -> AuthenticationResult.InvalidCredentials
+            !user.enabled -> AuthenticationResult.UserDisabled
+            else -> AuthenticationResult.Success(UserDto.fromEntity(user))
         }
     }
 

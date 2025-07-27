@@ -3,6 +3,7 @@ package com.poisonedyouth.nota.notes
 import com.poisonedyouth.nota.user.User
 import com.poisonedyouth.nota.user.UserDto
 import com.poisonedyouth.nota.user.UserRepository
+import com.poisonedyouth.nota.user.UserRole
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -58,6 +59,7 @@ class NoteE2ETest
                     id = testUser.id!!,
                     username = testUser.username,
                     mustChangePassword = testUser.mustChangePassword,
+                    role = UserRole.USER,
                 ),
             )
         }

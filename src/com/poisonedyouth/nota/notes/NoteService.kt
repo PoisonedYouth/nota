@@ -26,7 +26,7 @@ class NoteService(
             "h1", "h2", "h3", "h4", "h5", "h6",
             "ul", "ol", "li",
             "blockquote", "code", "pre",
-            "a"
+            "a",
         )
 
         // Remove script tags and other dangerous elements

@@ -51,4 +51,7 @@ interface NoteShareRepository : JpaRepository<NoteShare, Long> {
 
     // Delete share by note and shared with user
     fun deleteByNoteAndSharedWithUser(note: Note, sharedWithUser: User)
+
+    // Count methods for admin statistics
+    fun countBySharedByUser(user: User): Long
 }

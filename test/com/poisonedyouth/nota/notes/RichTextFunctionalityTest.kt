@@ -24,7 +24,7 @@ class RichTextFunctionalityTest {
     private val testUser = User(
         id = 1L,
         username = "testuser",
-        password = "password"
+        password = "password",
     )
 
     @BeforeEach
@@ -42,7 +42,7 @@ class RichTextFunctionalityTest {
         // Given
         val createNoteDto = CreateNoteDto(
             title = "Rich Text Note",
-            content = "<p>This is <strong>bold</strong> and <em>italic</em> text.</p><ul><li>Item 1</li><li>Item 2</li></ul>"
+            content = "<p>This is <strong>bold</strong> and <em>italic</em> text.</p><ul><li>Item 1</li><li>Item 2</li></ul>",
         )
         val savedNote = Note(
             id = 1L,
@@ -50,7 +50,7 @@ class RichTextFunctionalityTest {
             content = createNoteDto.content,
             user = testUser,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
         )
 
         every { noteRepository.save(any()) } returns savedNote
@@ -72,7 +72,7 @@ class RichTextFunctionalityTest {
         // Given
         val createNoteDto = CreateNoteDto(
             title = "Malicious Note",
-            content = "<p>Safe content</p><script>alert('XSS')</script><p>More safe content</p>"
+            content = "<p>Safe content</p><script>alert('XSS')</script><p>More safe content</p>",
         )
         val expectedSanitizedContent = "<p>Safe content</p><p>More safe content</p>"
         val savedNote = Note(
@@ -81,7 +81,7 @@ class RichTextFunctionalityTest {
             content = expectedSanitizedContent,
             user = testUser,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
         )
 
         every { noteRepository.save(any()) } returns savedNote
@@ -101,7 +101,7 @@ class RichTextFunctionalityTest {
         // Given
         val createNoteDto = CreateNoteDto(
             title = "Dangerous Note",
-            content = "<p>Safe content</p><iframe src='http://evil.com'></iframe><object data='malware.exe'></object>"
+            content = "<p>Safe content</p><iframe src='http://evil.com'></iframe><object data='malware.exe'></object>",
         )
         val expectedSanitizedContent = "<p>Safe content</p>"
         val savedNote = Note(
@@ -110,7 +110,7 @@ class RichTextFunctionalityTest {
             content = expectedSanitizedContent,
             user = testUser,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
         )
 
         every { noteRepository.save(any()) } returns savedNote
@@ -129,7 +129,7 @@ class RichTextFunctionalityTest {
         // Given
         val createNoteDto = CreateNoteDto(
             title = "Link Note",
-            content = "<p>Check out <a href='https://example.com'>this link</a> and <a href='javascript:alert(1)'>this bad link</a></p>"
+            content = "<p>Check out <a href='https://example.com'>this link</a> and <a href='javascript:alert(1)'>this bad link</a></p>",
         )
         val savedNote = Note(
             id = 1L,
@@ -137,7 +137,7 @@ class RichTextFunctionalityTest {
             content = "<p>Check out <a href=\"https://example.com\">this link</a> and <a>this bad link</a></p>",
             user = testUser,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
         )
 
         every { noteRepository.save(any()) } returns savedNote
@@ -155,7 +155,7 @@ class RichTextFunctionalityTest {
         // Given
         val createNoteDto = CreateNoteDto(
             title = "Event Handler Note",
-            content = "<p onclick='alert(1)'>Click me</p><div onmouseover='steal()'>Hover me</div>"
+            content = "<p onclick='alert(1)'>Click me</p><div onmouseover='steal()'>Hover me</div>",
         )
         val expectedSanitizedContent = "<p>Click me</p>"
         val savedNote = Note(
@@ -164,7 +164,7 @@ class RichTextFunctionalityTest {
             content = expectedSanitizedContent,
             user = testUser,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
         )
 
         every { noteRepository.save(any()) } returns savedNote
@@ -188,12 +188,12 @@ class RichTextFunctionalityTest {
             content = "<p>Old content</p>",
             user = testUser,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
         )
         val updateNoteDto = UpdateNoteDto(
             id = 1L,
             title = "Updated Note",
-            content = "<p>New content</p><script>alert('XSS')</script>"
+            content = "<p>New content</p><script>alert('XSS')</script>",
         )
         val updatedNote = Note(
             id = 1L,
@@ -201,7 +201,7 @@ class RichTextFunctionalityTest {
             content = "<p>New content</p>",
             user = testUser,
             createdAt = existingNote.createdAt,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
         )
 
         every { noteRepository.findByIdAndUser(1L, testUser) } returns existingNote
@@ -235,7 +235,7 @@ class RichTextFunctionalityTest {
                     <li>Numbered item 2</li>
                 </ol>
                 <pre><code>Code block</code></pre>
-            """.trimIndent()
+            """.trimIndent(),
         )
         val savedNote = Note(
             id = 1L,
@@ -243,7 +243,7 @@ class RichTextFunctionalityTest {
             content = createNoteDto.content,
             user = testUser,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
         )
 
         every { noteRepository.save(any()) } returns savedNote
@@ -270,7 +270,7 @@ class RichTextFunctionalityTest {
         // Given
         val createNoteDto = CreateNoteDto(
             title = "Empty Note",
-            content = ""
+            content = "",
         )
 
         // When & Then

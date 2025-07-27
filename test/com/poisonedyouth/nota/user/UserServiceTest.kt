@@ -95,6 +95,7 @@ class UserServiceTest {
             mustChangePassword = false,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
+            enabled = true,
         )
         every { userRepository.findByUsername("testuser") } returns user
 
@@ -102,15 +103,13 @@ class UserServiceTest {
         val result = userService.authenticate(loginDto)
 
         // Then
-        result shouldNotBe null
-        result!!.username shouldBe "testuser"
-        result.id shouldBe 1L
+        result shouldBe AuthenticationResult.Success(UserDto.fromEntity(user))
 
         verify { userRepository.findByUsername("testuser") }
     }
 
     @Test
-    fun `authenticate should return null for wrong password`() {
+    fun `authenticate should return InvalidCredentials for wrong password`() {
         // Given
         val correctPassword = "password"
         val loginDto = LoginDto("testuser", "wrongpassword")
@@ -127,6 +126,7 @@ class UserServiceTest {
             mustChangePassword = false,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
+            enabled = true,
         )
         every { userRepository.findByUsername("testuser") } returns user
 
@@ -134,13 +134,13 @@ class UserServiceTest {
         val result = userService.authenticate(loginDto)
 
         // Then
-        result shouldBe null
+        result shouldBe AuthenticationResult.InvalidCredentials
 
         verify { userRepository.findByUsername("testuser") }
     }
 
     @Test
-    fun `authenticate should return null for non-existent user`() {
+    fun `authenticate should return InvalidCredentials for non-existent user`() {
         // Given
         val loginDto = LoginDto("nonexistent", "password")
         every { userRepository.findByUsername("nonexistent") } returns null
@@ -149,9 +149,40 @@ class UserServiceTest {
         val result = userService.authenticate(loginDto)
 
         // Then
-        result shouldBe null
+        result shouldBe AuthenticationResult.InvalidCredentials
 
         verify { userRepository.findByUsername("nonexistent") }
+    }
+
+    @Test
+    fun `authenticate should return UserDisabled for disabled user`() {
+        // Given
+        val plainPassword = "password"
+        val loginDto = LoginDto("disableduser", plainPassword)
+
+        // Hash the password
+        val hashedPassword = java.security.MessageDigest.getInstance("SHA-256")
+            .digest(plainPassword.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+
+        val disabledUser = User(
+            id = 1L,
+            username = "disableduser",
+            password = hashedPassword,
+            mustChangePassword = false,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+            enabled = false,
+        )
+        every { userRepository.findByUsername("disableduser") } returns disabledUser
+
+        // When
+        val result = userService.authenticate(loginDto)
+
+        // Then
+        result shouldBe AuthenticationResult.UserDisabled
+
+        verify { userRepository.findByUsername("disableduser") }
     }
 
     @Test
@@ -166,6 +197,7 @@ class UserServiceTest {
             mustChangePassword = false,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
+            enabled = true,
         )
         every { userRepository.save(any()) } returns savedUser
 
@@ -204,6 +236,7 @@ class UserServiceTest {
             mustChangePassword = true,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
+            enabled = true,
         )
 
         every { userRepository.findByUsername(username) } returns existingUser
@@ -216,6 +249,7 @@ class UserServiceTest {
                 mustChangePassword = user.mustChangePassword,
                 createdAt = user.createdAt,
                 updatedAt = user.updatedAt,
+                enabled = user.enabled,
             )
         }
 
@@ -274,6 +308,7 @@ class UserServiceTest {
             mustChangePassword = true,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
+            enabled = true,
         )
 
         every { userRepository.findByUsername(username) } returns existingUser

@@ -3,6 +3,7 @@ package com.poisonedyouth.nota.notes
 import com.poisonedyouth.nota.user.User
 import com.poisonedyouth.nota.user.UserDto
 import com.poisonedyouth.nota.user.UserRepository
+import com.poisonedyouth.nota.user.UserRole
 import io.kotest.matchers.shouldBe
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.AfterEach
@@ -83,6 +84,7 @@ class NoteSharingE2ETest
                     id = ownerUser.id!!,
                     username = ownerUser.username,
                     mustChangePassword = ownerUser.mustChangePassword,
+                    role = UserRole.USER,
                 ),
             )
 
@@ -93,6 +95,7 @@ class NoteSharingE2ETest
                     id = sharedUser.id!!,
                     username = sharedUser.username,
                     mustChangePassword = sharedUser.mustChangePassword,
+                    role = UserRole.USER,
                 ),
             )
         }

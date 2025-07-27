@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 @RequestMapping("/notes")
+@Suppress("TooManyFunctions")
 class NoteController(
     private val noteService: NoteService,
     private val activityLogService: ActivityLogService,

@@ -12,6 +12,7 @@
                     <a href="/notes/shared" class="btn btn-secondary">Geteilte Notizen</a>
                     <a href="/notes/all" class="btn btn-secondary">Alle Notizen</a>
                     <a href="/notes/archive" class="btn btn-secondary">Archiv anzeigen</a>
+                    <a th:if="${currentUser.role.name() == 'ADMIN'}" href="/admin/overview" class="btn btn-secondary">Admin Übersicht</a>
                     <button class="btn btn-primary"
                             hx-get="/notes/modal/new"
                             hx-target="#modal-container">

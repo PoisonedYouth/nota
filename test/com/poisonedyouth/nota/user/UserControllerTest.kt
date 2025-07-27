@@ -40,7 +40,7 @@ class UserControllerTest {
     fun `register should create user and return success view`() {
         // Given
         val username = "newuser"
-        val userDto = UserDto(id = 1L, username = username, mustChangePassword = false)
+        val userDto = UserDto(id = 1L, username = username, mustChangePassword = false, role = UserRole.USER)
         val initialPassword = "ABC123def456"
         val registerResponse = RegisterResponseDto(userDto, initialPassword)
 
@@ -95,9 +95,9 @@ class UserControllerTest {
         // Given
         val username = "testuser"
         val password = "password"
-        val userDto = UserDto(id = 1L, username = username, mustChangePassword = false)
+        val userDto = UserDto(id = 1L, username = username, mustChangePassword = false, role = UserRole.USER)
 
-        every { userService.authenticate(any()) } returns userDto
+        every { userService.authenticate(any()) } returns AuthenticationResult.Success(userDto)
         every { activityEventPublisher.publishLoginEvent(any()) } just Runs
 
         // When/Then
@@ -117,9 +117,9 @@ class UserControllerTest {
         // Given
         val username = "testuser"
         val password = "password"
-        val userDto = UserDto(id = 1L, username = username, mustChangePassword = true)
+        val userDto = UserDto(id = 1L, username = username, mustChangePassword = true, role = UserRole.USER)
 
-        every { userService.authenticate(any()) } returns userDto
+        every { userService.authenticate(any()) } returns AuthenticationResult.Success(userDto)
         every { activityEventPublisher.publishLoginEvent(any()) } just Runs
 
         // When/Then
@@ -140,7 +140,7 @@ class UserControllerTest {
         val username = "testuser"
         val password = "wrongpassword"
 
-        every { userService.authenticate(any()) } returns null
+        every { userService.authenticate(any()) } returns AuthenticationResult.InvalidCredentials
 
         // When/Then
         mockMvc.perform(
@@ -153,6 +153,34 @@ class UserControllerTest {
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("loginDto"))
             .andExpect(MockMvcResultMatchers.model().attribute("error", "Ungültiger Benutzername oder Passwort"))
+
+        verify { userService.authenticate(match { it.username == username && it.password == password }) }
+    }
+
+    @Test
+    fun `login should return warning for disabled user`() {
+        // Given
+        val username = "disableduser"
+        val password = "password"
+
+        every { userService.authenticate(any()) } returns AuthenticationResult.UserDisabled
+
+        // When/Then
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/auth/login")
+                .param("username", username)
+                .param("password", password),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("auth/login"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("loginDto"))
+            .andExpect(
+                MockMvcResultMatchers.model().attribute(
+                    "error",
+                    "Ihr Konto ist vorübergehend deaktiviert. Bitte wenden Sie sich an den Administrator.",
+                ),
+            )
 
         verify { userService.authenticate(match { it.username == username && it.password == password }) }
     }

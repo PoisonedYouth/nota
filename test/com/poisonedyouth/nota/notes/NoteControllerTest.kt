@@ -3,6 +3,7 @@ package com.poisonedyouth.nota.notes
 import com.poisonedyouth.nota.activitylog.ActivityLogService
 import com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher
 import com.poisonedyouth.nota.user.UserDto
+import com.poisonedyouth.nota.user.UserRole
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -36,6 +37,7 @@ class NoteControllerTest {
             id = 1L,
             username = "testuser",
             mustChangePassword = false,
+            role = UserRole.USER,
         )
 
         mockSession.setAttribute("currentUser", testUser)
@@ -382,7 +384,7 @@ class NoteControllerTest {
                 archivedAt = null,
                 dueDate = null,
                 userId = 2L,
-                user = UserDto(2L, "otheruser", false),
+                user = UserDto(2L, "otheruser", false, UserRole.USER),
             ),
         )
         every { noteService.searchAccessibleNotes(query, 1L) } returns accessibleNotes

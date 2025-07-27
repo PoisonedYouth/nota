@@ -3,6 +3,7 @@ package com.poisonedyouth.nota.notes
 import com.poisonedyouth.nota.user.User
 import com.poisonedyouth.nota.user.UserDto
 import com.poisonedyouth.nota.user.UserRepository
+import com.poisonedyouth.nota.user.UserRole
 import io.kotest.matchers.shouldBe
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.AfterEach
@@ -80,6 +81,7 @@ class NoteSharingIntegrationTest
                 id = testUser.id!!,
                 username = testUser.username,
                 mustChangePassword = false,
+                role = UserRole.USER,
             )
             session.setAttribute("currentUser", testUserDto)
         }
