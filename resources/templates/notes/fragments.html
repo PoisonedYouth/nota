@@ -10,7 +10,6 @@
                th:text="${note?.title}"
                class="note-title-link"></a>
         </h3>
-        <p class="note-content" th:text="${note?.getContentPreview()}"></p>
         <div class="note-meta">
             <span class="note-date" th:text="${note?.getFormattedDate()}"></span>
             <span th:if="${note?.dueDate != null}" class="note-due-date" th:text="|Fällig: ${note?.getFormattedDueDate()}|"></span>
@@ -60,13 +59,8 @@
 
             <div class="form-group">
                 <label for="content">Inhalt</label>
-                <textarea id="content"
-                          name="content"
-                          class="form-control"
-                          rows="10"
-                          placeholder="Notiz-Inhalt eingeben..."
-                          th:text="${note?.content}"
-                          required></textarea>
+                <div id="content-editor" style="height: 200px;"></div>
+                <input type="hidden" id="content" name="content" th:value="${note?.content}" required>
             </div>
 
             <div class="form-group">
@@ -96,6 +90,63 @@
                 </button>
             </div>
         </form>
+
+        <script>
+            // Initialize Quill editor when the fragment is loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                initializeQuillEditor();
+            });
+
+            // Also initialize when HTMX loads the fragment
+            document.addEventListener('htmx:afterSettle', function(event) {
+                if (event.target.querySelector('#content-editor')) {
+                    initializeQuillEditor();
+                }
+            });
+
+            function initializeQuillEditor() {
+                const editorElement = document.getElementById('content-editor');
+                const hiddenInput = document.getElementById('content');
+
+                if (!editorElement || editorElement.classList.contains('ql-container')) {
+                    return; // Already initialized
+                }
+
+                // Initialize Quill
+                const quill = new Quill('#content-editor', {
+                    theme: 'snow',
+                    placeholder: 'Notiz-Inhalt eingeben...',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['blockquote', 'code-block'],
+                            ['link'],
+                            ['clean']
+                        ]
+                    }
+                });
+
+                // Set initial content if available
+                if (hiddenInput.value) {
+                    quill.root.innerHTML = hiddenInput.value;
+                }
+
+                // Update hidden input when content changes
+                quill.on('text-change', function() {
+                    hiddenInput.value = quill.root.innerHTML;
+                });
+
+                // Ensure content is updated before form submission
+                const form = editorElement.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        hiddenInput.value = quill.root.innerHTML;
+                    });
+                }
+            }
+        </script>
     </div>
 
     <!-- Archive response fragment that removes note card and updates count -->

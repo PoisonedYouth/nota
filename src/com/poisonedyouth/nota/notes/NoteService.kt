@@ -19,6 +19,52 @@ class NoteService(
         return Sort.by(direction, sortBy)
     }
 
+    private fun sanitizeHtmlContent(content: String): String {
+        // Allow safe HTML tags commonly used by Quill editor
+        val allowedTags = setOf(
+            "p", "br", "strong", "b", "em", "i", "u", "s", "strike",
+            "h1", "h2", "h3", "h4", "h5", "h6",
+            "ul", "ol", "li",
+            "blockquote", "code", "pre",
+            "a"
+        )
+
+        // Remove script tags and other dangerous elements
+        var sanitized = content
+            .replace(Regex("<script[^>]*>.*?</script>", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("<iframe[^>]*>.*?</iframe>", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("<object[^>]*>.*?</object>", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("<embed[^>]*>.*?</embed>", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("<form[^>]*>.*?</form>", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("javascript:", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("on\\w+\\s*=", RegexOption.IGNORE_CASE), "")
+
+        // Remove any tags not in the allowed list
+        sanitized = sanitized.replace(Regex("<(/?)([a-zA-Z][a-zA-Z0-9]*)[^>]*>")) { matchResult ->
+            val isClosing = matchResult.groupValues[1].isNotEmpty()
+            val tagName = matchResult.groupValues[2].lowercase()
+
+            if (allowedTags.contains(tagName)) {
+                if (tagName == "a" && !isClosing) {
+                    // For anchor tags, only allow href attribute and sanitize it
+                    val href = Regex("href\\s*=\\s*[\"']([^\"']*)[\"']", RegexOption.IGNORE_CASE)
+                        .find(matchResult.value)?.groupValues?.get(1) ?: ""
+                    if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("mailto:")) {
+                        "<a href=\"$href\">"
+                    } else {
+                        "<a>"
+                    }
+                } else {
+                    "<${if (isClosing) "/" else ""}$tagName>"
+                }
+            } else {
+                ""
+            }
+        }
+
+        return sanitized.trim()
+    }
+
     fun createNote(createNoteDto: CreateNoteDto, userId: Long): NoteDto {
         if (createNoteDto.content.isBlank()) {
             throw IllegalArgumentException("Note content cannot be empty")
@@ -29,7 +75,7 @@ class NoteService(
         }
         val note = Note(
             title = createNoteDto.title,
-            content = createNoteDto.content,
+            content = sanitizeHtmlContent(createNoteDto.content),
             dueDate = createNoteDto.dueDate,
             user = user,
         )
@@ -90,7 +136,7 @@ class NoteService(
         val updatedNote = Note(
             id = note.id,
             title = updateNoteDto.title,
-            content = updateNoteDto.content,
+            content = sanitizeHtmlContent(updateNoteDto.content),
             dueDate = updateNoteDto.dueDate,
             createdAt = note.createdAt,
             updatedAt = java.time.LocalDateTime.now(),

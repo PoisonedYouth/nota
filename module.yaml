@@ -21,6 +21,9 @@ dependencies:
   # Configuration Processor
   - $spring.boot.configuration.processor
 
+  # HTML Sanitization
+  - com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20240325.1
+
 test-dependencies:
   - $spring.boot.starter.test
   - $kotlin.test.junit5

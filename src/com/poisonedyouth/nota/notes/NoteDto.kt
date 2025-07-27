@@ -53,10 +53,19 @@ data class NoteDto(
     }
 
     fun getContentPreview(maxLength: Int = 100): String {
-        return if (content.length > maxLength) {
-            content.substring(0, maxLength) + "..."
+        // Strip HTML tags for preview
+        val plainText = content.replace(Regex("<[^>]*>"), "")
+            .replace("&nbsp;", " ")
+            .replace("&amp;", "&")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&quot;", "\"")
+            .trim()
+
+        return if (plainText.length > maxLength) {
+            plainText.substring(0, maxLength) + "..."
         } else {
-            content
+            plainText
         }
     }
 

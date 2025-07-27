@@ -279,7 +279,7 @@ class NoteE2ETest
             // Then
             searchResult.andExpect(status().isOk)
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Important Meeting")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("important dinner party")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Shopping List")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Random Note"))))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("search-input"))) // Search form should be present
         }
