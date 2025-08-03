@@ -195,4 +195,147 @@ class ActivityLogE2ETest {
 
         println("[DEBUG_LOG] User isolation test completed successfully")
     }
+
+    @Test
+    fun `activity log pagination should work correctly`() {
+        println("[DEBUG_LOG] Testing activity log pagination functionality")
+
+        // Step 1: Login user
+        val session = MockHttpSession()
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/auth/login")
+                .param("username", "testuser")
+                .param("password", "password")
+                .session(session),
+        )
+
+        val user = session.getAttribute("currentUser") as com.poisonedyouth.nota.user.UserDto
+
+        // Step 2: Create many activities to trigger pagination
+        println("[DEBUG_LOG] Creating 25 activities to test pagination")
+        repeat(25) { index ->
+            activityLogService.logActivity(
+                userId = user.id,
+                action = "CREATE",
+                entityType = "NOTE",
+                entityId = index.toLong(),
+                description = "Test activity $index",
+            )
+        }
+
+        // Step 3: Test first page with pagination controls
+        println("[DEBUG_LOG] Testing first page with pagination controls")
+        val firstPageResult = mockMvc.perform(
+            MockMvcRequestBuilders.get("/notes/activity-log")
+                .param("page", "0")
+                .param("size", "10")
+                .session(session),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
+            .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 0))
+            .andExpect(MockMvcResultMatchers.model().attribute("totalPages", 3))
+            .andExpect(MockMvcResultMatchers.model().attribute("totalElements", 26L)) // 25 activities + 1 LOGIN activity
+            .andExpect(MockMvcResultMatchers.model().attribute("hasNext", true))
+            .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", false))
+            .andReturn()
+
+        val firstPageContent = firstPageResult.response.contentAsString
+        // Verify pagination controls are present
+        firstPageContent.contains("pagination-container") shouldBe true
+        firstPageContent.contains("Seite 1 von 3") shouldBe true
+        firstPageContent.contains("26 Aktivitäten gesamt") shouldBe true
+        firstPageContent.contains("Nächste →") shouldBe true
+        // Previous button should be disabled on first page
+        firstPageContent.contains("btn-secondary disabled") shouldBe true
+
+        // Step 4: Test second page
+        println("[DEBUG_LOG] Testing second page navigation")
+        val secondPageResult = mockMvc.perform(
+            MockMvcRequestBuilders.get("/notes/activity-log")
+                .param("page", "1")
+                .param("size", "10")
+                .session(session),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
+            .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 1))
+            .andExpect(MockMvcResultMatchers.model().attribute("hasNext", true))
+            .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", true))
+            .andReturn()
+
+        val secondPageContent = secondPageResult.response.contentAsString
+        secondPageContent.contains("Seite 2 von 3") shouldBe true
+        secondPageContent.contains("← Vorherige") shouldBe true
+        secondPageContent.contains("Nächste →") shouldBe true
+
+        // Step 5: Test last page
+        println("[DEBUG_LOG] Testing last page")
+        val lastPageResult = mockMvc.perform(
+            MockMvcRequestBuilders.get("/notes/activity-log")
+                .param("page", "2")
+                .param("size", "10")
+                .session(session),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 2))
+            .andExpect(MockMvcResultMatchers.model().attribute("hasNext", false))
+            .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", true))
+            .andReturn()
+
+        val lastPageContent = lastPageResult.response.contentAsString
+        lastPageContent.contains("Seite 3 von 3") shouldBe true
+        lastPageContent.contains("← Vorherige") shouldBe true
+        // Next button should be disabled on last page
+        lastPageContent.contains("Nächste →") shouldBe true
+        lastPageContent.contains("btn-secondary disabled") shouldBe true
+
+        println("[DEBUG_LOG] Pagination functionality test completed successfully")
+    }
+
+    @Test
+    fun `activity log should not show pagination for single page`() {
+        println("[DEBUG_LOG] Testing pagination visibility with few activities")
+
+        // Step 1: Login user
+        val session = MockHttpSession()
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/auth/login")
+                .param("username", "testuser")
+                .param("password", "password")
+                .session(session),
+        )
+
+        val user = session.getAttribute("currentUser") as com.poisonedyouth.nota.user.UserDto
+
+        // Step 2: Create only a few activities (less than page size)
+        println("[DEBUG_LOG] Creating 5 activities (less than page size)")
+        repeat(5) { index ->
+            activityLogService.logActivity(
+                userId = user.id,
+                action = "CREATE",
+                entityType = "NOTE",
+                entityId = index.toLong(),
+                description = "Test activity $index",
+            )
+        }
+
+        // Step 3: Verify pagination controls are not shown
+        println("[DEBUG_LOG] Verifying pagination controls are hidden")
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/notes/activity-log")
+                .param("size", "20")
+                .session(session),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.model().attribute("totalPages", 1))
+            .andReturn()
+
+        val content = result.response.contentAsString
+        // Pagination container should not be present when totalPages <= 1
+        content.contains("pagination-container") shouldBe false
+        content.contains("Seite 1 von 1") shouldBe false
+
+        println("[DEBUG_LOG] Single page test completed successfully")
+    }
 }

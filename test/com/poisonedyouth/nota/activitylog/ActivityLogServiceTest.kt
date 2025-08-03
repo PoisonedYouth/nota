@@ -6,6 +6,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import java.time.LocalDateTime
 
@@ -68,9 +70,12 @@ class ActivityLogServiceTest {
             ),
         )
 
+        val pageable = PageRequest.of(0, limit)
+        val activitiesPage = PageImpl(activities, pageable, activities.size.toLong())
+
         every {
-            activityLogRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(0, limit))
-        } returns activities
+            activityLogRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
+        } returns activitiesPage
 
         // When
         val result = activityLogService.getRecentActivities(userId, limit)
@@ -81,6 +86,57 @@ class ActivityLogServiceTest {
         result[0].description shouldBe "Created note"
         result[1].action shouldBe "UPDATE"
         result[1].description shouldBe "Updated note"
+    }
+
+    @Test
+    fun `getActivitiesPage should return paginated activities`() {
+        // Given
+        val userId = 1L
+        val page = 1
+        val size = 5
+        val activities = listOf(
+            ActivityLog(
+                id = 1L,
+                userId = userId,
+                action = "CREATE",
+                entityType = "NOTE",
+                entityId = 123L,
+                description = "Created note",
+                createdAt = LocalDateTime.now(),
+            ),
+            ActivityLog(
+                id = 2L,
+                userId = userId,
+                action = "UPDATE",
+                entityType = "NOTE",
+                entityId = 123L,
+                description = "Updated note",
+                createdAt = LocalDateTime.now().minusMinutes(5),
+            ),
+        )
+
+        val pageable = PageRequest.of(page, size)
+        val activitiesPage = PageImpl(activities, pageable, 10L) // Total of 10 activities
+
+        every {
+            activityLogRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
+        } returns activitiesPage
+
+        // When
+        val result = activityLogService.getActivitiesPage(userId, page, size)
+
+        // Then
+        result.content.size shouldBe 2
+        result.totalElements shouldBe 10L
+        result.totalPages shouldBe 2
+        result.number shouldBe 1
+        result.size shouldBe 5
+        result.hasNext() shouldBe false
+        result.hasPrevious() shouldBe true
+        result.content[0].action shouldBe "CREATE"
+        result.content[0].description shouldBe "Created note"
+        result.content[1].action shouldBe "UPDATE"
+        result.content[1].description shouldBe "Updated note"
     }
 
     @Test

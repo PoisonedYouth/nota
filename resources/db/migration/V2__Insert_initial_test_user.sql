@@ -1,3 +1,3 @@
--- Insert initial test user
+-- Insert initial test user (password: 'password')
 INSERT INTO users (username, password, must_change_password, created_at, updated_at)
-VALUES ('testuser', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES ('testuser', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

@@ -442,12 +442,19 @@ class NoteController(
     fun showActivityLog(
         model: Model,
         session: HttpSession,
-        @RequestParam(value = "limit", required = false, defaultValue = "50") limit: Int,
+        @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
+        @RequestParam(value = "size", required = false, defaultValue = "20") size: Int,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        val activities = activityLogService.getRecentActivities(user.id, limit)
-        model.addAttribute("activities", activities)
+        val activitiesPage = activityLogService.getActivitiesPage(user.id, page, size)
+        model.addAttribute("activities", activitiesPage.content)
         model.addAttribute("currentUser", user)
+        model.addAttribute("currentPage", page)
+        model.addAttribute("totalPages", activitiesPage.totalPages)
+        model.addAttribute("totalElements", activitiesPage.totalElements)
+        model.addAttribute("hasNext", activitiesPage.hasNext())
+        model.addAttribute("hasPrevious", activitiesPage.hasPrevious())
+        model.addAttribute("pageSize", size)
         return "notes/activity-log"
     }
 }

@@ -76,14 +76,14 @@ class ActivityLogIntegrationTest {
     }
 
     @Test
-    fun `showActivityLog should respect limit parameter`() {
+    fun `showActivityLog should respect page and size parameters`() {
         // Given
         val session = MockHttpSession()
         val user = UserDto(1L, "testuser", false, UserRole.USER)
         session.setAttribute("currentUser", user)
 
         // Create multiple test activities
-        repeat(10) { index ->
+        repeat(25) { index ->
             activityLogService.logActivity(
                 userId = user.id,
                 action = "CREATE",
@@ -93,15 +93,58 @@ class ActivityLogIntegrationTest {
             )
         }
 
-        // When & Then
+        // When & Then - Test first page
         mockMvc.perform(
             MockMvcRequestBuilders.get("/notes/activity-log")
-                .param("limit", "5")
+                .param("page", "0")
+                .param("size", "10")
                 .session(session),
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("activities"))
+            .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 0))
+            .andExpect(MockMvcResultMatchers.model().attribute("pageSize", 10))
+            .andExpect(MockMvcResultMatchers.model().attribute("totalPages", 3))
+            .andExpect(MockMvcResultMatchers.model().attribute("totalElements", 25L))
+            .andExpect(MockMvcResultMatchers.model().attribute("hasNext", true))
+            .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", false))
+    }
+
+    @Test
+    fun `showActivityLog should handle second page correctly`() {
+        // Given
+        val session = MockHttpSession()
+        val user = UserDto(1L, "testuser", false, UserRole.USER)
+        session.setAttribute("currentUser", user)
+
+        // Create multiple test activities
+        repeat(25) { index ->
+            activityLogService.logActivity(
+                userId = user.id,
+                action = "CREATE",
+                entityType = "NOTE",
+                entityId = index.toLong(),
+                description = "Notiz erstellt: 'Test Note $index'",
+            )
+        }
+
+        // When & Then - Test second page
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/notes/activity-log")
+                .param("page", "1")
+                .param("size", "10")
+                .session(session),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("activities"))
+            .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 1))
+            .andExpect(MockMvcResultMatchers.model().attribute("pageSize", 10))
+            .andExpect(MockMvcResultMatchers.model().attribute("totalPages", 3))
+            .andExpect(MockMvcResultMatchers.model().attribute("totalElements", 25L))
+            .andExpect(MockMvcResultMatchers.model().attribute("hasNext", true))
+            .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", true))
     }
 
     @Test

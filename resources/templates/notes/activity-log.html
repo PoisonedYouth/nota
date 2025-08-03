@@ -36,6 +36,61 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Pagination Controls -->
+                <div th:if="${totalPages > 1}" class="pagination-container">
+                    <div class="pagination-info">
+                        <span th:text="'Seite ' + (${currentPage} + 1) + ' von ' + ${totalPages} + ' (' + ${totalElements} + ' Aktivitäten gesamt)'"></span>
+                    </div>
+                    <div class="pagination-controls">
+                        <!-- Previous Page -->
+                        <a th:if="${hasPrevious}"
+                           th:href="@{/notes/activity-log(page=${currentPage - 1}, size=${pageSize})}"
+                           class="btn btn-secondary">
+                            ← Vorherige
+                        </a>
+                        <span th:unless="${hasPrevious}" class="btn btn-secondary disabled">← Vorherige</span>
+
+                        <!-- Page Numbers -->
+                        <div class="page-numbers">
+                            <!-- First page -->
+                            <a th:if="${currentPage > 2}"
+                               th:href="@{/notes/activity-log(page=0, size=${pageSize})}"
+                               class="btn btn-outline">1</a>
+                            <span th:if="${currentPage > 3}" class="pagination-ellipsis">...</span>
+
+                            <!-- Previous page -->
+                            <a th:if="${currentPage > 0}"
+                               th:href="@{/notes/activity-log(page=${currentPage - 1}, size=${pageSize})}"
+                               class="btn btn-outline"
+                               th:text="${currentPage}"></a>
+
+                            <!-- Current page -->
+                            <span class="btn btn-primary current-page" th:text="${currentPage + 1}"></span>
+
+                            <!-- Next page -->
+                            <a th:if="${currentPage < totalPages - 1}"
+                               th:href="@{/notes/activity-log(page=${currentPage + 1}, size=${pageSize})}"
+                               class="btn btn-outline"
+                               th:text="${currentPage + 2}"></a>
+
+                            <!-- Last page -->
+                            <span th:if="${currentPage < totalPages - 4}" class="pagination-ellipsis">...</span>
+                            <a th:if="${currentPage < totalPages - 3}"
+                               th:href="@{/notes/activity-log(page=${totalPages - 1}, size=${pageSize})}"
+                               class="btn btn-outline"
+                               th:text="${totalPages}"></a>
+                        </div>
+
+                        <!-- Next Page -->
+                        <a th:if="${hasNext}"
+                           th:href="@{/notes/activity-log(page=${currentPage + 1}, size=${pageSize})}"
+                           class="btn btn-secondary">
+                            Nächste →
+                        </a>
+                        <span th:unless="${hasNext}" class="btn btn-secondary disabled">Nächste →</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

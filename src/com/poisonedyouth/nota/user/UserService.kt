@@ -1,5 +1,6 @@
 package com.poisonedyouth.nota.user
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest
@@ -11,10 +12,14 @@ class UserService(
     private val userRepository: UserRepository,
 ) {
 
+    private val passwordEncoder = BCryptPasswordEncoder()
+
     private fun hashPassword(password: String): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(password.toByteArray())
-        return hashBytes.joinToString("") { "%02x".format(it) }
+        return passwordEncoder.encode(password)
+    }
+
+    private fun verifyPassword(password: String, hashedPassword: String): Boolean {
+        return passwordEncoder.matches(password, hashedPassword)
     }
 
     private fun generateInitialPassword(): String {
@@ -27,11 +32,10 @@ class UserService(
 
     fun authenticate(loginDto: LoginDto): AuthenticationResult {
         val user = userRepository.findByUsername(loginDto.username)
-        val hashedPassword = hashPassword(loginDto.password)
 
         return when {
             user == null -> AuthenticationResult.InvalidCredentials
-            user.password != hashedPassword -> AuthenticationResult.InvalidCredentials
+            !verifyPassword(loginDto.password, user.password) -> AuthenticationResult.InvalidCredentials
             !user.enabled -> AuthenticationResult.UserDisabled
             else -> AuthenticationResult.Success(UserDto.fromEntity(user))
         }
@@ -77,8 +81,7 @@ class UserService(
             ?: throw IllegalArgumentException("User not found")
 
         // Verify current password
-        val hashedCurrentPassword = hashPassword(changePasswordDto.currentPassword)
-        if (user.password != hashedCurrentPassword) {
+        if (!verifyPassword(changePasswordDto.currentPassword, user.password)) {
             throw IllegalArgumentException("Current password is incorrect")
         }
 
@@ -88,10 +91,11 @@ class UserService(
         }
 
         // Validate new password is different from current
-        val hashedNewPassword = hashPassword(changePasswordDto.newPassword)
-        if (user.password == hashedNewPassword) {
+        if (verifyPassword(changePasswordDto.newPassword, user.password)) {
             throw IllegalArgumentException("New password must be different from current password")
         }
+
+        val hashedNewPassword = hashPassword(changePasswordDto.newPassword)
 
         // Update password and clear mustChangePassword flag
         val updatedUser = User(
