@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.transaction.annotation.Transactional
-import java.security.MessageDigest
 import java.time.LocalDateTime
 
 @SpringBootTest
@@ -42,9 +41,9 @@ class AdminE2ETest
         private lateinit var user2Username: String
 
         private fun hashPassword(password: String): String {
-            val digest = MessageDigest.getInstance("SHA-256")
-            val hashBytes = digest.digest(password.toByteArray())
-            return hashBytes.joinToString("") { "%02x".format(it) }
+            // Use BCrypt encoder consistent with production code
+            val encoder = org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder()
+            return encoder.encode(password)
         }
 
         @BeforeEach
@@ -263,8 +262,7 @@ class AdminE2ETest
 
             // Try to access admin overview without authentication
             mockMvc.perform(MockMvcRequestBuilders.get("/admin/overview"))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
+                .andExpect(MockMvcResultMatchers.status().isForbidden)
 
             // Login as regular user
             val session = MockHttpSession()

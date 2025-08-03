@@ -13,10 +13,10 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Component
 class SessionAuthenticationFilter : OncePerRequestFilter() {
 
-    override fun doFilterInternal(
+    public override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         // Skip authentication for public endpoints
         if (isPublicEndpoint(request.requestURI)) {
@@ -39,7 +39,7 @@ class SessionAuthenticationFilter : OncePerRequestFilter() {
             val authToken = UsernamePasswordAuthenticationToken(
                 currentUser.username,
                 null,
-                emptyList() // No authorities for now
+                emptyList(), // No authorities for now
             )
             authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
             SecurityContextHolder.getContext().authentication = authToken
@@ -50,9 +50,9 @@ class SessionAuthenticationFilter : OncePerRequestFilter() {
 
     private fun isPublicEndpoint(uri: String): Boolean {
         return uri.startsWith("/auth/") ||
-                uri.startsWith("/css/") ||
-                uri.startsWith("/js/") ||
-                uri.startsWith("/images/") ||
-                uri.startsWith("/actuator/")
+            uri.startsWith("/css/") ||
+            uri.startsWith("/js/") ||
+            uri.startsWith("/images/") ||
+            uri.startsWith("/actuator/")
     }
 }

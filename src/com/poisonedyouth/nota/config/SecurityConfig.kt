@@ -10,7 +10,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val sessionAuthenticationFilter: SessionAuthenticationFilter
+    private val sessionAuthenticationFilter: SessionAuthenticationFilter,
 ) {
 
     @Bean

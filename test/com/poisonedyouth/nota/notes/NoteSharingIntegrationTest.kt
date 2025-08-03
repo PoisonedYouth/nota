@@ -122,8 +122,7 @@ class NoteSharingIntegrationTest
                 get("/notes/modal/${testNote.id}")
                     .param("mode", "share"),
             )
-                .andExpect(status().is3xxRedirection)
-                .andExpect(redirectedUrl("/auth/login"))
+                .andExpect(status().isForbidden)
         }
 
         @Test

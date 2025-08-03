@@ -9,6 +9,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
 class UserServiceTest {
@@ -82,11 +83,9 @@ class UserServiceTest {
         val plainPassword = "password"
         val loginDto = LoginDto("testuser", plainPassword)
 
-        // Create a user with the same password hashing logic as the service
-        val testUserService = UserService(userRepository)
-        val hashedPassword = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(plainPassword.toByteArray())
-            .joinToString("") { "%02x".format(it) }
+        // Generate BCrypt hash using the same encoder as production
+        val passwordEncoder = BCryptPasswordEncoder()
+        val hashedPassword = passwordEncoder.encode(plainPassword)
 
         val user = User(
             id = 1L,
@@ -114,10 +113,9 @@ class UserServiceTest {
         val correctPassword = "password"
         val loginDto = LoginDto("testuser", "wrongpassword")
 
-        // Hash the correct password
-        val hashedPassword = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(correctPassword.toByteArray())
-            .joinToString("") { "%02x".format(it) }
+        // Generate BCrypt hash for correct password
+        val passwordEncoder = BCryptPasswordEncoder()
+        val hashedPassword = passwordEncoder.encode(correctPassword)
 
         val user = User(
             id = 1L,
@@ -160,10 +158,9 @@ class UserServiceTest {
         val plainPassword = "password"
         val loginDto = LoginDto("disableduser", plainPassword)
 
-        // Hash the password
-        val hashedPassword = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(plainPassword.toByteArray())
-            .joinToString("") { "%02x".format(it) }
+        // Generate BCrypt hash using the same encoder as production
+        val passwordEncoder = BCryptPasswordEncoder()
+        val hashedPassword = passwordEncoder.encode(plainPassword)
 
         val disabledUser = User(
             id = 1L,
@@ -225,9 +222,8 @@ class UserServiceTest {
         val newPassword = "newpassword"
         val changePasswordDto = ChangePasswordDto(currentPassword, newPassword, newPassword)
 
-        val hashedCurrentPassword = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(currentPassword.toByteArray())
-            .joinToString("") { "%02x".format(it) }
+        val passwordEncoder = BCryptPasswordEncoder()
+        val hashedCurrentPassword = passwordEncoder.encode(currentPassword)
 
         val existingUser = User(
             id = 1L,
@@ -297,9 +293,8 @@ class UserServiceTest {
         val wrongPassword = "wrongpassword"
         val changePasswordDto = ChangePasswordDto(wrongPassword, "newpassword", "newpassword")
 
-        val hashedCorrectPassword = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(correctPassword.toByteArray())
-            .joinToString("") { "%02x".format(it) }
+        val passwordEncoder = BCryptPasswordEncoder()
+        val hashedCorrectPassword = passwordEncoder.encode(correctPassword)
 
         val existingUser = User(
             id = 1L,
@@ -330,9 +325,8 @@ class UserServiceTest {
         val currentPassword = "currentpassword"
         val changePasswordDto = ChangePasswordDto(currentPassword, "newpassword", "differentpassword")
 
-        val hashedCurrentPassword = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(currentPassword.toByteArray())
-            .joinToString("") { "%02x".format(it) }
+        val passwordEncoder = BCryptPasswordEncoder()
+        val hashedCurrentPassword = passwordEncoder.encode(currentPassword)
 
         val existingUser = User(
             id = 1L,
@@ -362,9 +356,8 @@ class UserServiceTest {
         val currentPassword = "samepassword"
         val changePasswordDto = ChangePasswordDto(currentPassword, currentPassword, currentPassword)
 
-        val hashedCurrentPassword = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(currentPassword.toByteArray())
-            .joinToString("") { "%02x".format(it) }
+        val passwordEncoder = BCryptPasswordEncoder()
+        val hashedCurrentPassword = passwordEncoder.encode(currentPassword)
 
         val existingUser = User(
             id = 1L,
