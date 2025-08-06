@@ -21,10 +21,19 @@ class UserService(
         return passwordEncoder.matches(password, hashedPassword)
     }
 
+    private fun validatePasswordComplexity(password: String) {
+        require(password.length >= 12) { "Password must be at least 12 characters long" }
+        require(password.any { it.isUpperCase() }) { "Password must contain at least one uppercase letter" }
+        require(password.any { it.isLowerCase() }) { "Password must contain at least one lowercase letter" }
+        require(password.any { it.isDigit() }) { "Password must contain at least one digit" }
+        require(password.any { !it.isLetterOrDigit() }) { "Password must contain at least one special character" }
+    }
+
     private fun generateInitialPassword(): String {
-        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        val specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$specialChars"
         val random = SecureRandom()
-        return (1..12)
+        return (1..16)
             .map { chars[random.nextInt(chars.length)] }
             .joinToString("")
     }
@@ -41,6 +50,7 @@ class UserService(
     }
 
     fun createUser(username: String, password: String): UserDto {
+        validatePasswordComplexity(password)
         val hashedPassword = hashPassword(password)
         val user = User(
             username = username,
@@ -88,6 +98,9 @@ class UserService(
         if (changePasswordDto.newPassword != changePasswordDto.confirmPassword) {
             throw IllegalArgumentException("New password and confirmation do not match")
         }
+
+        // Validate new password complexity
+        validatePasswordComplexity(changePasswordDto.newPassword)
 
         // Validate new password is different from current
         if (verifyPassword(changePasswordDto.newPassword, user.password)) {
