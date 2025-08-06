@@ -156,6 +156,12 @@ interface UserRepository : JpaRepository<User, Long> {
 
 ## Testing Strategy
 
+### Testing Framework and Mocking
+- **Use MockK for mocking**, not Mockito
+- MockK is the preferred mocking library for Kotlin projects
+- It provides better Kotlin integration, including support for extension functions, coroutines, and DSL syntax
+- For REST controller tests, use standalone MockMvc setup with MockK
+
 ### Test Types
 1. **Unit Tests**: Test individual components in isolation
 2. **Integration Tests**: Test component interactions
@@ -204,6 +210,44 @@ class UserServiceTest {
         result.username shouldBe username
         verify { passwordEncoder.encode(password) }
         verify { userRepository.save(match { it.password == hashedPassword }) }
+    }
+}
+```
+
+### REST Controller Tests
+```kotlin
+class UserRestControllerTest {
+    
+    private lateinit var mockMvc: MockMvc
+    private lateinit var userService: UserService
+    private lateinit var activityEventPublisher: ActivityEventPublisher
+    
+    @BeforeEach
+    fun setup() {
+        userService = mockk()
+        activityEventPublisher = mockk()
+        val controller = UserRestController(userService, activityEventPublisher)
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
+    }
+    
+    @Test
+    fun `should register user successfully`() {
+        // Given
+        val registerDto = RegisterDto("testuser")
+        val userDto = UserDto(id = 1L, username = "testuser", mustChangePassword = true, role = UserRole.USER)
+        val registerResponseDto = RegisterResponseDto(userDto, "generated123")
+        
+        every { userService.registerUser(registerDto) } returns registerResponseDto
+        
+        // When & Then
+        mockMvc.perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerDto))
+        )
+        .andExpect(status().isOk)
+        .andExpect(jsonPath("$.user.username").value("testuser"))
+        .andExpect(jsonPath("$.initialPassword").value("generated123"))
     }
 }
 ```
@@ -393,5 +437,7 @@ This document should be regularly updated as the project evolves and new pattern
 
 
 ### General Instructions
+- **Always run `make all` before finishing a task** - This verifies that code format is correct and all tests are passing.
 - Always run all the tests before finishing a task.
 - Always run static code analysis before finishing a task.
+- Name integration tests with the suffix IT, end to end tests with the suffix E2E.

@@ -4,7 +4,10 @@
       "Bash(find:*)",
       "Bash(./amper test:*)",
       "Bash(ktlint:*)",
-      "Bash(make:*)"
+      "Bash(make:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(./gradlew:*)",
+      "Bash(./amper:*)"
     ],
     "deny": []
   }

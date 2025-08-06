@@ -19,6 +19,7 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/auth/**").permitAll() // Allow access to custom auth endpoints
+                    .requestMatchers("/api/auth/**").permitAll() // Allow access to REST API auth endpoints
                     .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Allow static resources
                     .requestMatchers("/actuator/**").permitAll() // Allow actuator endpoints
                     .anyRequest().authenticated()

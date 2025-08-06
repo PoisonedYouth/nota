@@ -10,29 +10,35 @@
                th:text="${note?.title}"
                class="note-title-link"></a>
         </h3>
+        
+        <!-- Note metadata -->
         <div class="note-meta">
-            <span class="note-date" th:text="${note?.getFormattedDate()}"></span>
-            <span th:if="${note?.dueDate != null}" class="note-due-date" th:text="|Fällig: ${note?.getFormattedDueDate()}|"></span>
-            <span class="note-owner" th:text="|Ersteller: ${note?.user?.username}|"></span>
-            <div th:if="${!note?.archived}" class="note-actions">
-                <button class="btn btn-primary btn-sm"
-                        th:attr="hx-get=@{/notes/modal/{id}(id=${note != null ? note.id : ''})}"
-                        hx-target="#modal-container">
-                    Bearbeiten
-                </button>
-                <button class="btn btn-info btn-sm"
-                        th:attr="hx-get=@{/notes/modal/{id}(id=${note != null ? note.id : ''}, mode='share')}"
-                        hx-target="#modal-container">
-                    Teilen
-                </button>
-                <button class="btn btn-danger btn-sm"
-                        th:attr="hx-delete=@{/notes/{id}(id=${note != null ? note.id : ''})}"
-                        hx-confirm="Notiz archivieren?"
-                        hx-target="closest .note-card"
-                        hx-swap="outerHTML swap:0.5s">
-                    Archivieren
-                </button>
+            <div class="note-meta-info">
+                <span class="note-date" th:text="${note?.getFormattedDate()}"></span>
+                <span th:if="${note?.dueDate != null}" class="note-due-date" th:text="|Fällig: ${note?.getFormattedDueDate()}|"></span>
+                <span class="note-owner" th:text="|von ${note?.user?.username}|"></span>
             </div>
+        </div>
+        
+        <!-- Note actions - separate from meta for better layout -->
+        <div th:if="${!note?.archived}" class="note-actions">
+            <button class="btn btn-secondary btn-sm"
+                    th:attr="hx-get=@{/notes/modal/{id}(id=${note != null ? note.id : ''})}"
+                    hx-target="#modal-container">
+                <span>✏️</span> Bearbeiten
+            </button>
+            <button class="btn btn-secondary btn-sm"
+                    th:attr="hx-get=@{/notes/modal/{id}(id=${note != null ? note.id : ''}, mode='share')}"
+                    hx-target="#modal-container">
+                <span>👥</span> Teilen
+            </button>
+            <button class="btn btn-accent btn-sm"
+                    th:attr="hx-delete=@{/notes/{id}(id=${note != null ? note.id : ''})}"
+                    hx-confirm="Notiz archivieren?"
+                    hx-target="closest .note-card"
+                    hx-swap="outerHTML swap:0.5s">
+                <span>📦</span> Archivieren
+            </button>
         </div>
     </div>
 

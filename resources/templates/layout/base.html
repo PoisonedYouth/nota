@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nota - Intelligente Notizen</title>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
@@ -19,16 +24,26 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <div class="login-logo">
+            <div class="navbar-brand">
                 <div class="logo-icon">📝</div>
-                <h1 class="logo-text">Nota</h1>
-                <p class="logo-subtitle">Intelligente Notizen</p>
+                <div class="brand-text">
+                    <h1 class="logo-text">Nota</h1>
+                    <p class="logo-subtitle">Intelligente Notizen</p>
+                </div>
             </div>
             <div class="navbar-actions">
                 <div class="user-info" th:if="${currentUser}">
-                    <span class="username" th:text="'Willkommen, ' + ${currentUser.username}"></span>
-                    <form th:action="@{/auth/logout}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-secondary">Abmelden</button>
+                    <div class="user-avatar">
+                        <span class="avatar-text" th:text="${#strings.substring(currentUser.username, 0, 1).toUpperCase()}">U</span>
+                    </div>
+                    <div class="user-details">
+                        <span class="username" th:text="${currentUser.username}">Username</span>
+                        <span class="user-role" th:text="${currentUser.role.name()}">Role</span>
+                    </div>
+                    <form th:action="@{/auth/logout}" method="post" class="logout-form">
+                        <button type="submit" class="btn btn-secondary">
+                            <span>🚪</span> Abmelden
+                        </button>
                     </form>
                 </div>
             </div>

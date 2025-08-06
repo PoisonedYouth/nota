@@ -5,18 +5,30 @@
     <div th:fragment="content">
         <div class="container">
             <div class="notes-header">
-                <h2>Meine Notizen</h2>
-                <div class="notes-count" th:text="|${#lists.size(notes)} Notizen|"></div>
+                <div class="header-content">
+                    <h2>Meine Notizen</h2>
+                    <div class="notes-count" th:text="|${#lists.size(notes)} Notizen|"></div>
+                </div>
                 <div class="header-actions">
-                    <a href="/notes/activity-log" class="btn btn-secondary">Aktivitätsprotokoll</a>
-                    <a href="/notes/shared" class="btn btn-secondary">Geteilte Notizen</a>
-                    <a href="/notes/all" class="btn btn-secondary">Alle Notizen</a>
-                    <a href="/notes/archive" class="btn btn-secondary">Archiv anzeigen</a>
-                    <a th:if="${currentUser.role.name() == 'ADMIN'}" href="/admin/overview" class="btn btn-secondary">Admin Übersicht</a>
+                    <a href="/notes/activity-log" class="btn btn-secondary">
+                        <span>📊</span> Aktivitätsprotokoll
+                    </a>
+                    <a href="/notes/shared" class="btn btn-secondary">
+                        <span>👥</span> Geteilte Notizen
+                    </a>
+                    <a href="/notes/all" class="btn btn-secondary">
+                        <span>📋</span> Alle Notizen
+                    </a>
+                    <a href="/notes/archive" class="btn btn-secondary">
+                        <span>📦</span> Archiv
+                    </a>
+                    <a th:if="${currentUser.role.name() == 'ADMIN'}" href="/admin/overview" class="btn btn-secondary">
+                        <span>⚙️</span> Admin Übersicht
+                    </a>
                     <button class="btn btn-primary"
                             hx-get="/notes/modal/new"
                             hx-target="#modal-container">
-                        Neue Notiz
+                        <span>➕</span> Neue Notiz
                     </button>
                 </div>
             </div>
@@ -61,13 +73,17 @@
                 </div>
             </div>
 
-            <!-- Platzhalter für leere Liste -->
+            <!-- Empty State -->
             <div th:if="${#lists.isEmpty(notes)}" class="empty-state">
-                <p>Noch keine Notizen vorhanden</p>
-                <button class="btn btn-primary"
+                <div class="empty-state-icon">📝</div>
+                <h3 class="empty-state-title">Noch keine Notizen vorhanden</h3>
+                <p class="empty-state-description">
+                    Erstellen Sie Ihre erste Notiz und beginnen Sie mit dem Organisieren Ihrer Gedanken und Ideen.
+                </p>
+                <button class="btn btn-primary btn-large"
                         hx-get="/notes/modal/new"
                         hx-target="#modal-container">
-                    Erste Notiz erstellen
+                    <span>✨</span> Erste Notiz erstellen
                 </button>
             </div>
         </div>

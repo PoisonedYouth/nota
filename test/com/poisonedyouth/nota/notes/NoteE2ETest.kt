@@ -126,7 +126,7 @@ class NoteE2ETest
 
             // Then
             result.andExpect(status().isOk)
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ersteller: ${testUser.username}")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("von ${testUser.username}")))
         }
 
         @Test
