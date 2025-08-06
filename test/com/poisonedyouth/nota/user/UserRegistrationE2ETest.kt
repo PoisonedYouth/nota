@@ -57,7 +57,7 @@ class UserRegistrationE2ETest {
 
         // Step 4: Extract initial password from response
         val initialPassword = registrationResult.modelAndView?.model?.get("initialPassword") as String
-        initialPassword shouldHaveLength 12
+        initialPassword shouldHaveLength 16
 
         // Step 5: Login with generated password (should redirect to change password)
         mockMvc.perform(

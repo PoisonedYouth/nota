@@ -14,8 +14,8 @@ class DataInitializer(
     override fun run(vararg args: String?) {
         // Create a test user if it doesn't exist (only in test profile)
         if (userService.findByUsername("testuser") == null) {
-            userService.createUser("testuser", "password")
-            println("Created test user: testuser / password")
+            userService.createUser("testuser", "TestPassword123!")
+            println("Created test user: testuser / TestPassword123!")
         }
     }
 }

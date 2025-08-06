@@ -64,7 +64,7 @@ class AdminE2ETest
             // Create admin user
             val adminUser = User(
                 username = adminUsername,
-                password = hashPassword("adminpass"),
+                password = hashPassword("AdminPass123!"),
                 role = UserRole.ADMIN,
                 createdAt = LocalDateTime.of(2024, 1, 1, 10, 0),
                 updatedAt = LocalDateTime.of(2024, 1, 1, 10, 0),
@@ -74,7 +74,7 @@ class AdminE2ETest
             // Create regular users with different scenarios
             val user1 = User(
                 username = user1Username,
-                password = hashPassword("password1"),
+                password = hashPassword("UserPassword1!"),
                 mustChangePassword = true,
                 role = UserRole.USER,
                 createdAt = LocalDateTime.of(2024, 1, 2, 11, 0),
@@ -84,7 +84,7 @@ class AdminE2ETest
 
             val user2 = User(
                 username = user2Username,
-                password = hashPassword("password2"),
+                password = hashPassword("UserPassword2!"),
                 role = UserRole.USER,
                 createdAt = LocalDateTime.of(2024, 1, 3, 12, 0),
                 updatedAt = LocalDateTime.of(2024, 1, 3, 12, 0),
@@ -153,7 +153,7 @@ class AdminE2ETest
             mockMvc.perform(
                 MockMvcRequestBuilders.post("/auth/login")
                     .param("username", adminUsername)
-                    .param("password", "adminpass")
+                    .param("password", "AdminPass123!")
                     .session(session),
             )
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
@@ -212,7 +212,7 @@ class AdminE2ETest
             mockMvc.perform(
                 MockMvcRequestBuilders.post("/auth/login")
                     .param("username", user1Username)
-                    .param("password", "password1")
+                    .param("password", "UserPassword1!")
                     .session(regularSession),
             )
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
@@ -235,7 +235,7 @@ class AdminE2ETest
             mockMvc.perform(
                 MockMvcRequestBuilders.post("/auth/login")
                     .param("username", adminUsername)
-                    .param("password", "adminpass")
+                    .param("password", "AdminPass123!")
                     .session(adminSession),
             )
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
@@ -269,7 +269,7 @@ class AdminE2ETest
             mockMvc.perform(
                 MockMvcRequestBuilders.post("/auth/login")
                     .param("username", user1Username)
-                    .param("password", "password1")
+                    .param("password", "UserPassword1!")
                     .session(session),
             )
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
@@ -294,7 +294,7 @@ class AdminE2ETest
             mockMvc.perform(
                 MockMvcRequestBuilders.post("/auth/login")
                     .param("username", adminUsername)
-                    .param("password", "adminpass")
+                    .param("password", "AdminPass123!")
                     .session(session),
             )
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection)

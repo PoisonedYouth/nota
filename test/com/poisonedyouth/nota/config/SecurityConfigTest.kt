@@ -36,7 +36,7 @@ class SecurityConfigTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/auth/login")
                 .param("username", "testuser")
-                .param("password", "password"),
+                .param("password", "TestPassword123!"),
         )
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
     }

@@ -50,7 +50,7 @@ class ActivityLogE2ETest {
         val loginResult = mockMvc.perform(
             MockMvcRequestBuilders.post("/auth/login")
                 .param("username", "testuser")
-                .param("password", "password")
+                .param("password", "TestPassword123!")
                 .session(session),
         )
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
@@ -205,7 +205,7 @@ class ActivityLogE2ETest {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/auth/login")
                 .param("username", "testuser")
-                .param("password", "password")
+                .param("password", "TestPassword123!")
                 .session(session),
         )
 
@@ -302,7 +302,7 @@ class ActivityLogE2ETest {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/auth/login")
                 .param("username", "testuser")
-                .param("password", "password")
+                .param("password", "TestPassword123!")
                 .session(session),
         )
 

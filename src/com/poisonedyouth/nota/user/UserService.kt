@@ -30,12 +30,27 @@ class UserService(
     }
 
     private fun generateInitialPassword(): String {
+        val upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        val lowerCase = "abcdefghijklmnopqrstuvwxyz"
+        val digits = "0123456789"
         val specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$specialChars"
+        val allChars = "$upperCase$lowerCase$digits$specialChars"
         val random = SecureRandom()
-        return (1..16)
-            .map { chars[random.nextInt(chars.length)] }
-            .joinToString("")
+
+        // Ensure at least one character from each required category
+        val requiredChars = listOf(
+            upperCase[random.nextInt(upperCase.length)],
+            lowerCase[random.nextInt(lowerCase.length)],
+            digits[random.nextInt(digits.length)],
+            specialChars[random.nextInt(specialChars.length)],
+        )
+
+        // Fill remaining positions with random characters from all categories
+        val remainingChars = (1..(16 - requiredChars.size))
+            .map { allChars[random.nextInt(allChars.length)] }
+
+        // Combine and shuffle to avoid predictable patterns
+        return (requiredChars + remainingChars).shuffled(random).joinToString("")
     }
 
     fun authenticate(loginDto: LoginDto): AuthenticationResult {
