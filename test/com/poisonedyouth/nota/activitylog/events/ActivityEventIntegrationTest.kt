@@ -58,7 +58,7 @@ class ActivityEventIntegrationTest
                 activityLog.action shouldBe "LOGIN"
                 activityLog.entityType shouldBe "USER"
                 activityLog.entityId shouldBe testUser.id
-                activityLog.description shouldBe "User logged in"
+                activityLog.description shouldBe "Benutzer angemeldet"
             }
 
         @Test

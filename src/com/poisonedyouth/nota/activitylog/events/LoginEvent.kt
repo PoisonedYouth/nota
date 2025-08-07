@@ -6,9 +6,9 @@ package com.poisonedyouth.nota.activitylog.events
 class LoginEvent(
     userId: Long,
 ) : ActivityEvent(
-        userId = userId,
-        action = "LOGIN",
-        entityType = "USER",
-        entityId = userId,
-        description = "Benutzer angemeldet",
-    )
+    userId = userId,
+    action = "LOGIN",
+    entityType = "USER",
+    entityId = userId,
+    description = "Benutzer angemeldet",
+)

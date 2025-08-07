@@ -151,7 +151,7 @@ class ActivityLogServiceTest {
                     action = "LOGIN",
                     entityType = "USER",
                     entityId = userId,
-                    description = "User logged in",
+                    description = "Benutzer angemeldet",
                     createdAt = LocalDateTime.now(),
                 ),
             )
@@ -164,7 +164,7 @@ class ActivityLogServiceTest {
         // Then
         result.size shouldBe 1
         result[0].action shouldBe "LOGIN"
-        result[0].description shouldBe "User logged in"
+        result[0].description shouldBe "Benutzer angemeldet"
         result[0].formattedCreatedAt shouldNotBe null
     }
 }

@@ -8,9 +8,9 @@ class ArchiveNoteEvent(
     noteId: Long,
     noteTitle: String,
 ) : ActivityEvent(
-        userId = userId,
-        action = "ARCHIVE",
-        entityType = "NOTE",
-        entityId = noteId,
-        description = "Notiz archiviert: '$noteTitle'",
-    )
+    userId = userId,
+    action = "ARCHIVE",
+    entityType = "NOTE",
+    entityId = noteId,
+    description = "Notiz archiviert: '$noteTitle'",
+)

@@ -8,9 +8,9 @@ class UpdateNoteEvent(
     noteId: Long,
     noteTitle: String,
 ) : ActivityEvent(
-        userId = userId,
-        action = "UPDATE",
-        entityType = "NOTE",
-        entityId = noteId,
-        description = "Notiz bearbeitet: '$noteTitle'",
-    )
+    userId = userId,
+    action = "UPDATE",
+    entityType = "NOTE",
+    entityId = noteId,
+    description = "Notiz bearbeitet: '$noteTitle'",
+)
