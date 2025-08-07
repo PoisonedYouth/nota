@@ -435,6 +435,112 @@ fun createUser(username: String): User {
 
 This document should be regularly updated as the project evolves and new patterns emerge.
 
+## Commit Message Conventions
+
+Follow the Conventional Commits specification with the NOTA project prefix to maintain a clear and traceable commit history.
+
+### Commit Message Format
+
+```
+[NOTA-x] type(scope): description
+
+[optional body]
+
+[optional footer(s)]
+```
+
+Where:
+- **x** is an incremental number (starting from 1)
+- **type** describes the kind of change
+- **scope** is optional and describes the part of the codebase affected
+- **description** is a short summary of the change
+
+### Commit Types
+
+- **feat**: A new feature for the user
+- **fix**: A bug fix for the user
+- **docs**: Documentation changes
+- **style**: Code style changes (formatting, missing semicolons, etc.)
+- **refactor**: Code refactoring without changing functionality
+- **test**: Adding or updating tests
+- **chore**: Maintenance tasks, dependency updates, build changes
+- **perf**: Performance improvements
+- **security**: Security-related changes
+
+### Examples
+
+```bash
+# New feature
+[NOTA-18] feat(auth): add password complexity validation
+
+# Bug fix
+[NOTA-19] fix(notes): resolve duplicate note creation issue
+
+# Refactoring
+[NOTA-20] refactor(service): extract HTML sanitization helper methods
+
+# Documentation
+[NOTA-21] docs: update API documentation for REST endpoints
+
+# Style/formatting
+[NOTA-22] style: fix ktlint formatting violations
+
+# Security improvement
+[NOTA-23] security(auth): implement rate limiting for login attempts
+
+# Test additions
+[NOTA-24] test(notes): add unit tests for note sharing functionality
+
+# Performance optimization
+[NOTA-25] perf(database): optimize note search query performance
+```
+
+### Commit Message Guidelines
+
+1. **Use imperative mood**: "add", "fix", "update" (not "added", "fixes", "updating")
+2. **Keep the subject line under 72 characters**
+3. **Start with lowercase letter** in the description
+4. **Don't end the subject line with a period**
+5. **Include the NOTA-x prefix** for all commits to maintain traceability
+6. **Use the body to explain what and why** rather than how
+7. **Reference issues/PRs** in the footer when applicable
+
+### Scope Examples
+
+Common scopes in this project:
+- `auth`: Authentication and authorization
+- `notes`: Note management functionality  
+- `user`: User management
+- `admin`: Administrative features
+- `api`: REST API changes
+- `ui`: User interface changes
+- `config`: Configuration changes
+- `db`: Database-related changes
+- `security`: Security improvements
+- `test`: Testing-related changes
+
+### Breaking Changes
+
+For breaking changes, add `!` after the type/scope and include `BREAKING CHANGE:` in the footer:
+
+```bash
+[NOTA-26] feat(api)!: change user authentication endpoint structure
+
+BREAKING CHANGE: The /api/auth/login endpoint now returns different response structure.
+The 'user' field is now nested under 'data' property.
+```
+
+### Footer Format
+
+Use footers for additional metadata:
+
+```bash
+[NOTA-27] fix(notes): resolve note deletion authorization bug
+
+Fixes: #123
+Reviewed-by: @teammate
+Co-authored-by: Claude <noreply@anthropic.com>
+```
 
 ### General Instructions
 - **Always run `make all` before finishing a task** - This verifies that code format is correct and all tests are passing.
