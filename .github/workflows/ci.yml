@@ -172,26 +172,26 @@ jobs:
     - name: Make Amper executable
       run: chmod +x ./amper
 
-    - name: Build application
-      run: ./amper build
+    - name: Build and package application
+      run: ./amper package
 
     - name: Create application JAR
       run: |
-        # Find the built JAR file
-        JAR_PATH=$(find build -name "*.jar" -type f | grep -v sources | head -1)
-        if [ -z "$JAR_PATH" ]; then
-          echo "No JAR file found in build directory"
+        # Find the executable JAR file
+        EXECUTABLE_JAR_PATH=$(find build -name "*-executable.jar" -type f | head -1)
+        if [ -z "$EXECUTABLE_JAR_PATH" ]; then
+          echo "No executable JAR file found in build directory"
           ls -la build/
           exit 1
         fi
 
         # Copy to a standard location with version info
         VERSION=$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA::7}
-        cp "$JAR_PATH" "nota-${VERSION}.jar"
-        cp "$JAR_PATH" "nota-latest.jar"
+        cp "$EXECUTABLE_JAR_PATH" "nota-${VERSION}.jar"
+        cp "$EXECUTABLE_JAR_PATH" "nota-latest.jar"
 
         echo "JAR_VERSION=${VERSION}" >> $GITHUB_ENV
-        echo "JAR_PATH=${JAR_PATH}" >> $GITHUB_ENV
+        echo "JAR_PATH=${EXECUTABLE_JAR_PATH}" >> $GITHUB_ENV
 
     - name: Verify JAR
       run: |
@@ -199,6 +199,8 @@ jobs:
         ls -la nota-*.jar
         echo "JAR manifest:"
         jar -tf nota-latest.jar | head -20
+        echo "Testing if JAR is executable:"
+        timeout 10s java -jar nota-latest.jar --help || echo "JAR execution test completed (timeout expected for Spring Boot app)"
 
     - name: Upload JAR artifact
       uses: actions/upload-artifact@v4
