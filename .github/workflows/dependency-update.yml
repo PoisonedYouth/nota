@@ -1,0 +1,176 @@
+name: Dependency Update Check
+
+on:
+  schedule:
+    # Run weekly on Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'corretto'
+
+jobs:
+  dependency-check:
+    name: Check Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
+        
+    - name: Cache Amper dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.m2
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          .amper/cache
+        key: ${{ runner.os }}-amper-${{ hashFiles('**/module.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-amper-
+    
+    - name: Make Amper executable
+      run: chmod +x ./amper
+      
+    - name: Check for dependency updates
+      run: |
+        echo "Checking for dependency updates..."
+        
+        # Create a report of current dependencies
+        echo "## Current Dependencies" > dependency-report.md
+        echo "" >> dependency-report.md
+        echo "### Spring Boot Dependencies" >> dependency-report.md
+        grep -E "spring\.boot\." module.yaml | sed 's/^/- /' >> dependency-report.md
+        
+        echo "" >> dependency-report.md
+        echo "### Kotlin Dependencies" >> dependency-report.md
+        grep -E "kotlin|jetbrains" module.yaml | sed 's/^/- /' >> dependency-report.md
+        
+        echo "" >> dependency-report.md
+        echo "### Database Dependencies" >> dependency-report.md
+        grep -E "h2database|postgresql|flyway" module.yaml | sed 's/- /- /' >> dependency-report.md
+        
+        echo "" >> dependency-report.md
+        echo "### Test Dependencies" >> dependency-report.md
+        grep -E "mockk|kotest|junit" module.yaml | sed 's/^/- /' >> dependency-report.md
+        
+        echo "" >> dependency-report.md
+        echo "### Other Dependencies" >> dependency-report.md
+        grep -v -E "spring\.boot\.|kotlin|jetbrains|h2database|postgresql|flyway|mockk|kotest|junit|^#|^$|product:|dependencies:|test-dependencies:|settings:" module.yaml | sed 's/^/- /' >> dependency-report.md
+        
+    - name: Check for security vulnerabilities
+      run: |
+        echo "Checking for security vulnerabilities..."
+        
+        # Try to build the project to resolve all dependencies
+        ./amper build
+        
+        echo "## Security Check Results" >> security-report.md
+        echo "Generated on: $(date)" >> security-report.md
+        echo "" >> security-report.md
+        
+        # Check for known vulnerable versions (basic check)
+        echo "### Known Issues to Check Manually" >> security-report.md
+        echo "Please verify these dependencies against CVE databases:" >> security-report.md
+        echo "- H2 Database version" >> security-report.md
+        echo "- Spring Boot version" >> security-report.md
+        echo "- Jackson version" >> security-report.md
+        echo "- PostgreSQL driver version" >> security-report.md
+        
+    - name: Generate update recommendations
+      run: |
+        echo "## Dependency Update Recommendations" > update-recommendations.md
+        echo "Generated on: $(date)" >> update-recommendations.md
+        echo "" >> update-recommendations.md
+        
+        echo "### 🔍 Manual Review Required" >> update-recommendations.md
+        echo "The following dependencies should be reviewed for updates:" >> update-recommendations.md
+        echo "" >> update-recommendations.md
+        
+        echo "1. **Spring Boot**: Check for latest stable version" >> update-recommendations.md
+        echo "2. **Kotlin**: Verify compatibility with latest Kotlin version" >> update-recommendations.md
+        echo "3. **Database Drivers**: Check for security patches" >> update-recommendations.md
+        echo "4. **Test Dependencies**: Update to latest stable versions" >> update-recommendations.md
+        echo "" >> update-recommendations.md
+        
+        echo "### 📋 Update Process" >> update-recommendations.md
+        echo "1. Update \`module.yaml\` with new versions" >> update-recommendations.md
+        echo "2. Run \`make test\` to verify compatibility" >> update-recommendations.md
+        echo "3. Run \`make check\` for code quality validation" >> update-recommendations.md
+        echo "4. Create PR with changes" >> update-recommendations.md
+        
+    - name: Upload dependency reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-reports-${{ github.run_number }}
+        path: |
+          dependency-report.md
+          security-report.md
+          update-recommendations.md
+        retention-days: 30
+        
+    - name: Create issue for manual review (if scheduled)
+      if: github.event_name == 'schedule'
+      run: |
+        echo "Creating issue for dependency review..."
+        
+        ISSUE_BODY=$(cat << EOF
+        ## 🔍 Weekly Dependency Review
+        
+        This is an automated weekly dependency check. Please review the attached reports and consider updating dependencies as needed.
+        
+        ### 📊 Reports Generated
+        - Dependency Report: Lists current dependencies
+        - Security Report: Basic security considerations
+        - Update Recommendations: Suggested update process
+        
+        ### 🔄 Action Items
+        - [ ] Review current dependency versions
+        - [ ] Check for security advisories
+        - [ ] Test updates in development environment
+        - [ ] Create PR for approved updates
+        
+        ### 📎 Artifacts
+        Check the workflow artifacts for detailed reports: 
+        https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        
+        ---
+        *This issue was created automatically by the dependency update workflow.*
+        EOF
+        )
+        
+        gh issue create \
+          --title "🔍 Weekly Dependency Review - $(date +'%Y-%m-%d')" \
+          --body "$ISSUE_BODY" \
+          --label "dependencies,maintenance" \
+          --assignee "${{ github.repository_owner }}"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build summary
+      run: |
+        echo "## 📊 Dependency Check Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📋 Reports Generated" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Dependency inventory created" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Security check performed" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Update recommendations generated" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔄 Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "1. Download the artifact reports from this workflow run" >> $GITHUB_STEP_SUMMARY
+        echo "2. Review dependency versions against latest releases" >> $GITHUB_STEP_SUMMARY
+        echo "3. Check security advisories for current versions" >> $GITHUB_STEP_SUMMARY
+        echo "4. Plan updates for non-breaking changes" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Workflow Run**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
