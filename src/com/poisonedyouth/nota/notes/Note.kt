@@ -19,28 +19,20 @@ class Note(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-
     @Column(nullable = false)
     val title: String,
-
     @Column(columnDefinition = "TEXT")
     val content: String = "",
-
     @Column(nullable = true)
     val dueDate: LocalDateTime? = null,
-
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
     @Column(nullable = false)
     val updatedAt: LocalDateTime = LocalDateTime.now(),
-
     @Column(nullable = false)
     val archived: Boolean = false,
-
     @Column(nullable = true)
     val archivedAt: LocalDateTime? = null,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface NoteShareRepository : JpaRepository<NoteShare, Long> {
-
     // Find all shares for a specific note
     fun findAllByNote(note: Note): List<NoteShare>
 
@@ -16,10 +15,16 @@ interface NoteShareRepository : JpaRepository<NoteShare, Long> {
     fun findAllBySharedWithUser(user: User): List<NoteShare>
 
     // Find specific share between note and user
-    fun findByNoteAndSharedWithUser(note: Note, sharedWithUser: User): NoteShare?
+    fun findByNoteAndSharedWithUser(
+        note: Note,
+        sharedWithUser: User,
+    ): NoteShare?
 
     // Check if a note is shared with a user
-    fun existsByNoteAndSharedWithUser(note: Note, sharedWithUser: User): Boolean
+    fun existsByNoteAndSharedWithUser(
+        note: Note,
+        sharedWithUser: User,
+    ): Boolean
 
     // Find all notes accessible to a user (owned or shared)
     @Query(
@@ -50,7 +55,10 @@ interface NoteShareRepository : JpaRepository<NoteShare, Long> {
     ): List<Note>
 
     // Delete share by note and shared with user
-    fun deleteByNoteAndSharedWithUser(note: Note, sharedWithUser: User)
+    fun deleteByNoteAndSharedWithUser(
+        note: Note,
+        sharedWithUser: User,
+    )
 
     // Count methods for admin statistics
     fun countBySharedByUser(user: User): Long

@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
 class UserRestControllerTest {
-
     private lateinit var mockMvc: MockMvc
     private lateinit var userService: UserService
     private lateinit var activityEventPublisher: ActivityEventPublisher
@@ -36,23 +35,24 @@ class UserRestControllerTest {
     fun `should register user successfully`() {
         // Given
         val registerDto = RegisterDto("testuser")
-        val userDto = UserDto(
-            id = 1L,
-            username = "testuser",
-            mustChangePassword = true,
-            role = UserRole.USER,
-        )
+        val userDto =
+            UserDto(
+                id = 1L,
+                username = "testuser",
+                mustChangePassword = true,
+                role = UserRole.USER,
+            )
         val registerResponseDto = RegisterResponseDto(userDto, "generated123")
 
         every { userService.registerUser(registerDto) } returns registerResponseDto
 
         // When & Then
-        mockMvc.perform(
-            post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerDto)),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/api/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(registerDto)),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.user.username").value("testuser"))
             .andExpect(jsonPath("$.user.mustChangePassword").value(true))
             .andExpect(jsonPath("$.initialPassword").value("generated123"))
@@ -65,12 +65,12 @@ class UserRestControllerTest {
         every { userService.registerUser(registerDto) } throws IllegalArgumentException("Username 'existinguser' already exists")
 
         // When & Then
-        mockMvc.perform(
-            post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerDto)),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(registerDto)),
+            ).andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error").value("Username 'existinguser' already exists"))
     }
 
@@ -78,24 +78,25 @@ class UserRestControllerTest {
     fun `should login user successfully`() {
         // Given
         val loginDto = LoginDto("testuser", "password")
-        val userDto = UserDto(
-            id = 1L,
-            username = "testuser",
-            mustChangePassword = false,
-            role = UserRole.USER,
-        )
+        val userDto =
+            UserDto(
+                id = 1L,
+                username = "testuser",
+                mustChangePassword = false,
+                role = UserRole.USER,
+            )
         val authResult = AuthenticationResult.Success(userDto)
 
         every { userService.authenticate(loginDto) } returns authResult
         every { activityEventPublisher.publishLoginEvent(1L) } just runs
 
         // When & Then
-        mockMvc.perform(
-            post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginDto)),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.user.username").value("testuser"))
             .andExpect(jsonPath("$.user.mustChangePassword").value(false))
             .andExpect(jsonPath("$.mustChangePassword").value(false))
@@ -110,12 +111,12 @@ class UserRestControllerTest {
         every { userService.authenticate(loginDto) } returns AuthenticationResult.InvalidCredentials
 
         // When & Then
-        mockMvc.perform(
-            post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)),
-        )
-            .andExpect(status().isUnauthorized)
+        mockMvc
+            .perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginDto)),
+            ).andExpect(status().isUnauthorized)
             .andExpect(jsonPath("$.error").value("Invalid username or password"))
     }
 
@@ -126,12 +127,12 @@ class UserRestControllerTest {
         every { userService.authenticate(loginDto) } returns AuthenticationResult.UserDisabled
 
         // When & Then
-        mockMvc.perform(
-            post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)),
-        )
-            .andExpect(status().isForbidden)
+        mockMvc
+            .perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginDto)),
+            ).andExpect(status().isForbidden)
             .andExpect(jsonPath("$.error").value("Account is temporarily disabled. Please contact the administrator."))
     }
 }

@@ -14,18 +14,16 @@ class UserRestController(
     private val userService: UserService,
     private val activityEventPublisher: ActivityEventPublisher,
 ) {
-
     @PostMapping("/register")
     fun register(
         @RequestBody registerDto: RegisterDto,
-    ): ResponseEntity<*> {
-        return try {
+    ): ResponseEntity<*> =
+        try {
             val registrationResult = userService.registerUser(registerDto)
             ResponseEntity.ok(registrationResult)
         } catch (e: IllegalArgumentException) {
             ResponseEntity.badRequest().body(mapOf("error" to e.message))
         }
-    }
 
     @PostMapping("/login")
     fun login(
@@ -47,11 +45,13 @@ class UserRestController(
                 )
             }
             is AuthenticationResult.UserDisabled -> {
-                ResponseEntity.status(HttpStatus.FORBIDDEN)
+                ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
                     .body(mapOf("error" to "Account is temporarily disabled. Please contact the administrator."))
             }
             is AuthenticationResult.InvalidCredentials -> {
-                ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
                     .body(mapOf("error" to "Invalid username or password"))
             }
         }

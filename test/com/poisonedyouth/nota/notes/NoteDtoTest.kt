@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 
 class NoteDtoTest {
-
-    private val testUser = User(
-        id = 1L,
-        username = "testuser",
-        password = "password",
-        mustChangePassword = false,
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now(),
-    )
+    private val testUser =
+        User(
+            id = 1L,
+            username = "testuser",
+            password = "password",
+            mustChangePassword = false,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+        )
 
     private val testUserDto = UserDto.fromEntity(testUser)
 
@@ -134,8 +134,8 @@ class NoteDtoTest {
         result shouldBe false
     }
 
-    private fun createNoteDto(dueDate: LocalDateTime?): NoteDto {
-        return NoteDto(
+    private fun createNoteDto(dueDate: LocalDateTime?): NoteDto =
+        NoteDto(
             id = 1L,
             title = "Test Note",
             content = "Test content",
@@ -147,5 +147,4 @@ class NoteDtoTest {
             userId = 1L,
             user = testUserDto,
         )
-    }
 }

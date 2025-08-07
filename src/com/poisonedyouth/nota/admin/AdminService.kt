@@ -16,7 +16,6 @@ class AdminService(
     private val noteRepository: NoteRepository,
     private val noteShareRepository: NoteShareRepository,
 ) {
-
     /**
      * Get statistics for all users in the system
      */
@@ -74,16 +73,17 @@ class AdminService(
             return false
         }
 
-        val updatedUser = User(
-            id = user.id,
-            username = user.username,
-            password = user.password,
-            mustChangePassword = user.mustChangePassword,
-            role = user.role,
-            createdAt = user.createdAt,
-            updatedAt = LocalDateTime.now(),
-            enabled = false,
-        )
+        val updatedUser =
+            User(
+                id = user.id,
+                username = user.username,
+                password = user.password,
+                mustChangePassword = user.mustChangePassword,
+                role = user.role,
+                createdAt = user.createdAt,
+                updatedAt = LocalDateTime.now(),
+                enabled = false,
+            )
         userRepository.save(updatedUser)
         return true
     }
@@ -95,16 +95,17 @@ class AdminService(
     fun enableUser(userId: Long): Boolean {
         val user = userRepository.findById(userId).orElse(null) ?: return false
 
-        val updatedUser = User(
-            id = user.id,
-            username = user.username,
-            password = user.password,
-            mustChangePassword = user.mustChangePassword,
-            role = user.role,
-            createdAt = user.createdAt,
-            updatedAt = LocalDateTime.now(),
-            enabled = true,
-        )
+        val updatedUser =
+            User(
+                id = user.id,
+                username = user.username,
+                password = user.password,
+                mustChangePassword = user.mustChangePassword,
+                role = user.role,
+                createdAt = user.createdAt,
+                updatedAt = LocalDateTime.now(),
+                enabled = true,
+            )
         userRepository.save(updatedUser)
         return true
     }

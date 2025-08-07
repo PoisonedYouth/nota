@@ -14,7 +14,6 @@ import java.time.LocalDateTime
 import java.util.Optional
 
 class NoteServiceTest {
-
     private lateinit var noteRepository: NoteRepository
     private lateinit var userRepository: UserRepository
     private lateinit var noteShareRepository: NoteShareRepository
@@ -28,11 +27,12 @@ class NoteServiceTest {
         noteShareRepository = mockk()
         noteService = NoteService(noteRepository, userRepository, noteShareRepository)
 
-        testUser = User(
-            id = 1L,
-            username = "testuser",
-            password = "password",
-        )
+        testUser =
+            User(
+                id = 1L,
+                username = "testuser",
+                password = "password",
+            )
     }
 
     @Test
@@ -52,28 +52,30 @@ class NoteServiceTest {
     fun `findAllNotes should sort by title ascending when specified`() {
         // Given
         val now = LocalDateTime.now()
-        val note1 = Note(
-            id = 1L,
-            title = "B Note",
-            content = "Content 1",
-            dueDate = null,
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            user = testUser,
-        )
-        val note2 = Note(
-            id = 2L,
-            title = "A Note",
-            content = "Content 2",
-            dueDate = null,
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            user = testUser,
-        )
+        val note1 =
+            Note(
+                id = 1L,
+                title = "B Note",
+                content = "Content 1",
+                dueDate = null,
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                user = testUser,
+            )
+        val note2 =
+            Note(
+                id = 2L,
+                title = "A Note",
+                content = "Content 2",
+                dueDate = null,
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                user = testUser,
+            )
 
         every { userRepository.findById(1L) } returns Optional.of(testUser)
         every { noteRepository.findAllByUserAndArchivedFalse(testUser, Sort.by(Sort.Direction.ASC, "title")) } returns listOf(note2, note1)
@@ -91,28 +93,30 @@ class NoteServiceTest {
     fun `findAllNotes should sort by title descending when specified`() {
         // Given
         val now = LocalDateTime.now()
-        val note1 = Note(
-            id = 1L,
-            title = "A Note",
-            content = "Content 1",
-            dueDate = null,
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            user = testUser,
-        )
-        val note2 = Note(
-            id = 2L,
-            title = "B Note",
-            content = "Content 2",
-            dueDate = null,
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            user = testUser,
-        )
+        val note1 =
+            Note(
+                id = 1L,
+                title = "A Note",
+                content = "Content 1",
+                dueDate = null,
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                user = testUser,
+            )
+        val note2 =
+            Note(
+                id = 2L,
+                title = "B Note",
+                content = "Content 2",
+                dueDate = null,
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                user = testUser,
+            )
 
         every { userRepository.findById(1L) } returns Optional.of(testUser)
         every { noteRepository.findAllByUserAndArchivedFalse(testUser, Sort.by(Sort.Direction.DESC, "title")) } returns listOf(note2, note1)
@@ -130,28 +134,30 @@ class NoteServiceTest {
     fun `searchNotes should support sorting parameters`() {
         // Given
         val now = LocalDateTime.now()
-        val note1 = Note(
-            id = 1L,
-            title = "A Important Note",
-            content = "Content 1",
-            dueDate = null,
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            user = testUser,
-        )
-        val note2 = Note(
-            id = 2L,
-            title = "B Important Note",
-            content = "Content 2",
-            dueDate = null,
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            user = testUser,
-        )
+        val note1 =
+            Note(
+                id = 1L,
+                title = "A Important Note",
+                content = "Content 1",
+                dueDate = null,
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                user = testUser,
+            )
+        val note2 =
+            Note(
+                id = 2L,
+                title = "B Important Note",
+                content = "Content 2",
+                dueDate = null,
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                user = testUser,
+            )
 
         every { userRepository.findById(1L) } returns Optional.of(testUser)
         every {
@@ -188,11 +194,12 @@ class NoteServiceTest {
     @Test
     fun `createNote should throw exception when content is empty`() {
         // Given
-        val createNoteDto = CreateNoteDto(
-            title = "Test Title",
-            content = "",
-            dueDate = null,
-        )
+        val createNoteDto =
+            CreateNoteDto(
+                title = "Test Title",
+                content = "",
+                dueDate = null,
+            )
 
         // When & Then
         shouldThrow<IllegalArgumentException> {
@@ -203,11 +210,12 @@ class NoteServiceTest {
     @Test
     fun `createNote should throw exception when content is blank`() {
         // Given
-        val createNoteDto = CreateNoteDto(
-            title = "Test Title",
-            content = "   ",
-            dueDate = null,
-        )
+        val createNoteDto =
+            CreateNoteDto(
+                title = "Test Title",
+                content = "   ",
+                dueDate = null,
+            )
 
         // When & Then
         shouldThrow<IllegalArgumentException> {
@@ -218,18 +226,20 @@ class NoteServiceTest {
     @Test
     fun `createNote should create note when content is valid`() {
         // Given
-        val createNoteDto = CreateNoteDto(
-            title = "Test Title",
-            content = "Valid content",
-            dueDate = null,
-        )
-        val savedNote = Note(
-            id = 1L,
-            title = "Test Title",
-            content = "Valid content",
-            dueDate = null,
-            user = testUser,
-        )
+        val createNoteDto =
+            CreateNoteDto(
+                title = "Test Title",
+                content = "Valid content",
+                dueDate = null,
+            )
+        val savedNote =
+            Note(
+                id = 1L,
+                title = "Test Title",
+                content = "Valid content",
+                dueDate = null,
+                user = testUser,
+            )
 
         every { userRepository.findById(1L) } returns Optional.of(testUser)
         every { noteRepository.save(any()) } returns savedNote
@@ -246,12 +256,13 @@ class NoteServiceTest {
     @Test
     fun `updateNote should throw exception when content is empty`() {
         // Given
-        val updateNoteDto = UpdateNoteDto(
-            id = 1L,
-            title = "Updated Title",
-            content = "",
-            dueDate = null,
-        )
+        val updateNoteDto =
+            UpdateNoteDto(
+                id = 1L,
+                title = "Updated Title",
+                content = "",
+                dueDate = null,
+            )
 
         // When & Then
         shouldThrow<IllegalArgumentException> {
@@ -262,12 +273,13 @@ class NoteServiceTest {
     @Test
     fun `updateNote should throw exception when content is blank`() {
         // Given
-        val updateNoteDto = UpdateNoteDto(
-            id = 1L,
-            title = "Updated Title",
-            content = "   ",
-            dueDate = null,
-        )
+        val updateNoteDto =
+            UpdateNoteDto(
+                id = 1L,
+                title = "Updated Title",
+                content = "   ",
+                dueDate = null,
+            )
 
         // When & Then
         shouldThrow<IllegalArgumentException> {
@@ -279,34 +291,37 @@ class NoteServiceTest {
     fun `updateNote should update note when content is valid`() {
         // Given
         val now = LocalDateTime.now()
-        val existingNote = Note(
-            id = 1L,
-            title = "Original Title",
-            content = "Original content",
-            dueDate = null,
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            user = testUser,
-        )
-        val updateNoteDto = UpdateNoteDto(
-            id = 1L,
-            title = "Updated Title",
-            content = "Updated content",
-            dueDate = null,
-        )
-        val updatedNote = Note(
-            id = 1L,
-            title = "Updated Title",
-            content = "Updated content",
-            dueDate = null,
-            createdAt = now,
-            updatedAt = LocalDateTime.now(),
-            archived = false,
-            archivedAt = null,
-            user = testUser,
-        )
+        val existingNote =
+            Note(
+                id = 1L,
+                title = "Original Title",
+                content = "Original content",
+                dueDate = null,
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                user = testUser,
+            )
+        val updateNoteDto =
+            UpdateNoteDto(
+                id = 1L,
+                title = "Updated Title",
+                content = "Updated content",
+                dueDate = null,
+            )
+        val updatedNote =
+            Note(
+                id = 1L,
+                title = "Updated Title",
+                content = "Updated content",
+                dueDate = null,
+                createdAt = now,
+                updatedAt = LocalDateTime.now(),
+                archived = false,
+                archivedAt = null,
+                user = testUser,
+            )
 
         every { userRepository.findById(1L) } returns Optional.of(testUser)
         every { noteRepository.findByIdAndUser(1L, testUser) } returns existingNote

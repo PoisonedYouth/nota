@@ -15,7 +15,6 @@ class UserController(
     private val userService: UserService,
     private val activityEventPublisher: ActivityEventPublisher,
 ) {
-
     @GetMapping("/login")
     fun showLoginForm(model: Model): String {
         model.addAttribute("loginDto", LoginDto("", ""))
@@ -32,8 +31,8 @@ class UserController(
     fun register(
         @ModelAttribute registerDto: RegisterDto,
         model: Model,
-    ): String {
-        return try {
+    ): String =
+        try {
             val registrationResult = userService.registerUser(registerDto)
             model.addAttribute("user", registrationResult.user)
             model.addAttribute("initialPassword", registrationResult.initialPassword)
@@ -43,7 +42,6 @@ class UserController(
             model.addAttribute("registerDto", registerDto)
             "auth/register"
         }
-    }
 
     @PostMapping("/login")
     fun login(
@@ -80,7 +78,10 @@ class UserController(
     }
 
     @GetMapping("/change-password")
-    fun showChangePasswordForm(session: HttpSession, model: Model): String {
+    fun showChangePasswordForm(
+        session: HttpSession,
+        model: Model,
+    ): String {
         val currentUser = session.getAttribute("currentUser") as? UserDto
         return if (currentUser != null) {
             model.addAttribute("changePasswordDto", ChangePasswordDto("", "", ""))

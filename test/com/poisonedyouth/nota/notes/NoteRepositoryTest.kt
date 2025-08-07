@@ -23,7 +23,6 @@ class NoteRepositoryTest
         private val userRepository: UserRepository,
         private val noteShareRepository: NoteShareRepository,
     ) {
-
         private lateinit var testUser1: User
         private lateinit var testUser2: User
         private lateinit var note1: Note
@@ -36,50 +35,55 @@ class NoteRepositoryTest
             noteRepository.deleteAll()
             userRepository.deleteAll()
 
-            testUser1 = userRepository.save(
-                User(
-                    username = "testuser1_${System.currentTimeMillis()}",
-                    password = "hashedPassword1",
-                ),
-            )
+            testUser1 =
+                userRepository.save(
+                    User(
+                        username = "testuser1_${System.currentTimeMillis()}",
+                        password = "hashedPassword1",
+                    ),
+                )
 
-            testUser2 = userRepository.save(
-                User(
-                    username = "testuser2_${System.currentTimeMillis()}",
-                    password = "hashedPassword2",
-                ),
-            )
+            testUser2 =
+                userRepository.save(
+                    User(
+                        username = "testuser2_${System.currentTimeMillis()}",
+                        password = "hashedPassword2",
+                    ),
+                )
 
-            note1 = noteRepository.save(
-                Note(
-                    title = "Test Note 1",
-                    content = "This is the content of test note 1",
-                    user = testUser1,
-                    createdAt = LocalDateTime.now().minusHours(2),
-                    updatedAt = LocalDateTime.now().minusHours(1),
-                ),
-            )
+            note1 =
+                noteRepository.save(
+                    Note(
+                        title = "Test Note 1",
+                        content = "This is the content of test note 1",
+                        user = testUser1,
+                        createdAt = LocalDateTime.now().minusHours(2),
+                        updatedAt = LocalDateTime.now().minusHours(1),
+                    ),
+                )
 
-            note2 = noteRepository.save(
-                Note(
-                    title = "Another Note",
-                    content = "Different content here",
-                    user = testUser1,
-                    createdAt = LocalDateTime.now().minusHours(1),
-                    updatedAt = LocalDateTime.now(),
-                ),
-            )
+            note2 =
+                noteRepository.save(
+                    Note(
+                        title = "Another Note",
+                        content = "Different content here",
+                        user = testUser1,
+                        createdAt = LocalDateTime.now().minusHours(1),
+                        updatedAt = LocalDateTime.now(),
+                    ),
+                )
 
-            archivedNote = noteRepository.save(
-                Note(
-                    title = "Archived Note",
-                    content = "This note is archived",
-                    user = testUser1,
-                    archived = true,
-                    createdAt = LocalDateTime.now().minusHours(3),
-                    updatedAt = LocalDateTime.now().minusHours(2),
-                ),
-            )
+            archivedNote =
+                noteRepository.save(
+                    Note(
+                        title = "Archived Note",
+                        content = "This note is archived",
+                        user = testUser1,
+                        archived = true,
+                        createdAt = LocalDateTime.now().minusHours(3),
+                        updatedAt = LocalDateTime.now().minusHours(2),
+                    ),
+                )
         }
 
         @Test
@@ -136,18 +140,20 @@ class NoteRepositoryTest
         @Test
         fun `search methods should find notes by title and content`() {
             // When
-            val titleSearch = noteRepository
-                .findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
-                    testUser1,
-                    "test",
-                    "test",
-                )
-            val contentSearch = noteRepository
-                .findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
-                    testUser1,
-                    "different",
-                    "different",
-                )
+            val titleSearch =
+                noteRepository
+                    .findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                        testUser1,
+                        "test",
+                        "test",
+                    )
+            val contentSearch =
+                noteRepository
+                    .findAllByUserAndArchivedFalseAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByUpdatedAtDesc(
+                        testUser1,
+                        "different",
+                        "different",
+                    )
 
             // Then
             titleSearch shouldHaveSize 1
@@ -160,10 +166,11 @@ class NoteRepositoryTest
         @Test
         fun `findAllByUserAndArchivedFalse with sort should respect sorting`() {
             // When
-            val sortedByTitle = noteRepository.findAllByUserAndArchivedFalse(
-                testUser1,
-                Sort.by(Sort.Direction.ASC, "title"),
-            )
+            val sortedByTitle =
+                noteRepository.findAllByUserAndArchivedFalse(
+                    testUser1,
+                    Sort.by(Sort.Direction.ASC, "title"),
+                )
 
             // Then
             sortedByTitle shouldHaveSize 2
@@ -174,11 +181,12 @@ class NoteRepositoryTest
         @Test
         fun `findAllByUserAndArchivedFalseAndQuery with custom query should work`() {
             // When
-            val searchResults = noteRepository.findAllByUserAndArchivedFalseAndQuery(
-                testUser1,
-                "test",
-                Sort.by(Sort.Direction.DESC, "updatedAt"),
-            )
+            val searchResults =
+                noteRepository.findAllByUserAndArchivedFalseAndQuery(
+                    testUser1,
+                    "test",
+                    Sort.by(Sort.Direction.DESC, "updatedAt"),
+                )
 
             // Then
             searchResults shouldHaveSize 1
@@ -188,13 +196,14 @@ class NoteRepositoryTest
         @Test
         fun `findAllAccessibleByUserAndArchivedFalse should include shared notes`() {
             // Given - create a shared note
-            val sharedNote = noteRepository.save(
-                Note(
-                    title = "Shared Note",
-                    content = "This note is shared",
-                    user = testUser2,
-                ),
-            )
+            val sharedNote =
+                noteRepository.save(
+                    Note(
+                        title = "Shared Note",
+                        content = "This note is shared",
+                        user = testUser2,
+                    ),
+                )
             noteShareRepository.save(
                 NoteShare(
                     note = sharedNote,
@@ -205,10 +214,11 @@ class NoteRepositoryTest
             )
 
             // When
-            val accessibleNotes = noteRepository.findAllAccessibleByUserAndArchivedFalse(
-                testUser1,
-                Sort.by(Sort.Direction.DESC, "updatedAt"),
-            )
+            val accessibleNotes =
+                noteRepository.findAllAccessibleByUserAndArchivedFalse(
+                    testUser1,
+                    Sort.by(Sort.Direction.DESC, "updatedAt"),
+                )
 
             // Then
             accessibleNotes shouldHaveSize 3 // note1, note2, sharedNote
@@ -220,13 +230,14 @@ class NoteRepositoryTest
         @Test
         fun `findByIdAndAccessibleByUser should find shared notes`() {
             // Given - create a shared note
-            val sharedNote = noteRepository.save(
-                Note(
-                    title = "Shared Note",
-                    content = "This note is shared",
-                    user = testUser2,
-                ),
-            )
+            val sharedNote =
+                noteRepository.save(
+                    Note(
+                        title = "Shared Note",
+                        content = "This note is shared",
+                        user = testUser2,
+                    ),
+                )
             noteShareRepository.save(
                 NoteShare(
                     note = sharedNote,
@@ -251,13 +262,14 @@ class NoteRepositoryTest
         @Test
         fun `findAllAccessibleByUserAndArchivedFalseAndQuery should search in shared notes`() {
             // Given - create a shared note with searchable content
-            val sharedNote = noteRepository.save(
-                Note(
-                    title = "Shared Test Note",
-                    content = "This shared note contains test content",
-                    user = testUser2,
-                ),
-            )
+            val sharedNote =
+                noteRepository.save(
+                    Note(
+                        title = "Shared Test Note",
+                        content = "This shared note contains test content",
+                        user = testUser2,
+                    ),
+                )
             noteShareRepository.save(
                 NoteShare(
                     note = sharedNote,
@@ -268,11 +280,12 @@ class NoteRepositoryTest
             )
 
             // When
-            val searchResults = noteRepository.findAllAccessibleByUserAndArchivedFalseAndQuery(
-                testUser1,
-                "test",
-                Sort.by(Sort.Direction.DESC, "updatedAt"),
-            )
+            val searchResults =
+                noteRepository.findAllAccessibleByUserAndArchivedFalseAndQuery(
+                    testUser1,
+                    "test",
+                    Sort.by(Sort.Direction.DESC, "updatedAt"),
+                )
 
             // Then
             searchResults shouldHaveSize 2 // note1 and sharedNote both contain "test"
@@ -284,11 +297,12 @@ class NoteRepositoryTest
         fun `repository should handle empty results gracefully`() {
             // When
             val emptyResults = noteRepository.findAllByUserAndArchivedFalseOrderByUpdatedAtDesc(testUser2)
-            val emptySearch = noteRepository.findAllByUserAndArchivedFalseAndQuery(
-                testUser2,
-                "nonexistent",
-                Sort.by(Sort.Direction.DESC, "updatedAt"),
-            )
+            val emptySearch =
+                noteRepository.findAllByUserAndArchivedFalseAndQuery(
+                    testUser2,
+                    "nonexistent",
+                    Sort.by(Sort.Direction.DESC, "updatedAt"),
+                )
 
             // Then
             emptyResults shouldHaveSize 0

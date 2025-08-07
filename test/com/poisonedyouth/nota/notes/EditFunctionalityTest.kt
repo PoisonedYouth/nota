@@ -16,7 +16,6 @@ import java.time.LocalDateTime
 @ActiveProfiles("test")
 @Transactional
 class EditFunctionalityTest {
-
     @Autowired
     private lateinit var noteService: NoteService
 
@@ -31,31 +30,34 @@ class EditFunctionalityTest {
 
         // Use a unique username for each test run to avoid conflicts
         val uniqueUsername = "testuser_edit_${System.currentTimeMillis()}"
-        testUser = userRepository.save(
-            User(
-                username = uniqueUsername,
-                password = "password",
-            ),
-        )
+        testUser =
+            userRepository.save(
+                User(
+                    username = uniqueUsername,
+                    password = "password",
+                ),
+            )
     }
 
     @Test
     fun `should update note successfully`() {
         // Create a note first
-        val createDto = CreateNoteDto(
-            title = "Original Title",
-            content = "Original Content",
-            dueDate = LocalDateTime.of(2024, 12, 31, 23, 59),
-        )
+        val createDto =
+            CreateNoteDto(
+                title = "Original Title",
+                content = "Original Content",
+                dueDate = LocalDateTime.of(2024, 12, 31, 23, 59),
+            )
         val createdNote = noteService.createNote(createDto, testUser.id!!)
 
         // Update the note
-        val updateDto = UpdateNoteDto(
-            id = createdNote.id,
-            title = "Updated Title",
-            content = "Updated Content",
-            dueDate = LocalDateTime.of(2025, 1, 15, 12, 0),
-        )
+        val updateDto =
+            UpdateNoteDto(
+                id = createdNote.id,
+                title = "Updated Title",
+                content = "Updated Content",
+                dueDate = LocalDateTime.of(2025, 1, 15, 12, 0),
+            )
         val updatedNote = noteService.updateNote(updateDto, testUser.id!!)
 
         // Verify the update
@@ -70,12 +72,13 @@ class EditFunctionalityTest {
 
     @Test
     fun `should return null when updating non-existent note`() {
-        val updateDto = UpdateNoteDto(
-            id = 999L,
-            title = "Non-existent",
-            content = "Content",
-            dueDate = null,
-        )
+        val updateDto =
+            UpdateNoteDto(
+                id = 999L,
+                title = "Non-existent",
+                content = "Content",
+                dueDate = null,
+            )
         val result = noteService.updateNote(updateDto, testUser.id!!)
         result shouldBe null
     }
@@ -83,20 +86,22 @@ class EditFunctionalityTest {
     @Test
     fun `should update note with null due date`() {
         // Create a note with due date
-        val createDto = CreateNoteDto(
-            title = "Test Title",
-            content = "Test Content",
-            dueDate = LocalDateTime.now(),
-        )
+        val createDto =
+            CreateNoteDto(
+                title = "Test Title",
+                content = "Test Content",
+                dueDate = LocalDateTime.now(),
+            )
         val createdNote = noteService.createNote(createDto, testUser.id!!)
 
         // Update to remove due date
-        val updateDto = UpdateNoteDto(
-            id = createdNote.id,
-            title = "Updated Title",
-            content = "Updated Content",
-            dueDate = null,
-        )
+        val updateDto =
+            UpdateNoteDto(
+                id = createdNote.id,
+                title = "Updated Title",
+                content = "Updated Content",
+                dueDate = null,
+            )
         val updatedNote = noteService.updateNote(updateDto, testUser.id!!)
 
         // Verify the update

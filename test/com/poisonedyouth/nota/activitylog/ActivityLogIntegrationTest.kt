@@ -19,7 +19,6 @@ import org.springframework.web.context.WebApplicationContext
 @ActiveProfiles("test")
 @Transactional
 class ActivityLogIntegrationTest {
-
     @Autowired
     private lateinit var webApplicationContext: WebApplicationContext
 
@@ -57,11 +56,12 @@ class ActivityLogIntegrationTest {
         )
 
         // When & Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/activity-log")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/notes/activity-log")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("activities"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("currentUser"))
@@ -70,7 +70,8 @@ class ActivityLogIntegrationTest {
     @Test
     fun `showActivityLog should redirect to login for unauthenticated user`() {
         // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/activity-log"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes/activity-log"))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
     }
@@ -94,13 +95,14 @@ class ActivityLogIntegrationTest {
         }
 
         // When & Then - Test first page
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/activity-log")
-                .param("page", "0")
-                .param("size", "10")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/notes/activity-log")
+                    .param("page", "0")
+                    .param("size", "10")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("activities"))
             .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 0))
@@ -130,13 +132,14 @@ class ActivityLogIntegrationTest {
         }
 
         // When & Then - Test second page
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/activity-log")
-                .param("page", "1")
-                .param("size", "10")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/notes/activity-log")
+                    .param("page", "1")
+                    .param("size", "10")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("activities"))
             .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 1))

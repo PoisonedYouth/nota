@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest
 import java.time.LocalDateTime
 
 class ActivityLogServiceTest {
-
     private val activityLogRepository = mockk<ActivityLogRepository>()
     private val activityLogService = ActivityLogService(activityLogRepository)
 
@@ -48,26 +47,27 @@ class ActivityLogServiceTest {
         // Given
         val userId = 1L
         val limit = 10
-        val activities = listOf(
-            ActivityLog(
-                id = 1L,
-                userId = userId,
-                action = "CREATE",
-                entityType = "NOTE",
-                entityId = 123L,
-                description = "Created note",
-                createdAt = LocalDateTime.now(),
-            ),
-            ActivityLog(
-                id = 2L,
-                userId = userId,
-                action = "UPDATE",
-                entityType = "NOTE",
-                entityId = 123L,
-                description = "Updated note",
-                createdAt = LocalDateTime.now().minusMinutes(5),
-            ),
-        )
+        val activities =
+            listOf(
+                ActivityLog(
+                    id = 1L,
+                    userId = userId,
+                    action = "CREATE",
+                    entityType = "NOTE",
+                    entityId = 123L,
+                    description = "Created note",
+                    createdAt = LocalDateTime.now(),
+                ),
+                ActivityLog(
+                    id = 2L,
+                    userId = userId,
+                    action = "UPDATE",
+                    entityType = "NOTE",
+                    entityId = 123L,
+                    description = "Updated note",
+                    createdAt = LocalDateTime.now().minusMinutes(5),
+                ),
+            )
 
         val pageable = PageRequest.of(0, limit)
         val activitiesPage = PageImpl(activities, pageable, activities.size.toLong())
@@ -93,26 +93,27 @@ class ActivityLogServiceTest {
         val userId = 1L
         val page = 1
         val size = 5
-        val activities = listOf(
-            ActivityLog(
-                id = 1L,
-                userId = userId,
-                action = "CREATE",
-                entityType = "NOTE",
-                entityId = 123L,
-                description = "Created note",
-                createdAt = LocalDateTime.now(),
-            ),
-            ActivityLog(
-                id = 2L,
-                userId = userId,
-                action = "UPDATE",
-                entityType = "NOTE",
-                entityId = 123L,
-                description = "Updated note",
-                createdAt = LocalDateTime.now().minusMinutes(5),
-            ),
-        )
+        val activities =
+            listOf(
+                ActivityLog(
+                    id = 1L,
+                    userId = userId,
+                    action = "CREATE",
+                    entityType = "NOTE",
+                    entityId = 123L,
+                    description = "Created note",
+                    createdAt = LocalDateTime.now(),
+                ),
+                ActivityLog(
+                    id = 2L,
+                    userId = userId,
+                    action = "UPDATE",
+                    entityType = "NOTE",
+                    entityId = 123L,
+                    description = "Updated note",
+                    createdAt = LocalDateTime.now().minusMinutes(5),
+                ),
+            )
 
         val pageable = PageRequest.of(page, size)
         val activitiesPage = PageImpl(activities, pageable, 10L) // Total of 10 activities
@@ -142,17 +143,18 @@ class ActivityLogServiceTest {
     fun `getAllActivities should return all activities for user`() {
         // Given
         val userId = 1L
-        val activities = listOf(
-            ActivityLog(
-                id = 1L,
-                userId = userId,
-                action = "LOGIN",
-                entityType = "USER",
-                entityId = userId,
-                description = "User logged in",
-                createdAt = LocalDateTime.now(),
-            ),
-        )
+        val activities =
+            listOf(
+                ActivityLog(
+                    id = 1L,
+                    userId = userId,
+                    action = "LOGIN",
+                    entityType = "USER",
+                    entityId = userId,
+                    description = "User logged in",
+                    createdAt = LocalDateTime.now(),
+                ),
+            )
 
         every { activityLogRepository.findByUserIdOrderByCreatedAtDesc(userId) } returns activities
 

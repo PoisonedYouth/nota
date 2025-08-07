@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.security.core.context.SecurityContextHolder
 
 class SessionAuthenticationFilterTest {
-
     private lateinit var sessionAuthenticationFilter: SessionAuthenticationFilter
     private lateinit var request: HttpServletRequest
     private lateinit var response: HttpServletResponse
@@ -74,12 +73,13 @@ class SessionAuthenticationFilterTest {
     @Test
     fun `should set authentication when user exists in session`() {
         // Given
-        val userDto = UserDto(
-            id = 1L,
-            username = "testuser",
-            mustChangePassword = false,
-            role = UserRole.USER,
-        )
+        val userDto =
+            UserDto(
+                id = 1L,
+                username = "testuser",
+                mustChangePassword = false,
+                role = UserRole.USER,
+            )
 
         every { request.requestURI } returns "/notes"
         every { request.getSession(false) } returns session

@@ -12,7 +12,6 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class SessionAuthenticationFilter : OncePerRequestFilter() {
-
     public override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -36,11 +35,12 @@ class SessionAuthenticationFilter : OncePerRequestFilter() {
 
         if (currentUser != null) {
             // Create Spring Security authentication token
-            val authToken = UsernamePasswordAuthenticationToken(
-                currentUser.username,
-                null,
-                emptyList(), // No authorities for now
-            )
+            val authToken =
+                UsernamePasswordAuthenticationToken(
+                    currentUser.username,
+                    null,
+                    emptyList(), // No authorities for now
+                )
             authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
             SecurityContextHolder.getContext().authentication = authToken
         }
@@ -48,11 +48,10 @@ class SessionAuthenticationFilter : OncePerRequestFilter() {
         filterChain.doFilter(request, response)
     }
 
-    private fun isPublicEndpoint(uri: String): Boolean {
-        return uri.startsWith("/auth/") ||
+    private fun isPublicEndpoint(uri: String): Boolean =
+        uri.startsWith("/auth/") ||
             uri.startsWith("/css/") ||
             uri.startsWith("/js/") ||
             uri.startsWith("/images/") ||
             uri.startsWith("/actuator/")
-    }
 }

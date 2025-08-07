@@ -9,9 +9,9 @@ class ShareNoteEvent(
     noteTitle: String,
     sharedWithUsername: String,
 ) : ActivityEvent(
-    userId = userId,
-    action = "SHARE",
-    entityType = "NOTE",
-    entityId = noteId,
-    description = "Notiz geteilt: '$noteTitle' mit Benutzer '$sharedWithUsername'",
-)
+        userId = userId,
+        action = "SHARE",
+        entityType = "NOTE",
+        entityId = noteId,
+        description = "Notiz geteilt: '$noteTitle' mit Benutzer '$sharedWithUsername'",
+    )

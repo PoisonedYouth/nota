@@ -16,7 +16,6 @@ import java.time.LocalDateTime
 import java.util.Optional
 
 class AdminServiceTest {
-
     private lateinit var userRepository: UserRepository
     private lateinit var noteRepository: NoteRepository
     private lateinit var noteShareRepository: NoteShareRepository
@@ -33,25 +32,27 @@ class AdminServiceTest {
     @Test
     fun `getAllUserStatistics should return statistics for all users`() {
         // Given
-        val user1 = User(
-            id = 1L,
-            username = "user1",
-            password = "hashedPassword1",
-            role = UserRole.USER,
-            createdAt = LocalDateTime.of(2024, 1, 1, 10, 0),
-            updatedAt = LocalDateTime.of(2024, 1, 1, 10, 0),
-            enabled = true,
-        )
-        val user2 = User(
-            id = 2L,
-            username = "testuser",
-            password = "hashedPassword2",
-            mustChangePassword = true,
-            role = UserRole.ADMIN,
-            createdAt = LocalDateTime.of(2024, 1, 2, 11, 0),
-            updatedAt = LocalDateTime.of(2024, 1, 2, 11, 0),
-            enabled = true,
-        )
+        val user1 =
+            User(
+                id = 1L,
+                username = "user1",
+                password = "hashedPassword1",
+                role = UserRole.USER,
+                createdAt = LocalDateTime.of(2024, 1, 1, 10, 0),
+                updatedAt = LocalDateTime.of(2024, 1, 1, 10, 0),
+                enabled = true,
+            )
+        val user2 =
+            User(
+                id = 2L,
+                username = "testuser",
+                password = "hashedPassword2",
+                mustChangePassword = true,
+                role = UserRole.ADMIN,
+                createdAt = LocalDateTime.of(2024, 1, 2, 11, 0),
+                updatedAt = LocalDateTime.of(2024, 1, 2, 11, 0),
+                enabled = true,
+            )
         val users = listOf(user1, user2)
 
         every { userRepository.findAll() } returns users
@@ -111,15 +112,16 @@ class AdminServiceTest {
     @Test
     fun `isAdmin should return true for user with ADMIN role`() {
         // Given
-        val adminUser = User(
-            id = 1L,
-            username = "testuser",
-            password = "hashedPassword",
-            role = UserRole.ADMIN,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-            enabled = true,
-        )
+        val adminUser =
+            User(
+                id = 1L,
+                username = "testuser",
+                password = "hashedPassword",
+                role = UserRole.ADMIN,
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(),
+                enabled = true,
+            )
         every { userRepository.findByUsername("testuser") } returns adminUser
 
         // When & Then
@@ -130,15 +132,16 @@ class AdminServiceTest {
     @Test
     fun `isAdmin should return false for user with USER role`() {
         // Given
-        val regularUser = User(
-            id = 2L,
-            username = "user1",
-            password = "hashedPassword",
-            role = UserRole.USER,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-            enabled = true,
-        )
+        val regularUser =
+            User(
+                id = 2L,
+                username = "user1",
+                password = "hashedPassword",
+                role = UserRole.USER,
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(),
+                enabled = true,
+            )
         every { userRepository.findByUsername("user1") } returns regularUser
 
         // When & Then
@@ -206,15 +209,16 @@ class AdminServiceTest {
     fun `disableUser should disable regular user successfully`() {
         // Given
         val userId = 1L
-        val user = User(
-            id = userId,
-            username = "testuser",
-            password = "hashedPassword",
-            role = UserRole.USER,
-            createdAt = LocalDateTime.of(2024, 1, 1, 10, 0),
-            updatedAt = LocalDateTime.of(2024, 1, 1, 10, 0),
-            enabled = true,
-        )
+        val user =
+            User(
+                id = userId,
+                username = "testuser",
+                password = "hashedPassword",
+                role = UserRole.USER,
+                createdAt = LocalDateTime.of(2024, 1, 1, 10, 0),
+                updatedAt = LocalDateTime.of(2024, 1, 1, 10, 0),
+                enabled = true,
+            )
         val userSlot = slot<User>()
 
         every { userRepository.findById(userId) } returns Optional.of(user)
@@ -238,15 +242,16 @@ class AdminServiceTest {
     fun `disableUser should not disable admin user`() {
         // Given
         val userId = 1L
-        val adminUser = User(
-            id = userId,
-            username = "admin",
-            password = "hashedPassword",
-            role = UserRole.ADMIN,
-            createdAt = LocalDateTime.of(2024, 1, 1, 10, 0),
-            updatedAt = LocalDateTime.of(2024, 1, 1, 10, 0),
-            enabled = true,
-        )
+        val adminUser =
+            User(
+                id = userId,
+                username = "admin",
+                password = "hashedPassword",
+                role = UserRole.ADMIN,
+                createdAt = LocalDateTime.of(2024, 1, 1, 10, 0),
+                updatedAt = LocalDateTime.of(2024, 1, 1, 10, 0),
+                enabled = true,
+            )
 
         every { userRepository.findById(userId) } returns Optional.of(adminUser)
 
@@ -280,15 +285,16 @@ class AdminServiceTest {
     fun `enableUser should enable disabled user successfully`() {
         // Given
         val userId = 1L
-        val user = User(
-            id = userId,
-            username = "testuser",
-            password = "hashedPassword",
-            role = UserRole.USER,
-            createdAt = LocalDateTime.of(2024, 1, 1, 10, 0),
-            updatedAt = LocalDateTime.of(2024, 1, 1, 10, 0),
-            enabled = false,
-        )
+        val user =
+            User(
+                id = userId,
+                username = "testuser",
+                password = "hashedPassword",
+                role = UserRole.USER,
+                createdAt = LocalDateTime.of(2024, 1, 1, 10, 0),
+                updatedAt = LocalDateTime.of(2024, 1, 1, 10, 0),
+                enabled = false,
+            )
         val userSlot = slot<User>()
 
         every { userRepository.findById(userId) } returns Optional.of(user)

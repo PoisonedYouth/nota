@@ -16,8 +16,8 @@ data class NoteShareDto(
     val createdAt: String,
 ) {
     companion object {
-        fun fromEntity(noteShare: NoteShare): NoteShareDto {
-            return NoteShareDto(
+        fun fromEntity(noteShare: NoteShare): NoteShareDto =
+            NoteShareDto(
                 id = noteShare.id!!,
                 noteId = noteShare.note.id!!,
                 noteTitle = noteShare.note.title,
@@ -27,6 +27,5 @@ data class NoteShareDto(
                 permission = noteShare.permission,
                 createdAt = noteShare.createdAt.toString(),
             )
-        }
     }
 }

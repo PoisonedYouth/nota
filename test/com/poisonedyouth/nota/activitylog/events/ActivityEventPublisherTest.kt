@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.context.ApplicationEventPublisher
 
 class ActivityEventPublisherTest {
-
     private lateinit var applicationEventPublisher: ApplicationEventPublisher
     private lateinit var activityEventPublisher: ActivityEventPublisher
 

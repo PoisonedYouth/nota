@@ -1,14 +1,33 @@
 # Nota
 
-A note-taking web application built with Spring Boot and [Amper](https://github.com/JetBrains/amper) build tool.
+A secure note-taking web application built with Spring Boot and [Amper](https://github.com/JetBrains/amper) build tool.
 
 ## Project Description
 
-Nota is a simple web application that allows users to create and view notes. It features:
-- A clean, modern web interface
-- HTMX integration for dynamic content updates
-- Thymeleaf templating
+Nota is a comprehensive web application for managing personal notes with enterprise-grade security features:
+
+### 🔐 Security Features
+- **Enhanced Password Complexity**: 12+ character passwords with uppercase, lowercase, digits, and special characters
+- **Secure Password Generation**: Cryptographically secure random password generation for new users
+- **Session Management**: Robust authentication and session handling
+- **User Role Management**: Admin and user role separation
+
+### 🚀 Application Features
+- Clean, modern web interface with responsive design
+- HTMX integration for dynamic content updates without page reloads
+- Rich text editing with content sanitization
+- Note sharing and collaboration
+- Activity logging and audit trails
+- User management and administrative oversight
 - H2 and PostgreSQL database support
+
+### 🏗️ Technical Stack
+- **Backend**: Spring Boot 3.x with Kotlin
+- **Database**: H2 (development), PostgreSQL (production)
+- **Security**: Spring Security with custom authentication
+- **Frontend**: Thymeleaf templating with HTMX
+- **Build Tool**: Amper build system
+- **Testing**: Comprehensive test suite with MockK and Kotest
 
 ## Project Structure
 
@@ -33,7 +52,8 @@ Nota is a simple web application that allows users to create and view notes. It 
 ### Prerequisites
 
 - IntelliJ IDEA with Amper plugin installed
-- JDK 11 or newer
+- JDK 21 or newer (Amazon Corretto recommended)
+- Git for version control
 
 ### Using IntelliJ IDEA with Amper Plugin
 
@@ -47,10 +67,43 @@ Amper provides a command-line interface for building and running projects:
 
 ```bash
 # Build the project
-amper build
+./amper build
 
 # Run the application
-amper run
+./amper run
+
+# Run tests
+./amper test
+```
+
+### Using Make (Recommended)
+
+The project includes a Makefile for convenient development tasks:
+
+```bash
+# Show all available targets
+make help
+
+# Build, test, and run all quality checks
+make all
+
+# Run tests only
+make test
+
+# Run code style checks
+make ktlint
+
+# Run static analysis
+make detekt
+
+# Run all quality checks
+make check
+
+# Clean build artifacts
+make clean
+
+# Install git hooks
+make install-hooks
 ```
 
 ## Configuration
@@ -60,6 +113,71 @@ The project uses the following Amper configuration file:
 - `module.yaml` - Module definition, dependencies, and settings
 
 The main application class is `com.poisonedyouth.nota.Application` with the entry point in `ApplicationKt`.
+
+## CI/CD Pipeline
+
+This project includes a comprehensive GitHub Actions-based CI/CD pipeline for automated testing, code quality checks, and deployments.
+
+### 🔄 Workflows
+
+#### Main CI Pipeline (`ci.yml`)
+Runs on every push and pull request to main branches:
+- **Parallel Testing**: Unit tests, integration tests, and E2E tests
+- **Code Quality**: Automated ktlint style checks and detekt static analysis
+- **JAR Building**: Creates versioned application artifacts
+- **Security Scanning**: Dependency vulnerability assessment
+- **Build Reporting**: Comprehensive summaries with artifact links
+
+#### Release Pipeline (`release.yml`)
+Automated release process triggered by GitHub releases:
+- **Full Validation**: Complete build and test pipeline execution
+- **Artifact Creation**: Versioned JAR files with metadata
+- **Release Notes**: Automated generation with installation instructions
+- **Docker Preparation**: Dockerfile generation for containerization
+- **Asset Management**: Automated upload of release artifacts
+
+#### Dependency Management (`dependency-update.yml`)
+Weekly automated maintenance:
+- **Dependency Scanning**: Inventory of all project dependencies
+- **Security Assessment**: Check for known vulnerabilities
+- **Update Recommendations**: Automated analysis of available updates
+- **Issue Creation**: Automatic GitHub issues for manual review
+
+#### Code Formatting (`format-code.yml`)
+On-demand code formatting:
+- **Manual Trigger**: Run via workflow dispatch
+- **PR Integration**: Trigger via `/format` comment on pull requests
+- **Auto-correction**: Applies ktlint and detekt fixes
+- **Auto-commit**: Pushes formatted code back to branch
+
+### 🚀 Usage
+
+#### Running CI Manually
+```bash
+# Trigger the main CI pipeline
+gh workflow run ci.yml
+
+# Create a new release (triggers release pipeline)
+gh release create v1.0.0 --title "Release v1.0.0" --notes "Release notes"
+
+# Format code in a PR
+# Comment "/format" on any pull request
+```
+
+#### Monitoring Builds
+- View workflow runs in the GitHub Actions tab
+- Download build artifacts from completed runs
+- Check build summaries for detailed reports
+- Review security scan results and dependency reports
+
+### 🛡️ Quality Gates
+All code must pass these automated checks:
+- ✅ All unit tests (231+ tests)
+- ✅ Integration tests with PostgreSQL
+- ✅ ktlint style compliance
+- ✅ detekt static analysis
+- ✅ Security vulnerability scan
+- ✅ JAR build and verification
 
 ## Code Style and Static Analysis
 

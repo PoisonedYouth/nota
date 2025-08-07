@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ActivityLogRepository : JpaRepository<ActivityLog, Long> {
-
     @Query("SELECT a FROM ActivityLog a WHERE a.userId = :userId ORDER BY a.createdAt DESC")
     fun findByUserIdOrderByCreatedAtDesc(
         @Param("userId") userId: Long,

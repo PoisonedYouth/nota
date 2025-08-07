@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping
 
 @Controller
 class RootController {
-
     @GetMapping("/")
     fun root(session: HttpSession): String {
         val currentUser = session.getAttribute("currentUser") as? UserDto

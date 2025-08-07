@@ -15,8 +15,8 @@ data class ActivityLogDto(
         get() = createdAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
 
     companion object {
-        fun fromEntity(activityLog: ActivityLog): ActivityLogDto {
-            return ActivityLogDto(
+        fun fromEntity(activityLog: ActivityLog): ActivityLogDto =
+            ActivityLogDto(
                 id = activityLog.id,
                 action = activityLog.action,
                 entityType = activityLog.entityType,
@@ -24,6 +24,5 @@ data class ActivityLogDto(
                 description = activityLog.description,
                 createdAt = activityLog.createdAt,
             )
-        }
     }
 }

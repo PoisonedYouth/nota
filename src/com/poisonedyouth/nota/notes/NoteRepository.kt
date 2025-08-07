@@ -12,12 +12,19 @@ import org.springframework.stereotype.Repository
 interface NoteRepository : JpaRepository<Note, Long> {
     // User-filtered methods
     fun findAllByUserAndArchivedFalseOrderByUpdatedAtDesc(user: User): List<Note>
+
     fun findAllByUserAndArchivedTrueOrderByUpdatedAtDesc(user: User): List<Note>
-    fun findByIdAndUser(id: Long, user: User): Note?
+
+    fun findByIdAndUser(
+        id: Long,
+        user: User,
+    ): Note?
 
     // Count methods for admin statistics
     fun countByUser(user: User): Long
+
     fun countByUserAndArchivedTrue(user: User): Long
+
     fun countByArchivedTrue(): Long
 
     // User-filtered search methods
@@ -28,7 +35,10 @@ interface NoteRepository : JpaRepository<Note, Long> {
     ): List<Note>
 
     // Dynamic sorting methods using Spring Data Sort
-    fun findAllByUserAndArchivedFalse(user: User, sort: Sort): List<Note>
+    fun findAllByUserAndArchivedFalse(
+        user: User,
+        sort: Sort,
+    ): List<Note>
 
     // Dynamic sorting search methods
     @Query(
