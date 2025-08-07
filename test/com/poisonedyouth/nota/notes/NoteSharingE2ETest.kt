@@ -111,10 +111,8 @@ class NoteSharingE2ETest
 
         @Test
         fun `Complete note sharing workflow`() {
-            println("[DEBUG_LOG] Starting complete note sharing workflow test")
 
             // Step 1: Owner shares note with another user
-            println("[DEBUG_LOG] Step 1: Sharing note with user '${sharedUser.username}'")
             mockMvc
                 .perform(
                     post("/notes/${testNote.id}/share")
@@ -123,36 +121,32 @@ class NoteSharingE2ETest
                         .session(ownerSession)
                         .header("HX-Request", "true"),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Notiz erfolgreich geteilt!")))
+                .andExpect(content().string(containsString("Note shared successfully!")))
 
             // Verify share was created
             val shares = noteShareRepository.findAllByNote(testNote)
             shares.size shouldBe 1
             shares[0].sharedWithUser.username shouldBe sharedUser.username
-            println("[DEBUG_LOG] Share created successfully")
 
             // Step 2: Shared user can see the note in their shared notes
-            println("[DEBUG_LOG] Step 2: Checking shared user can see the note")
             mockMvc
                 .perform(
                     get("/notes/shared")
                         .session(sharedSession),
                 ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("E2E Test Note")))
-                .andExpect(content().string(containsString("Mit mir geteilte Notizen")))
+                .andExpect(content().string(containsString("Notes shared with me")))
 
             // Step 3: Shared user can see the note in all accessible notes
-            println("[DEBUG_LOG] Step 3: Checking note appears in all accessible notes")
             mockMvc
                 .perform(
                     get("/notes/all")
                         .session(sharedSession),
                 ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("E2E Test Note")))
-                .andExpect(content().string(containsString("Alle zugänglichen Notizen")))
+                .andExpect(content().string(containsString("All accessible notes")))
 
             // Step 4: Shared user can view the note details
-            println("[DEBUG_LOG] Step 4: Checking shared user can view note details")
             mockMvc
                 .perform(
                     get("/notes/${testNote.id}")
@@ -162,18 +156,16 @@ class NoteSharingE2ETest
                 .andExpect(content().string(containsString("This note will be shared in E2E test")))
 
             // Step 5: Owner can see who the note is shared with
-            println("[DEBUG_LOG] Step 5: Checking owner can see share information")
             mockMvc
                 .perform(
                     get("/notes/modal/${testNote.id}")
                         .param("mode", "share")
                         .session(ownerSession),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Notiz teilen: E2E Test Note")))
+                .andExpect(content().string(containsString("Currently shared with:")))
                 .andExpect(content().string(containsString(sharedUser.username)))
 
             // Step 6: Owner revokes the share
-            println("[DEBUG_LOG] Step 6: Revoking share")
             mockMvc
                 .perform(
                     delete("/notes/${testNote.id}/share/${sharedUser.id}")
@@ -184,19 +176,16 @@ class NoteSharingE2ETest
             // Verify share was deleted
             val sharesAfterRevoke = noteShareRepository.findAllByNote(testNote)
             sharesAfterRevoke.size shouldBe 0
-            println("[DEBUG_LOG] Share revoked successfully")
 
             // Step 7: Shared user can no longer see the note
-            println("[DEBUG_LOG] Step 7: Verifying shared user can no longer access note")
             mockMvc
                 .perform(
                     get("/notes/shared")
                         .session(sharedSession),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Keine geteilten Notizen gefunden")))
+                .andExpect(content().string(containsString("No shared notes found")))
 
             // Step 8: Shared user cannot access note details directly
-            println("[DEBUG_LOG] Step 8: Verifying direct access is denied")
             mockMvc
                 .perform(
                     get("/notes/${testNote.id}")
@@ -204,12 +193,10 @@ class NoteSharingE2ETest
                 ).andExpect(status().is3xxRedirection)
                 .andExpect(redirectedUrl("/notes"))
 
-            println("[DEBUG_LOG] Complete note sharing workflow test completed successfully")
         }
 
         @Test
         fun `Share note with multiple users`() {
-            println("[DEBUG_LOG] Starting multiple users sharing test")
 
             // Create another user
             val timestamp = System.currentTimeMillis()
@@ -250,12 +237,10 @@ class NoteSharingE2ETest
             val usernames = shares.map { it.sharedWithUser.username }.toSet()
             usernames shouldBe setOf(sharedUser.username, anotherUser.username)
 
-            println("[DEBUG_LOG] Multiple users sharing test completed successfully")
         }
 
         @Test
         fun `Prevent sharing with non-existent user`() {
-            println("[DEBUG_LOG] Starting non-existent user sharing test")
 
             mockMvc
                 .perform(
@@ -265,12 +250,11 @@ class NoteSharingE2ETest
                         .session(ownerSession)
                         .header("HX-Request", "true"),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Notiz konnte nicht geteilt werden")))
+                .andExpect(content().string(containsString("Note could not be shared")))
 
             // Verify no share was created
             val shares = noteShareRepository.findAllByNote(testNote)
             shares.size shouldBe 0
 
-            println("[DEBUG_LOG] Non-existent user sharing test completed successfully")
         }
     }

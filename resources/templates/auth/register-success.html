@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrierung erfolgreich - Nota</title>
+    <title>Registration Successful - Nota</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div class="container">
         <div class="login-form">
-            <h1>Registrierung erfolgreich!</h1>
+            <h1>Registration Successful!</h1>
 
             <div class="success-message">
-                <p>Willkommen, <strong th:text="${user.username}"></strong>!</p>
-                <p>Ihr Konto wurde erfolgreich erstellt.</p>
+                <p>Welcome, <strong th:text="${user.username}"></strong>!</p>
+                <p>Your account has been created successfully.</p>
 
                 <div class="password-info">
-                    <h3>Ihr anfängliches Passwort:</h3>
+                    <h3>Your initial password:</h3>
                     <div class="password-display">
                         <code th:text="${initialPassword}"></code>
                     </div>
                     <p class="warning">
-                        <strong>Wichtig:</strong> Bitte speichern Sie dieses Passwort sicher.
-                        Sie müssen es bei Ihrer ersten Anmeldung ändern.
+                        <strong>Important:</strong> Please save this password securely.
+                        You must change it when you first log in.
                     </p>
                 </div>
             </div>
 
             <div class="form-actions">
-                <a th:href="@{/auth/login}" class="btn btn-primary">Jetzt anmelden</a>
+                <a th:href="@{/auth/login}" class="btn btn-primary">Log in now</a>
             </div>
         </div>
     </div>

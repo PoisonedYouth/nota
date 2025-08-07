@@ -34,6 +34,14 @@ class NoteRestController(
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(mapOf("error" to "Authentication required"))
 
+        // Validate input
+        if (createNoteDto.title.isBlank()) {
+            return ResponseEntity.badRequest().body(mapOf("error" to "Title is required"))
+        }
+        if (createNoteDto.title.length > 255) {
+            return ResponseEntity.badRequest().body(mapOf("error" to "Title must not exceed 255 characters"))
+        }
+
         return try {
             val newNote = noteService.createNote(createNoteDto, user.id)
 
@@ -97,6 +105,20 @@ class NoteRestController(
                 ?: return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(mapOf("error" to "Authentication required"))
+
+        // Validate input
+        if (updateNoteDto.id <= 0) {
+            return ResponseEntity.badRequest().body(mapOf("error" to "Note ID must be positive"))
+        }
+        if (updateNoteDto.title.isBlank()) {
+            return ResponseEntity.badRequest().body(mapOf("error" to "Title is required"))
+        }
+        if (updateNoteDto.title.length > 255) {
+            return ResponseEntity.badRequest().body(mapOf("error" to "Title must not exceed 255 characters"))
+        }
+        if (updateNoteDto.content.isBlank()) {
+            return ResponseEntity.badRequest().body(mapOf("error" to "Content is required"))
+        }
 
         return try {
             val updatedNote = noteService.updateNote(updateNoteDto, user.id)

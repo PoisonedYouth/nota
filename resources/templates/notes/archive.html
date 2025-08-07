@@ -5,9 +5,9 @@
     <div th:fragment="content">
         <div class="container">
             <div class="notes-header">
-                <h2>Archivierte Notizen</h2>
-                <div class="notes-count" th:text="|${#lists.size(notes)} archivierte Notizen|"></div>
-                <a href="/notes" class="btn btn-secondary">Zurück zu Notizen</a>
+                <h2>Archived Notes</h2>
+                <div class="notes-count" th:text="|${#lists.size(notes)} archived notes|"></div>
+                <a href="/notes" class="btn btn-secondary">Back to Notes</a>
             </div>
 
             <div id="notes-container" class="notes-grid">
@@ -16,11 +16,11 @@
                 </div>
             </div>
 
-            <!-- Platzhalter für leere Liste -->
+            <!-- Empty state placeholder -->
             <div th:if="${#lists.isEmpty(notes)}" class="empty-state">
-                <p>Keine archivierten Notizen vorhanden</p>
+                <p>No archived notes available</p>
                 <a href="/notes" class="btn btn-primary">
-                    Zurück zu den Notizen
+                    Back to Notes
                 </a>
             </div>
         </div>

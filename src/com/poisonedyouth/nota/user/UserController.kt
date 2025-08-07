@@ -65,12 +65,12 @@ class UserController(
                 }
             }
             is AuthenticationResult.UserDisabled -> {
-                model.addAttribute("error", "Ihr Konto ist vorübergehend deaktiviert. Bitte wenden Sie sich an den Administrator.")
+                model.addAttribute("error", "Your account is temporarily disabled. Please contact the administrator.")
                 model.addAttribute("loginDto", loginDto)
                 "auth/login"
             }
             is AuthenticationResult.InvalidCredentials -> {
-                model.addAttribute("error", "Ungültiger Benutzername oder Passwort")
+                model.addAttribute("error", "Invalid username or password")
                 model.addAttribute("loginDto", loginDto)
                 "auth/login"
             }

@@ -4,7 +4,7 @@
     <div th:fragment="modal-content" class="modal-backdrop" th:id="|edit-note-modal-${note?.id}|">
         <div class="modal">
             <div class="modal-header">
-                <h3>Notiz bearbeiten</h3>
+                <h3>Edit Note</h3>
                 <button class="close-btn"
                         th:attr="onclick=|document.getElementById('edit-note-modal-${note?.id}').remove()|">
                     ×
@@ -19,7 +19,7 @@
                 formTrigger='submit',
                 formOnAfterRequest='htmx:afterRequest: if(event.detail.successful) { document.getElementById(\'edit-note-modal-' + ${note?.id} + '\').remove(); }',
                 note=${updateNoteDto},
-                submitButtonText='Änderungen speichern'
+                submitButtonText='Save Changes'
             )}"></div>
         </div>
     </div>

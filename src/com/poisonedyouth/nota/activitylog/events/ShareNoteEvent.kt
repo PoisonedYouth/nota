@@ -13,5 +13,5 @@ class ShareNoteEvent(
     action = "SHARE",
     entityType = "NOTE",
     entityId = noteId,
-    description = "Notiz geteilt: '$noteTitle' mit Benutzer '$sharedWithUsername'",
+    description = "Note shared: '$noteTitle' with user '$sharedWithUsername'",
 )

@@ -49,7 +49,6 @@ class AdminE2ETest
 
         @BeforeEach
         fun setup() {
-            println("[DEBUG_LOG] Setting up admin E2E test data")
 
             // Clean up existing data
             noteShareRepository.deleteAll()
@@ -150,12 +149,10 @@ class AdminE2ETest
                 )
             noteShareRepository.save(noteShare2)
 
-            println("[DEBUG_LOG] Test data setup completed")
         }
 
         @Test
         fun `admin overview should display correct statistics and user data`() {
-            println("[DEBUG_LOG] Testing admin overview functionality")
 
             // Login as admin
             val session = MockHttpSession()
@@ -186,38 +183,35 @@ class AdminE2ETest
                     .andReturn()
 
             val content = result.response.contentAsString
-            println("[DEBUG_LOG] Admin overview HTML content length: ${content.length}")
 
             // Verify system statistics are displayed
-            content shouldContain "System Statistiken"
+            content shouldContain "System Statistics"
             content shouldContain "3" // Total users (admin + user1 + user2)
-            content shouldContain "Benutzer gesamt"
-            content shouldContain "Notizen gesamt"
-            content shouldContain "Archivierte Notizen"
-            content shouldContain "Geteilte Notizen"
+            content shouldContain "Total Users"
+            content shouldContain "Total Notes"
+            content shouldContain "Archived Notes"
+            content shouldContain "Shared Notes"
 
             // Verify user statistics table
-            content shouldContain "Benutzer Statistiken"
+            content shouldContain "User Statistics"
             content shouldContain adminUsername
             content shouldContain "user1"
             content shouldContain "user2"
-            content shouldContain "Passwort ändern erforderlich" // user1 has mustChangePassword = true
-            content shouldContain "Aktiv" // admin and user2 have mustChangePassword = false
+            content shouldContain "Password change required" // user1 has mustChangePassword = true
+            content shouldContain "Active" // admin and user2 have mustChangePassword = false
 
             // Verify table headers
-            content shouldContain "Benutzername"
-            content shouldContain "Registriert am"
-            content shouldContain "Notizen gesamt"
-            content shouldContain "Archivierte Notizen"
-            content shouldContain "Geteilte Notizen"
+            content shouldContain "Username"
+            content shouldContain "Registered"
+            content shouldContain "Total Notes"
+            content shouldContain "Archived Notes"
+            content shouldContain "Shared Notes"
             content shouldContain "Status"
 
-            println("[DEBUG_LOG] Admin overview test completed successfully")
         }
 
         @Test
         fun `admin link should be visible only to admin users`() {
-            println("[DEBUG_LOG] Testing admin link visibility")
 
             // Login as regular user
             val regularSession = MockHttpSession()
@@ -241,7 +235,7 @@ class AdminE2ETest
                     .andReturn()
 
             val regularContent = regularResult.response.contentAsString
-            regularContent shouldContain "Meine Notizen"
+            regularContent shouldContain "My Notes"
             // Admin link should not be present for regular users
             // Note: The template uses th:if="${currentUser.role.name() == 'ADMIN'}"
 
@@ -267,16 +261,14 @@ class AdminE2ETest
                     .andReturn()
 
             val adminContent = adminResult.response.contentAsString
-            adminContent shouldContain "Meine Notizen"
-            adminContent shouldContain "Admin Übersicht"
+            adminContent shouldContain "My Notes"
+            adminContent shouldContain "Admin Overview"
             adminContent shouldContain "/admin/overview"
 
-            println("[DEBUG_LOG] Admin link visibility test completed successfully")
         }
 
         @Test
         fun `non-admin users should not be able to access admin overview`() {
-            println("[DEBUG_LOG] Testing admin access control")
 
             // Try to access admin overview without authentication
             mockMvc
@@ -303,12 +295,10 @@ class AdminE2ETest
                 ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
                 .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
 
-            println("[DEBUG_LOG] Admin access control test completed successfully")
         }
 
         @Test
         fun `admin root path should redirect to overview`() {
-            println("[DEBUG_LOG] Testing admin root redirect")
 
             // Login as admin
             val session = MockHttpSession()
@@ -330,6 +320,5 @@ class AdminE2ETest
                 ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
                 .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/overview"))
 
-            println("[DEBUG_LOG] Admin root redirect test completed successfully")
         }
     }

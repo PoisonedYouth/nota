@@ -45,14 +45,14 @@ class ActivityLogIntegrationTest {
             action = "LOGIN",
             entityType = "USER",
             entityId = user.id,
-            description = "Benutzer angemeldet",
+            description = "User logged in",
         )
         activityLogService.logActivity(
             userId = user.id,
             action = "CREATE",
             entityType = "NOTE",
             entityId = 123L,
-            description = "Notiz erstellt: 'Test Note'",
+            description = "Note created: 'Test Note'",
         )
 
         // When & Then
@@ -90,7 +90,7 @@ class ActivityLogIntegrationTest {
                 action = "CREATE",
                 entityType = "NOTE",
                 entityId = index.toLong(),
-                description = "Notiz erstellt: 'Test Note $index'",
+                description = "Note created: 'Test Note $index'",
             )
         }
 
@@ -127,7 +127,7 @@ class ActivityLogIntegrationTest {
                 action = "CREATE",
                 entityType = "NOTE",
                 entityId = index.toLong(),
-                description = "Notiz erstellt: 'Test Note $index'",
+                description = "Note created: 'Test Note $index'",
             )
         }
 
@@ -161,7 +161,7 @@ class ActivityLogIntegrationTest {
             action = "CREATE",
             entityType = "NOTE",
             entityId = 123L,
-            description = "Notiz erstellt: 'Test Note'",
+            description = "Note created: 'Test Note'",
         )
 
         activityLogService.logActivity(
@@ -169,7 +169,7 @@ class ActivityLogIntegrationTest {
             action = "UPDATE",
             entityType = "NOTE",
             entityId = 123L,
-            description = "Notiz bearbeitet: 'Updated Test Note'",
+            description = "Note updated: 'Updated Test Note'",
         )
 
         activityLogService.logActivity(
@@ -177,7 +177,7 @@ class ActivityLogIntegrationTest {
             action = "SHARE",
             entityType = "NOTE",
             entityId = 123L,
-            description = "Notiz geteilt: 'Test Note' mit Benutzer 'otheruser'",
+            description = "Note shared: 'Test Note' with user 'otheruser'",
         )
 
         activityLogService.logActivity(
@@ -185,7 +185,7 @@ class ActivityLogIntegrationTest {
             action = "ARCHIVE",
             entityType = "NOTE",
             entityId = 123L,
-            description = "Notiz archiviert: 'Test Note'",
+            description = "Note archived: 'Test Note'",
         )
 
         // Then

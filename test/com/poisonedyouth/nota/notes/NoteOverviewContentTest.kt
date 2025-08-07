@@ -132,7 +132,7 @@ class NoteOverviewContentTest
             val content = result.response.contentAsString
 
             // Then - page should load correctly and not contain content-related elements
-            content shouldContain "Mit mir geteilte Notizen"
+            content shouldContain "Notes shared with me"
             content shouldNotContain "note-content"
             content shouldNotContain "getContentPreview"
         }

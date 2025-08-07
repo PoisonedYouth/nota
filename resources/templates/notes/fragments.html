@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-    <!-- Einzelne Notiz-Karte -->
+    <!-- Individual note card -->
     <div th:fragment="note-card(note)"
          th:class="|note-card ${note?.isOverdue() ? 'note-overdue' : ''} ${note?.isDueSoon() ? 'note-due-soon' : ''}|"
          th:id="|note-${note != null ? note.id : ''}|">
@@ -15,8 +15,8 @@
         <div class="note-meta">
             <div class="note-meta-info">
                 <span class="note-date" th:text="${note?.getFormattedDate()}"></span>
-                <span th:if="${note?.dueDate != null}" class="note-due-date" th:text="|Fällig: ${note?.getFormattedDueDate()}|"></span>
-                <span class="note-owner" th:text="|von ${note?.user?.username}|"></span>
+                <span th:if="${note?.dueDate != null}" class="note-due-date" th:text="|Due: ${note?.getFormattedDueDate()}|"></span>
+                <span class="note-owner" th:text="|by ${note?.user?.username}|"></span>
             </div>
         </div>
         
@@ -25,19 +25,19 @@
             <button class="btn btn-secondary btn-sm"
                     th:attr="hx-get=@{/notes/modal/{id}(id=${note != null ? note.id : ''})}"
                     hx-target="#modal-container">
-                <span>✏️</span> Bearbeiten
+                <span>✏️</span> Edit
             </button>
             <button class="btn btn-secondary btn-sm"
                     th:attr="hx-get=@{/notes/modal/{id}(id=${note != null ? note.id : ''}, mode='share')}"
                     hx-target="#modal-container">
-                <span>👥</span> Teilen
+                <span>👥</span> Share
             </button>
             <button class="btn btn-accent btn-sm"
                     th:attr="hx-delete=@{/notes/{id}(id=${note != null ? note.id : ''})}"
-                    hx-confirm="Notiz archivieren?"
+                    hx-confirm="Archive note?"
                     hx-target="closest .note-card"
                     hx-swap="outerHTML swap:0.5s">
-                <span>📦</span> Archivieren
+                <span>📦</span> Archive
             </button>
         </div>
     </div>
@@ -52,25 +52,25 @@
                        hx-on=${formOnAfterRequest}">
 
             <div class="form-group">
-                <label for="title">Titel</label>
+                <label for="title">Title</label>
                 <input type="text"
                        id="title"
                        name="title"
                        class="form-control"
-                       placeholder="Notiz-Titel eingeben..."
+                       placeholder="Enter note title..."
                        th:value="${note?.title}"
                        required
                        autofocus>
             </div>
 
             <div class="form-group">
-                <label for="content">Inhalt</label>
+                <label for="content">Content</label>
                 <div id="content-editor" style="height: 200px;"></div>
                 <input type="hidden" id="content" name="content" th:value="${note?.content}" required>
             </div>
 
             <div class="form-group">
-                <label for="dueDate">Fälligkeitsdatum</label>
+                <label for="dueDate">Due Date</label>
                 <input type="datetime-local"
                        id="dueDate"
                        name="dueDate"
@@ -84,14 +84,14 @@
                 <button type="button"
                         class="btn btn-secondary cancel-modal-btn"
                         onclick="document.getElementById('unified-note-modal').remove()">
-                    Abbrechen
+                    Cancel
                 </button>
                 <button type="submit" class="btn btn-primary">
                     <span class="htmx-indicator">
-                        Speichern...
+                        Saving...
                     </span>
                     <span class="htmx-indicator-hide" th:text="${submitButtonText}">
-                        Speichern
+                        Save
                     </span>
                 </button>
             </div>
@@ -121,7 +121,7 @@
                 // Initialize Quill
                 const quill = new Quill('#content-editor', {
                     theme: 'snow',
-                    placeholder: 'Notiz-Inhalt eingeben...',
+                    placeholder: 'Enter note content...',
                     modules: {
                         toolbar: [
                             [{ 'header': [1, 2, 3, false] }],
@@ -161,7 +161,7 @@
 
         <!-- Out-of-band swap to update notes count -->
         <div class="notes-count"
-             th:text="|${#lists.size(notes)} Notizen|"
+             th:text="|${#lists.size(notes)} Notes|"
              hx-swap-oob="true"></div>
     </div>
 </body>

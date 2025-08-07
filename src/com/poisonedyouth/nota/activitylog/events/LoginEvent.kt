@@ -10,5 +10,5 @@ class LoginEvent(
     action = "LOGIN",
     entityType = "USER",
     entityId = userId,
-    description = "Benutzer angemeldet",
+    description = "User logged in",
 )

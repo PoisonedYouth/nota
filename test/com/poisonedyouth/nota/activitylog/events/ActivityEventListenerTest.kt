@@ -29,7 +29,7 @@ class ActivityEventListenerTest {
                 action = "LOGIN",
                 entityType = "USER",
                 entityId = 1L,
-                description = "Benutzer angemeldet",
+                description = "User logged in",
             )
         } just Runs
 
@@ -43,7 +43,7 @@ class ActivityEventListenerTest {
                 action = "LOGIN",
                 entityType = "USER",
                 entityId = 1L,
-                description = "Benutzer angemeldet",
+                description = "User logged in",
             )
         }
     }
@@ -63,7 +63,7 @@ class ActivityEventListenerTest {
                 action = "CREATE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz erstellt: 'Test Note'",
+                description = "Note created: 'Test Note'",
             )
         } just Runs
 
@@ -77,7 +77,7 @@ class ActivityEventListenerTest {
                 action = "CREATE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz erstellt: 'Test Note'",
+                description = "Note created: 'Test Note'",
             )
         }
     }
@@ -97,7 +97,7 @@ class ActivityEventListenerTest {
                 action = "UPDATE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz bearbeitet: 'Updated Note'",
+                description = "Note updated: 'Updated Note'",
             )
         } just Runs
 
@@ -111,7 +111,7 @@ class ActivityEventListenerTest {
                 action = "UPDATE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz bearbeitet: 'Updated Note'",
+                description = "Note updated: 'Updated Note'",
             )
         }
     }
@@ -131,7 +131,7 @@ class ActivityEventListenerTest {
                 action = "ARCHIVE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz archiviert: 'Archived Note'",
+                description = "Note archived: 'Archived Note'",
             )
         } just Runs
 
@@ -145,7 +145,7 @@ class ActivityEventListenerTest {
                 action = "ARCHIVE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz archiviert: 'Archived Note'",
+                description = "Note archived: 'Archived Note'",
             )
         }
     }
@@ -166,7 +166,7 @@ class ActivityEventListenerTest {
                 action = "SHARE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz geteilt: 'Shared Note' mit Benutzer 'recipient'",
+                description = "Note shared: 'Shared Note' with user 'recipient'",
             )
         } just Runs
 
@@ -180,7 +180,7 @@ class ActivityEventListenerTest {
                 action = "SHARE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz geteilt: 'Shared Note' mit Benutzer 'recipient'",
+                description = "Note shared: 'Shared Note' with user 'recipient'",
             )
         }
     }
@@ -218,7 +218,7 @@ class ActivityEventListenerTest {
                 action = "CREATE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz erstellt: ''",
+                description = "Note created: ''",
             )
         } just Runs
 
@@ -232,7 +232,7 @@ class ActivityEventListenerTest {
                 action = "CREATE",
                 entityType = "NOTE",
                 entityId = 2L,
-                description = "Notiz erstellt: ''",
+                description = "Note created: ''",
             )
         }
     }

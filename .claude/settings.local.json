@@ -9,7 +9,21 @@
       "Bash(./gradlew:*)",
       "Bash(./amper:*)",
       "Bash(java:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(./tools/ktlint.sh:*)",
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(./ktlint --reporter=plain src/ test/)",
+      "Bash(./ktlint:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(grep:*)",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*IntegrationTest\" --include-classes=\"*E2ETest\")",
+      "Bash(jar:*)",
+      "Bash(cat:*)",
+      "Bash(git push:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

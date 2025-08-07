@@ -2,6 +2,66 @@
 
 This document outlines best practices for developing Spring Boot applications with Kotlin, emphasizing KISS, YAGNI, SOLID principles, and clean code with comprehensive testing.
 
+## Language Requirements
+
+### English Language Standard
+**MANDATORY**: This project uses English as the **exclusive language** for all development artifacts:
+
+#### **Code Requirements**
+- **Comments**: All code comments must be in English
+- **Variable/Function Names**: Use English naming (e.g., `createUser`, not `erstelleBenutzer`)
+- **Class Names**: English naming conventions (e.g., `UserService`, not `BenutzerService`)
+- **Constant Names**: English constants (e.g., `MAX_RETRY_COUNT`, not `MAX_WIEDERHOLUNG_ANZAHL`)
+
+#### **User Interface Requirements**
+- **HTML Templates**: All text, labels, buttons, and messages in English
+- **Error Messages**: All user-facing error messages in English
+- **Form Labels**: All input labels and placeholders in English
+- **Navigation**: All menu items and links in English
+
+#### **Testing Requirements**
+- **Test Names**: Test method names in English (e.g., `should create user successfully`)
+- **Test Assertions**: Expected values and messages in English
+- **Test Data**: All test strings and mock data in English
+- **Test Comments**: All test documentation in English
+
+#### **Documentation Requirements**
+- **API Documentation**: All endpoint descriptions in English
+- **Database Schema**: Table and column comments in English
+- **Configuration Files**: All configuration comments in English
+- **README Files**: All documentation in English
+
+#### **Activity Logging & Messages**
+- **System Messages**: All activity log entries in English format:
+  - `"User logged in"` not `"Benutzer angemeldet"`
+  - `"Note created: 'Title'"` not `"Notiz erstellt: 'Titel'"`
+  - `"Note shared: 'Title' with user 'username'"` not `"Notiz geteilt: 'Titel' mit Benutzer 'username'"`
+
+#### **Date and Time Formatting**
+- **Date Format**: Use English format `MMM dd, yyyy` (e.g., "Aug 07, 2025")
+- **Time Format**: Use 24-hour format for systems, 12-hour for UI when appropriate
+- **Pagination**: Use English text (e.g., "Page 1 of 3", "Next →", "← Previous")
+
+#### **Enforcement Guidelines**
+1. **Code Reviews**: Reject any German text in code or tests
+2. **CI/CD**: Consider adding checks for German keywords in critical files
+3. **New Features**: All new development must follow English-only standard
+4. **Bug Fixes**: When fixing bugs, translate any remaining German text found
+
+#### **Migration Notes**
+- This project was successfully migrated from German to English
+- All legacy German strings have been identified and translated
+- Tests have been updated to expect English messages
+- UI components now display English text consistently
+
+**Rationale**: English-only development ensures:
+- International team collaboration
+- Consistent user experience
+- Maintainable codebase
+- Professional software standards
+
+---
+
 ## Core Principles
 
 ### KISS (Keep It Simple, Stupid)

@@ -5,15 +5,15 @@
     <div th:fragment="content">
         <div class="container">
             <div class="notes-header">
-                <h2>Aktivitätsprotokoll</h2>
+                <h2>Activity Log</h2>
                 <div class="header-actions">
-                    <a href="/notes" class="btn btn-secondary">Zurück zu Notizen</a>
+                    <a href="/notes" class="btn btn-secondary">Back to Notes</a>
                 </div>
             </div>
 
             <div class="activity-log-container">
                 <div th:if="${#lists.isEmpty(activities)}" class="empty-state">
-                    <p>Noch keine Aktivitäten vorhanden</p>
+                    <p>No activities yet</p>
                 </div>
 
                 <div th:if="${!#lists.isEmpty(activities)}" class="activity-list">
@@ -40,16 +40,16 @@
                 <!-- Pagination Controls -->
                 <div th:if="${totalPages > 1}" class="pagination-container">
                     <div class="pagination-info">
-                        <span th:text="'Seite ' + (${currentPage} + 1) + ' von ' + ${totalPages} + ' (' + ${totalElements} + ' Aktivitäten gesamt)'"></span>
+                        <span th:text="'Page ' + (${currentPage} + 1) + ' of ' + ${totalPages} + ' (' + ${totalElements} + ' activities total)'"></span>
                     </div>
                     <div class="pagination-controls">
                         <!-- Previous Page -->
                         <a th:if="${hasPrevious}"
                            th:href="@{/notes/activity-log(page=${currentPage - 1}, size=${pageSize})}"
                            class="btn btn-secondary">
-                            ← Vorherige
+                            ← Previous
                         </a>
-                        <span th:unless="${hasPrevious}" class="btn btn-secondary disabled">← Vorherige</span>
+                        <span th:unless="${hasPrevious}" class="btn btn-secondary disabled">← Previous</span>
 
                         <!-- Page Numbers -->
                         <div class="page-numbers">
@@ -86,9 +86,9 @@
                         <a th:if="${hasNext}"
                            th:href="@{/notes/activity-log(page=${currentPage + 1}, size=${pageSize})}"
                            class="btn btn-secondary">
-                            Nächste →
+                            Next →
                         </a>
-                        <span th:unless="${hasNext}" class="btn btn-secondary disabled">Nächste →</span>
+                        <span th:unless="${hasNext}" class="btn btn-secondary disabled">Next →</span>
                     </div>
                 </div>
             </div>

@@ -12,5 +12,5 @@ class CreateNoteEvent(
     action = "CREATE",
     entityType = "NOTE",
     entityId = noteId,
-    description = "Notiz erstellt: '$noteTitle'",
+    description = "Note created: '$noteTitle'",
 )

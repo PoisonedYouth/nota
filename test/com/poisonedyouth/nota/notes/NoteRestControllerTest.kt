@@ -361,4 +361,52 @@ class NoteRestControllerTest {
             .andExpect(jsonPath("$.notes").isArray)
             .andExpect(jsonPath("$.count").value(1))
     }
+
+    @Test
+    fun `should return bad request when updating note with blank title`() {
+        // Given
+        val session = createMockSession()
+        val updateNoteDto = UpdateNoteDto(1L, "", "<p>Updated content</p>")
+
+        // When & Then
+        mockMvc
+            .perform(
+                put("/api/notes/1")
+                    .session(session)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(updateNoteDto)),
+            ).andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `should return bad request when updating note with blank content`() {
+        // Given
+        val session = createMockSession()
+        val updateNoteDto = UpdateNoteDto(1L, "Valid Title", "")
+
+        // When & Then
+        mockMvc
+            .perform(
+                put("/api/notes/1")
+                    .session(session)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(updateNoteDto)),
+            ).andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `should return bad request when creating note with blank title`() {
+        // Given
+        val session = createMockSession()
+        val createNoteDto = CreateNoteDto("", "<p>Valid content</p>")
+
+        // When & Then
+        mockMvc
+            .perform(
+                post("/api/notes")
+                    .session(session)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(createNoteDto)),
+            ).andExpect(status().isBadRequest)
+    }
 }

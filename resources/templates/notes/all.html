@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::content})}">
 <head>
-    <title>Alle Notizen - Nota</title>
+    <title>All Notes - Nota</title>
 </head>
 <body>
     <div th:fragment="content">
         <div class="container">
             <div class="page-header">
-                <h1>Alle zugänglichen Notizen</h1>
+                <h1>All accessible notes</h1>
                 <div class="header-actions">
-                    <a href="/notes" class="btn btn-secondary">Meine Notizen</a>
-                    <a href="/notes/shared" class="btn btn-secondary">Geteilte Notizen</a>
+                    <a href="/notes" class="btn btn-secondary">My Notes</a>
+                    <a href="/notes/shared" class="btn btn-secondary">Shared Notes</a>
                     <button class="btn btn-primary"
                             hx-get="/notes/modal/create"
                             hx-target="#modal-container">
-                        Notiz erstellen
+                        Create Note
                     </button>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                       hx-trigger="input changed delay:300ms, search">
                     <input type="text"
                            name="q"
-                           placeholder="Alle zugänglichen Notizen durchsuchen..."
+                           placeholder="Search all accessible notes..."
                            class="search-input"
                            th:value="${searchQuery}">
                     <input type="hidden" name="sort" th:value="${currentSort}">
@@ -36,23 +36,23 @@
                 </form>
 
                 <div class="sort-controls">
-                    <label>Sortieren nach:</label>
+                    <label>Sort by:</label>
                     <select hx-get="/notes/all"
                             hx-target="#notes-container"
                             hx-include="[name='order']"
                             name="sort">
-                        <option value="updatedAt" th:selected="${currentSort == 'updatedAt'}">Zuletzt aktualisiert</option>
-                        <option value="createdAt" th:selected="${currentSort == 'createdAt'}">Erstellungsdatum</option>
-                        <option value="title" th:selected="${currentSort == 'title'}">Titel</option>
-                        <option value="dueDate" th:selected="${currentSort == 'dueDate'}">Fälligkeitsdatum</option>
+                        <option value="updatedAt" th:selected="${currentSort == 'updatedAt'}">Last updated</option>
+                        <option value="createdAt" th:selected="${currentSort == 'createdAt'}">Creation date</option>
+                        <option value="title" th:selected="${currentSort == 'title'}">Title</option>
+                        <option value="dueDate" th:selected="${currentSort == 'dueDate'}">Due date</option>
                     </select>
 
                     <select hx-get="/notes/all"
                             hx-target="#notes-container"
                             hx-include="[name='sort']"
                             name="order">
-                        <option value="desc" th:selected="${currentOrder == 'desc'}">Absteigend</option>
-                        <option value="asc" th:selected="${currentOrder == 'asc'}">Aufsteigend</option>
+                        <option value="desc" th:selected="${currentOrder == 'desc'}">Descending</option>
+                        <option value="asc" th:selected="${currentOrder == 'asc'}">Ascending</option>
                     </select>
                 </div>
             </div>
@@ -60,8 +60,8 @@
             <!-- Notes Grid -->
             <div id="notes-container" class="notes-grid">
                 <div th:if="${#lists.isEmpty(notes)}" class="empty-state">
-                    <h3>Keine Notizen gefunden</h3>
-                    <p>Sie haben noch keine zugänglichen Notizen.</p>
+                    <h3>No notes found</h3>
+                    <p>You have no accessible notes yet.</p>
                 </div>
 
                 <div th:each="note : ${notes}" class="note-card" th:classappend="${note.user.id != currentUser.id} ? 'shared-note' : 'owned-note'">
@@ -70,8 +70,8 @@
                             <a th:href="@{/notes/{id}(id=${note.id})}" th:text="${note.title}"></a>
                         </h3>
                         <div class="note-meta">
-                            <span th:if="${note.user.id != currentUser.id}" class="shared-indicator">📤 Geteilt</span>
-                            <span th:if="${note.user.id == currentUser.id}" class="owned-indicator">📝 Meine</span>
+                            <span th:if="${note.user.id != currentUser.id}" class="shared-indicator">📤 Shared</span>
+                            <span th:if="${note.user.id == currentUser.id}" class="owned-indicator">📝 Mine</span>
                             <span class="note-date" th:text="${#temporals.format(note.updatedAt, 'MMM dd, yyyy')}"></span>
                         </div>
                     </div>
@@ -79,28 +79,28 @@
 
                     <div class="note-footer">
                         <div class="note-actions">
-                            <a th:href="@{/notes/{id}(id=${note.id})}" class="btn btn-primary btn-small">Anzeigen</a>
+                            <a th:href="@{/notes/{id}(id=${note.id})}" class="btn btn-primary btn-small">View</a>
 
                             <!-- Show edit/share/archive buttons only for owned notes -->
                             <div th:if="${note.user.id == currentUser.id}">
                                 <button class="btn btn-secondary btn-small"
                                         th:hx-get="@{/notes/modal/{id}/edit(id=${note.id})}"
                                         hx-target="#modal-container">
-                                    Bearbeiten
+                                    Edit
                                 </button>
 
                                 <button class="btn btn-info btn-small"
                                         th:hx-get="@{/notes/{id}/share-modal(id=${note.id})}"
                                         hx-target="#modal-container">
-                                    Teilen
+                                    Share
                                 </button>
 
                                 <button class="btn btn-warning btn-small"
                                         th:hx-post="@{/notes/{id}/archive(id=${note.id})}"
                                         hx-target="closest .note-card"
                                         hx-swap="outerHTML"
-                                        hx-confirm="Sind Sie sicher, dass Sie diese Notiz archivieren möchten?">
-                                    Archivieren
+                                        hx-confirm="Are you sure you want to archive this note?">
+                                    Archive
                                 </button>
                             </div>
                         </div>
@@ -108,7 +108,7 @@
                             <span th:if="${note.dueDate}"
                                   class="due-date"
                                   th:classappend="${note.dueDate.isBefore(T(java.time.LocalDateTime).now())} ? 'overdue' : ''"
-                                  th:text="'Fällig: ' + ${#temporals.format(note.dueDate, 'MMM dd, yyyy')}"></span>
+                                  th:text="'Due: ' + ${#temporals.format(note.dueDate, 'MMM dd, yyyy')}"></span>
                         </div>
                     </div>
                 </div>

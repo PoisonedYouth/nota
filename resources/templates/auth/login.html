@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anmelden - Nota</title>
+    <title>Login - Nota</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
@@ -13,10 +13,10 @@
                 <div class="logo-icon">📝</div>
                 <div class="brand-text">
                     <h1 class="logo-text">Nota</h1>
-                    <p class="logo-subtitle">Intelligente Notizen</p>
+                    <p class="logo-subtitle">Smart Notes</p>
                 </div>
             </div>
-            <h2>Bei Nota anmelden</h2>
+            <h2>Log in to Nota</h2>
 
             <div th:if="${error}" class="error-message">
                 <span class="error-icon">⚠️</span>
@@ -27,30 +27,30 @@
                 <div class="form-group">
                     <label for="username">
                         <span class="label-icon">👤</span>
-                        Benutzername
+                        Username
                     </label>
                     <input type="text" id="username" th:field="*{username}" required 
-                           placeholder="Ihr Benutzername">
+                           placeholder="Your username">
                 </div>
 
                 <div class="form-group">
                     <label for="password">
                         <span class="label-icon">🔒</span>
-                        Passwort
+                        Password
                     </label>
                     <input type="password" id="password" th:field="*{password}" required 
-                           placeholder="Ihr Passwort">
+                           placeholder="Your password">
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-login">
-                    <span>🚀</span> Anmelden
+                    <span>🚀</span> Log in
                 </button>
             </form>
 
             <div class="login-footer">
                 <p>
                     <a th:href="@{/auth/register}" class="register-link">
-                        <span>✨</span> Noch kein Konto? Hier registrieren
+                        <span>✨</span> No account yet? Register here
                     </a>
                 </p>
             </div>

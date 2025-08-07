@@ -5,24 +5,24 @@
     <div th:fragment="content">
         <div class="container">
             <div class="note-detail-header">
-                <a href="/notes" class="btn btn-secondary">← Zurück zur Liste</a>
+                <a href="/notes" class="btn btn-secondary">← Back to List</a>
                 <div class="note-actions" th:if="${!note.archived}">
                     <button class="btn btn-primary"
                             th:attr="hx-get=@{/notes/modal/{id}/edit(id=${note.id})}"
                             hx-target="#modal-container">
-                        Bearbeiten
+                        Edit
                     </button>
                     <button class="btn btn-info"
                             th:attr="hx-get=@{/notes/{id}/share-modal(id=${note.id})}"
                             hx-target="#modal-container">
-                        Teilen
+                        Share
                     </button>
                     <button class="btn btn-danger"
                             th:attr="hx-delete=@{/notes/{id}(id=${note.id})}"
-                            hx-confirm="Notiz archivieren?"
+                            hx-confirm="Archive note?"
                             hx-target="body"
                             hx-swap="innerHTML">
-                        Archivieren
+                        Archive
                     </button>
                 </div>
             </div>
@@ -38,35 +38,35 @@
                     <h2 class="section-heading">Details</h2>
                     <div class="metadata-grid">
                         <div class="meta-item">
-                            <span class="meta-label">Ersteller:</span>
+                            <span class="meta-label">Creator:</span>
                             <span class="meta-value" th:text="${note.user.username}"></span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">Erstellt:</span>
+                            <span class="meta-label">Created:</span>
                             <span class="meta-value" th:text="${note.getFormattedDate()}"></span>
                         </div>
                         <div class="meta-item" th:if="${note.updatedAt != note.createdAt}">
-                            <span class="meta-label">Zuletzt bearbeitet:</span>
+                            <span class="meta-label">Last edited:</span>
                             <span class="meta-value" th:text="${note.updatedAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd.MM.yyyy HH:mm'))}"></span>
                         </div>
                         <div class="meta-item" th:if="${note.dueDate != null}">
-                            <span class="meta-label">Fällig:</span>
+                            <span class="meta-label">Due:</span>
                             <span class="meta-value"
                                   th:classappend="${note.isOverdue()} ? 'overdue' : (${note.isDueSoon()} ? 'due-soon' : '')"
                                   th:text="${note.getFormattedDueDate()}"></span>
                         </div>
                         <div class="meta-item" th:if="${note.archived}">
                             <span class="meta-label">Status:</span>
-                            <span class="meta-value archived-status">Archiviert</span>
+                            <span class="meta-value archived-status">Archived</span>
                             <span class="meta-value" th:if="${note.archivedAt != null}"
-                                  th:text="'am ' + ${note.archivedAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd.MM.yyyy HH:mm'))}"></span>
+                                  th:text="'on ' + ${note.archivedAt.format(T(java.time.format.DateTimeFormatter).ofPattern('MMM dd, yyyy HH:mm'))}"></span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Content Section -->
                 <div class="note-content-section">
-                    <h2 class="section-heading">Inhalt</h2>
+                    <h2 class="section-heading">Content</h2>
                     <div class="content-wrapper">
                         <div class="content-text" th:utext="${note.content}"></div>
                     </div>

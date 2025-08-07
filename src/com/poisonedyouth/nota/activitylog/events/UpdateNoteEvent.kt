@@ -12,5 +12,5 @@ class UpdateNoteEvent(
     action = "UPDATE",
     entityType = "NOTE",
     entityId = noteId,
-    description = "Notiz bearbeitet: '$noteTitle'",
+    description = "Note updated: '$noteTitle'",
 )

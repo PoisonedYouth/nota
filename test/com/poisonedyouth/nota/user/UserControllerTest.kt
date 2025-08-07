@@ -158,7 +158,7 @@ class UserControllerTest {
             .andExpect(MockMvcResultMatchers.view().name("auth/login"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("loginDto"))
-            .andExpect(MockMvcResultMatchers.model().attribute("error", "Ungültiger Benutzername oder Passwort"))
+            .andExpect(MockMvcResultMatchers.model().attribute("error", "Invalid username or password"))
 
         verify { userService.authenticate(match { it.username == username && it.password == password }) }
     }
@@ -185,7 +185,7 @@ class UserControllerTest {
             .andExpect(
                 MockMvcResultMatchers.model().attribute(
                     "error",
-                    "Ihr Konto ist vorübergehend deaktiviert. Bitte wenden Sie sich an den Administrator.",
+                    "Your account is temporarily disabled. Please contact the administrator.",
                 ),
             )
 

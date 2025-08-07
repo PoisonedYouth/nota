@@ -5,9 +5,9 @@
     <div th:fragment="content">
         <div class="container">
             <div class="notes-header">
-                <h2>Admin Übersicht</h2>
+                <h2>Admin Overview</h2>
                 <div class="header-actions">
-                    <a href="/notes" class="btn btn-secondary">Zurück zu Notizen</a>
+                    <a href="/notes" class="btn btn-secondary">Back to Notes</a>
                 </div>
             </div>
 
@@ -21,41 +21,41 @@
 
             <!-- System Statistics -->
             <div class="admin-section">
-                <h3>System Statistiken</h3>
+                <h3>System Statistics</h3>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number" th:text="${systemStatistics.totalUsers}">0</div>
-                        <div class="stat-label">Benutzer gesamt</div>
+                        <div class="stat-label">Total Users</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number" th:text="${systemStatistics.totalNotes}">0</div>
-                        <div class="stat-label">Notizen gesamt</div>
+                        <div class="stat-label">Total Notes</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number" th:text="${systemStatistics.totalArchivedNotes}">0</div>
-                        <div class="stat-label">Archivierte Notizen</div>
+                        <div class="stat-label">Archived Notes</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number" th:text="${systemStatistics.totalSharedNotes}">0</div>
-                        <div class="stat-label">Geteilte Notizen</div>
+                        <div class="stat-label">Shared Notes</div>
                     </div>
                 </div>
             </div>
 
             <!-- User Statistics -->
             <div class="admin-section">
-                <h3>Benutzer Statistiken</h3>
+                <h3>User Statistics</h3>
                 <div class="table-container">
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Benutzername</th>
-                                <th>Registriert am</th>
-                                <th>Notizen gesamt</th>
-                                <th>Archivierte Notizen</th>
-                                <th>Geteilte Notizen</th>
+                                <th>Username</th>
+                                <th>Registered</th>
+                                <th>Total Notes</th>
+                                <th>Archived Notes</th>
+                                <th>Shared Notes</th>
                                 <th>Status</th>
-                                <th>Aktionen</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -68,26 +68,26 @@
                                 <td>
                                     <div class="status-badges">
                                         <span th:if="${!user.enabled}" class="status-badge status-disabled">
-                                            Deaktiviert
+                                            Disabled
                                         </span>
                                         <span th:if="${user.enabled && user.mustChangePassword}" class="status-badge status-warning">
-                                            Passwort ändern erforderlich
+                                            Password change required
                                         </span>
                                         <span th:if="${user.enabled && !user.mustChangePassword}" class="status-badge status-active">
-                                            Aktiv
+                                            Active
                                         </span>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="action-buttons">
                                         <form th:if="${user.enabled}" th:action="@{/admin/users/{id}/disable(id=${user.id})}" method="post" style="display: inline;">
-                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Sind Sie sicher, dass Sie diesen Benutzer deaktivieren möchten?')">
-                                                Deaktivieren
+                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to disable this user?')">
+                                                Disable
                                             </button>
                                         </form>
                                         <form th:if="${!user.enabled}" th:action="@{/admin/users/{id}/enable(id=${user.id})}" method="post" style="display: inline;">
                                             <button type="submit" class="btn btn-sm btn-success">
-                                                Aktivieren
+                                                Enable
                                             </button>
                                         </form>
                                     </div>
@@ -99,7 +99,7 @@
 
                 <!-- Empty state -->
                 <div th:if="${#lists.isEmpty(userStatistics)}" class="empty-state">
-                    <p>Keine Benutzer gefunden</p>
+                    <p>No users found</p>
                 </div>
             </div>
         </div>

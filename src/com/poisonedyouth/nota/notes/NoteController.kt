@@ -92,11 +92,11 @@ class NoteController(
         activityEventPublisher.publishCreateNoteEvent(user.id, newNote.id, newNote.title)
 
         return if (htmxRequest != null) {
-            // HTMX Request: Nur die neue Notiz als Fragment zurückgeben
+            // HTMX Request: Return only the new note as fragment
             model.addAttribute("note", newNote)
             "notes/fragments :: note-card"
         } else {
-            // Normale Request: Redirect zur Liste
+            // Normal Request: Redirect to list
             "redirect:/notes"
         }
     }
@@ -335,7 +335,7 @@ class NoteController(
             model.addAttribute("shares", shares)
             model.addAttribute("shareNoteDto", shareNoteDto)
             model.addAttribute("mode", "share")
-            model.addAttribute("error", "Bitte geben Sie einen gültigen Benutzernamen ein")
+            model.addAttribute("error", "Please enter a valid username")
             return if (htmxRequest != null) {
                 "notes/create-modal :: modal-content"
             } else {
@@ -351,7 +351,7 @@ class NoteController(
             model.addAttribute("shares", shares)
             model.addAttribute("shareNoteDto", shareNoteDto)
             model.addAttribute("mode", "share")
-            model.addAttribute("error", "Notiz konnte nicht geteilt werden. Benutzer nicht gefunden oder Notiz bereits geteilt.")
+            model.addAttribute("error", "Note could not be shared. User not found or note already shared.")
             return if (htmxRequest != null) {
                 "notes/create-modal :: modal-content"
             } else {
@@ -372,7 +372,7 @@ class NoteController(
             model.addAttribute("shares", shares)
             model.addAttribute("shareNoteDto", ShareNoteDto(""))
             model.addAttribute("mode", "share")
-            model.addAttribute("success", "Notiz erfolgreich geteilt!")
+            model.addAttribute("success", "Note shared successfully!")
             "notes/create-modal :: modal-content"
         } else {
             "redirect:/notes"

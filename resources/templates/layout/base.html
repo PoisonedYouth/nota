@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nota - Intelligente Notizen</title>
+    <title>Nota - Smart Notes</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,7 +28,7 @@
                 <div class="logo-icon">📝</div>
                 <div class="brand-text">
                     <h1 class="logo-text">Nota</h1>
-                    <p class="logo-subtitle">Intelligente Notizen</p>
+                    <p class="logo-subtitle">Smart Notes</p>
                 </div>
             </div>
             <div class="navbar-actions">
@@ -42,7 +42,7 @@
                     </div>
                     <form th:action="@{/auth/logout}" method="post" class="logout-form">
                         <button type="submit" class="btn btn-secondary">
-                            <span>🚪</span> Abmelden
+                            <span>🚪</span> Logout
                         </button>
                     </form>
                 </div>
@@ -54,7 +54,7 @@
         <div th:replace="${content}"></div>
     </main>
 
-    <!-- Modal Container für HTMX -->
+    <!-- Modal Container for HTMX -->
     <div id="modal-container"></div>
 
     <script>

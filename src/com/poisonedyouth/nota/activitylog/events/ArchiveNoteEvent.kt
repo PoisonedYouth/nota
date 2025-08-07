@@ -12,5 +12,5 @@ class ArchiveNoteEvent(
     action = "ARCHIVE",
     entityType = "NOTE",
     entityId = noteId,
-    description = "Notiz archiviert: '$noteTitle'",
+    description = "Note archived: '$noteTitle'",
 )

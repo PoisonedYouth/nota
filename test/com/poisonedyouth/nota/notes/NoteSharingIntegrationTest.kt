@@ -104,8 +104,8 @@ class NoteSharingIntegrationTest
                         .param("mode", "share")
                         .session(session),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Notiz teilen: Test Note")))
-                .andExpect(content().string(containsString("Notiz teilen")))
+                .andExpect(content().string(containsString("Share note: Test Note")))
+                .andExpect(content().string(containsString("Share note")))
         }
 
         @Test
@@ -138,7 +138,7 @@ class NoteSharingIntegrationTest
                         .session(session)
                         .header("HX-Request", "true"),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Notiz erfolgreich geteilt!")))
+                .andExpect(content().string(containsString("Note shared successfully!")))
 
             // Verify share was created
             val shares = noteShareRepository.findAllByNote(testNote)
@@ -156,7 +156,7 @@ class NoteSharingIntegrationTest
                         .session(session)
                         .header("HX-Request", "true"),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Notiz konnte nicht geteilt werden")))
+                .andExpect(content().string(containsString("Note could not be shared")))
 
             // Verify no share was created
             val shares = noteShareRepository.findAllByNote(testNote)
@@ -173,7 +173,7 @@ class NoteSharingIntegrationTest
                         .session(session)
                         .header("HX-Request", "true"),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Neue Notiz erstellen")))
+                .andExpect(content().string(containsString("Create new note")))
         }
 
         @Test
@@ -198,7 +198,7 @@ class NoteSharingIntegrationTest
                         .session(session)
                         .header("HX-Request", "true"),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Notiz konnte nicht geteilt werden")))
+                .andExpect(content().string(containsString("Note could not be shared")))
 
             // Verify only one share exists
             val shares = noteShareRepository.findAllByNote(testNote)
@@ -261,7 +261,7 @@ class NoteSharingIntegrationTest
                     get("/notes/shared")
                         .session(session),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Mit mir geteilte Notizen")))
+                .andExpect(content().string(containsString("Notes shared with me")))
                 .andExpect(content().string(containsString("Shared Note")))
         }
 
@@ -272,7 +272,7 @@ class NoteSharingIntegrationTest
                     get("/notes/shared")
                         .session(session),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Keine geteilten Notizen gefunden")))
+                .andExpect(content().string(containsString("No shared notes found")))
         }
 
         @Test
@@ -305,7 +305,7 @@ class NoteSharingIntegrationTest
                     get("/notes/all")
                         .session(session),
                 ).andExpect(status().isOk)
-                .andExpect(content().string(containsString("Alle zugänglichen Notizen")))
+                .andExpect(content().string(containsString("All accessible notes")))
                 .andExpect(content().string(containsString("Test Note"))) // Owned note
                 .andExpect(content().string(containsString("Shared Note"))) // Shared note
         }

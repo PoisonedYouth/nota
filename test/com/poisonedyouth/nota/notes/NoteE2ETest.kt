@@ -129,7 +129,7 @@ class NoteE2ETest
             // Then
             result
                 .andExpect(status().isOk)
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("von ${testUser.username}")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("by ${testUser.username}")))
         }
 
         @Test
@@ -148,7 +148,7 @@ class NoteE2ETest
             // Then
             result
                 .andExpect(status().isOk)
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ersteller:")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Creator:")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString(testUser.username)))
         }
 
@@ -177,7 +177,7 @@ class NoteE2ETest
                 .andExpect(status().isOk)
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("note-overdue")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Overdue Note")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fällig:")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Due:")))
         }
 
         @Test
@@ -205,7 +205,7 @@ class NoteE2ETest
                 .andExpect(status().isOk)
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("note-due-soon")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Due Soon Note")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fällig:")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Due:")))
         }
 
         @Test
@@ -232,7 +232,7 @@ class NoteE2ETest
             result
                 .andExpect(status().isOk)
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Future Note")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fällig:")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Due:")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("note-overdue"))))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("note-due-soon"))))
         }
@@ -262,7 +262,7 @@ class NoteE2ETest
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("No Due Date Note")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("note-overdue"))))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("note-due-soon"))))
-                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Fällig:"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Due:"))))
         }
 
         @Test

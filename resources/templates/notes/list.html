@@ -6,29 +6,29 @@
         <div class="container">
             <div class="notes-header">
                 <div class="header-content">
-                    <h2>Meine Notizen</h2>
-                    <div class="notes-count" th:text="|${#lists.size(notes)} Notizen|"></div>
+                    <h2>My Notes</h2>
+                    <div class="notes-count" th:text="|${#lists.size(notes)} Notes|"></div>
                 </div>
                 <div class="header-actions">
                     <a href="/notes/activity-log" class="btn btn-secondary">
-                        <span>📊</span> Aktivitätsprotokoll
+                        <span>📊</span> Activity Log
                     </a>
                     <a href="/notes/shared" class="btn btn-secondary">
-                        <span>👥</span> Geteilte Notizen
+                        <span>👥</span> Shared Notes
                     </a>
                     <a href="/notes/all" class="btn btn-secondary">
-                        <span>📋</span> Alle Notizen
+                        <span>📋</span> All Notes
                     </a>
                     <a href="/notes/archive" class="btn btn-secondary">
-                        <span>📦</span> Archiv
+                        <span>📦</span> Archive
                     </a>
                     <a th:if="${currentUser.role.name() == 'ADMIN'}" href="/admin/overview" class="btn btn-secondary">
-                        <span>⚙️</span> Admin Übersicht
+                        <span>⚙️</span> Admin Overview
                     </a>
                     <button class="btn btn-primary"
                             hx-get="/notes/modal/new"
                             hx-target="#modal-container">
-                        <span>➕</span> Neue Notiz
+                        <span>➕</span> New Note
                     </button>
                 </div>
             </div>
@@ -44,24 +44,24 @@
                     <div class="search-container">
                         <input type="text"
                                name="q"
-                               placeholder="Notizen durchsuchen..."
+                               placeholder="Search notes..."
                                th:value="${searchQuery}"
                                class="search-input">
                     </div>
 
                     <!-- Sorting Options -->
                     <div class="sorting-container">
-                        <label for="sort-select">Sortieren nach:</label>
+                        <label for="sort-select">Sort by:</label>
                         <select id="sort-select" name="sort" th:value="${currentSort ?: 'updatedAt'}">
-                            <option value="title" th:selected="${currentSort == 'title'}">Titel (A-Z)</option>
-                            <option value="createdAt" th:selected="${currentSort == 'createdAt'}">Erstellungsdatum</option>
-                            <option value="updatedAt" th:selected="${currentSort == 'updatedAt'}">Änderungsdatum</option>
-                            <option value="dueDate" th:selected="${currentSort == 'dueDate'}">Fälligkeitsdatum</option>
+                            <option value="title" th:selected="${currentSort == 'title'}">Title (A-Z)</option>
+                            <option value="createdAt" th:selected="${currentSort == 'createdAt'}">Created Date</option>
+                            <option value="updatedAt" th:selected="${currentSort == 'updatedAt'}">Modified Date</option>
+                            <option value="dueDate" th:selected="${currentSort == 'dueDate'}">Due Date</option>
                         </select>
 
                         <select id="order-select" name="order" th:value="${currentOrder ?: 'desc'}">
-                            <option value="asc" th:selected="${currentOrder == 'asc'}">Aufsteigend</option>
-                            <option value="desc" th:selected="${currentOrder == 'desc'}">Absteigend</option>
+                            <option value="asc" th:selected="${currentOrder == 'asc'}">Ascending</option>
+                            <option value="desc" th:selected="${currentOrder == 'desc'}">Descending</option>
                         </select>
                     </div>
                 </form>
@@ -76,14 +76,14 @@
             <!-- Empty State -->
             <div th:if="${#lists.isEmpty(notes)}" class="empty-state">
                 <div class="empty-state-icon">📝</div>
-                <h3 class="empty-state-title">Noch keine Notizen vorhanden</h3>
+                <h3 class="empty-state-title">No notes available yet</h3>
                 <p class="empty-state-description">
-                    Erstellen Sie Ihre erste Notiz und beginnen Sie mit dem Organisieren Ihrer Gedanken und Ideen.
+                    Create your first note and start organizing your thoughts and ideas.
                 </p>
                 <button class="btn btn-primary btn-large"
                         hx-get="/notes/modal/new"
                         hx-target="#modal-container">
-                    <span>✨</span> Erste Notiz erstellen
+                    <span>✨</span> Create first note
                 </button>
             </div>
         </div>
