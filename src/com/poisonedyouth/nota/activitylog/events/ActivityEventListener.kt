@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component
 class ActivityEventListener(
     private val activityLogService: ActivityLogService,
 ) {
-
     @EventListener
     @Async
     fun handleActivityEvent(event: ActivityEvent) {

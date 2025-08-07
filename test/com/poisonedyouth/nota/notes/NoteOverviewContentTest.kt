@@ -30,7 +30,6 @@ class NoteOverviewContentTest
         private val noteRepository: NoteRepository,
         private val userRepository: UserRepository,
     ) {
-
         private lateinit var testUser: User
         private lateinit var testSession: MockHttpSession
 
@@ -40,12 +39,13 @@ class NoteOverviewContentTest
             userRepository.deleteAll()
 
             // Create test user
-            testUser = userRepository.save(
-                User(
-                    username = "testuser_overview_${System.currentTimeMillis()}",
-                    password = "password",
-                ),
-            )
+            testUser =
+                userRepository.save(
+                    User(
+                        username = "testuser_overview_${System.currentTimeMillis()}",
+                        password = "password",
+                    ),
+                )
 
             // Create session with authentication
             testSession = MockHttpSession()
@@ -61,32 +61,35 @@ class NoteOverviewContentTest
 
             // Create test notes
             val now = LocalDateTime.now()
-            val note1 = Note(
-                title = "Test Note 1",
-                content = "This is test content for note 1 that should be visible in preview",
-                createdAt = now,
-                updatedAt = now,
-                user = testUser,
-            )
-            val note2 = Note(
-                title = "Test Note 2",
-                content = "This is test content for note 2 that should be visible in preview",
-                createdAt = now,
-                updatedAt = now.plusMinutes(1),
-                user = testUser,
-            )
+            val note1 =
+                Note(
+                    title = "Test Note 1",
+                    content = "This is test content for note 1 that should be visible in preview",
+                    createdAt = now,
+                    updatedAt = now,
+                    user = testUser,
+                )
+            val note2 =
+                Note(
+                    title = "Test Note 2",
+                    content = "This is test content for note 2 that should be visible in preview",
+                    createdAt = now,
+                    updatedAt = now.plusMinutes(1),
+                    user = testUser,
+                )
             noteRepository.saveAll(listOf(note1, note2))
         }
 
         @Test
         fun `note overview should only show titles after fix`() {
             // When - accessing the notes list page
-            val result = mockMvc.perform(
-                get("/notes")
-                    .session(testSession),
-            )
-                .andExpect(status().isOk)
-                .andReturn()
+            val result =
+                mockMvc
+                    .perform(
+                        get("/notes")
+                            .session(testSession),
+                    ).andExpect(status().isOk)
+                    .andReturn()
 
             val content = result.response.contentAsString
 
@@ -99,12 +102,13 @@ class NoteOverviewContentTest
         @Test
         fun `all notes overview should only show titles after fix`() {
             // When - accessing the all notes page
-            val result = mockMvc.perform(
-                get("/notes/all")
-                    .session(testSession),
-            )
-                .andExpect(status().isOk)
-                .andReturn()
+            val result =
+                mockMvc
+                    .perform(
+                        get("/notes/all")
+                            .session(testSession),
+                    ).andExpect(status().isOk)
+                    .andReturn()
 
             val content = result.response.contentAsString
 
@@ -117,12 +121,13 @@ class NoteOverviewContentTest
         @Test
         fun `shared notes overview should only show titles after fix`() {
             // When - accessing the shared notes page
-            val result = mockMvc.perform(
-                get("/notes/shared")
-                    .session(testSession),
-            )
-                .andExpect(status().isOk)
-                .andReturn()
+            val result =
+                mockMvc
+                    .perform(
+                        get("/notes/shared")
+                            .session(testSession),
+                    ).andExpect(status().isOk)
+                    .andReturn()
 
             val content = result.response.contentAsString
 

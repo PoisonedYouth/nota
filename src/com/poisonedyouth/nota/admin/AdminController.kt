@@ -15,7 +15,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 class AdminController(
     private val adminService: AdminService,
 ) {
-
     /**
      * Check if current user is admin and redirect to login if not authenticated
      */
@@ -32,7 +31,10 @@ class AdminController(
      * Show admin overview with user statistics
      */
     @GetMapping("/overview")
-    fun showAdminOverview(session: HttpSession, model: Model): String {
+    fun showAdminOverview(
+        session: HttpSession,
+        model: Model,
+    ): String {
         val currentUser = checkAdminAccess(session)
 
         return if (currentUser != null) {
@@ -53,9 +55,7 @@ class AdminController(
      * Redirect root admin path to overview
      */
     @GetMapping("")
-    fun redirectToOverview(): String {
-        return "redirect:/admin/overview"
-    }
+    fun redirectToOverview(): String = "redirect:/admin/overview"
 
     /**
      * Disable a user

@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
 class UserControllerTest {
-
     private lateinit var mockMvc: MockMvc
     private lateinit var userService: UserService
     private lateinit var activityEventPublisher: ActivityEventPublisher
@@ -30,7 +29,8 @@ class UserControllerTest {
     @Test
     fun `showRegisterForm should return register view`() {
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/auth/register"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/auth/register"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/register"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("registerDto"))
@@ -47,11 +47,12 @@ class UserControllerTest {
         every { userService.registerUser(any()) } returns registerResponse
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/register")
-                .param("username", username),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/register")
+                    .param("username", username),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/register-success"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("user"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("initialPassword"))
@@ -68,11 +69,12 @@ class UserControllerTest {
         every { userService.registerUser(any()) } throws IllegalArgumentException("Username 'existinguser' already exists")
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/register")
-                .param("username", username),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/register")
+                    .param("username", username),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/register"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("registerDto"))
@@ -84,7 +86,8 @@ class UserControllerTest {
     @Test
     fun `showLoginForm should return login view`() {
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/auth/login"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/auth/login"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/login"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("loginDto"))
@@ -101,12 +104,13 @@ class UserControllerTest {
         every { activityEventPublisher.publishLoginEvent(any()) } just Runs
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/login")
-                .param("username", username)
-                .param("password", password),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/login")
+                    .param("username", username)
+                    .param("password", password),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/notes"))
 
         verify { userService.authenticate(match { it.username == username && it.password == password }) }
@@ -123,12 +127,13 @@ class UserControllerTest {
         every { activityEventPublisher.publishLoginEvent(any()) } just Runs
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/login")
-                .param("username", username)
-                .param("password", password),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/login")
+                    .param("username", username)
+                    .param("password", password),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/change-password"))
 
         verify { userService.authenticate(match { it.username == username && it.password == password }) }
@@ -143,12 +148,13 @@ class UserControllerTest {
         every { userService.authenticate(any()) } returns AuthenticationResult.InvalidCredentials
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/login")
-                .param("username", username)
-                .param("password", password),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/login")
+                    .param("username", username)
+                    .param("password", password),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/login"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("loginDto"))
@@ -166,12 +172,13 @@ class UserControllerTest {
         every { userService.authenticate(any()) } returns AuthenticationResult.UserDisabled
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/login")
-                .param("username", username)
-                .param("password", password),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/login")
+                    .param("username", username)
+                    .param("password", password),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/login"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("loginDto"))

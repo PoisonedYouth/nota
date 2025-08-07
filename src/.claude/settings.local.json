@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git push:*)",
+      "Bash(make:*)",
+      "Bash(./amper test --filter=UserServiceTest)",
+      "Bash(./gradlew test:*)",
+      "Bash(./amper test:*)",
+      "Bash(./gradlew:*)",
+      "Bash(./tools/ktlint.sh:*)",
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(./ktlint:*)",
+      "Bash(rm:*)",
+      "Bash(./tools/detekt.sh:*)",
+      "Bash(git rebase:*)"
+    ],
+    "deny": []
+  }
+}

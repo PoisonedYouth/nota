@@ -25,14 +25,9 @@ class NoteController(
     private val activityLogService: ActivityLogService,
     private val activityEventPublisher: ActivityEventPublisher,
 ) {
+    private fun getCurrentUser(session: HttpSession): UserDto? = session.getAttribute("currentUser") as? UserDto
 
-    private fun getCurrentUser(session: HttpSession): UserDto? {
-        return session.getAttribute("currentUser") as? UserDto
-    }
-
-    private fun requireAuthentication(session: HttpSession): UserDto? {
-        return getCurrentUser(session)
-    }
+    private fun requireAuthentication(session: HttpSession): UserDto? = getCurrentUser(session)
 
     @GetMapping
     fun listNotes(
@@ -107,9 +102,7 @@ class NoteController(
     }
 
     @GetMapping("/modal/new")
-    fun showCreateModal(): String {
-        return "notes/create-modal :: modal-content"
-    }
+    fun showCreateModal(): String = "notes/create-modal :: modal-content"
 
     @GetMapping("/modal/{id}")
     fun showUnifiedModal(
@@ -180,7 +173,10 @@ class NoteController(
     }
 
     @GetMapping("/archive")
-    fun listArchivedNotes(model: Model, session: HttpSession): String {
+    fun listArchivedNotes(
+        model: Model,
+        session: HttpSession,
+    ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
         model.addAttribute("notes", noteService.findAllArchivedNotes(user.id))
         return "notes/archive"
@@ -198,12 +194,13 @@ class NoteController(
             return "redirect:/notes"
         }
 
-        val updateNoteDto = UpdateNoteDto(
-            id = note.id,
-            title = note.title,
-            content = note.content,
-            dueDate = note.dueDate,
-        )
+        val updateNoteDto =
+            UpdateNoteDto(
+                id = note.id,
+                title = note.title,
+                content = note.content,
+                dueDate = note.dueDate,
+            )
 
         model.addAttribute("updateNoteDto", updateNoteDto)
         model.addAttribute("note", note)
@@ -222,12 +219,13 @@ class NoteController(
             return "redirect:/notes"
         }
 
-        val updateNoteDto = UpdateNoteDto(
-            id = note.id,
-            title = note.title,
-            content = note.content,
-            dueDate = note.dueDate,
-        )
+        val updateNoteDto =
+            UpdateNoteDto(
+                id = note.id,
+                title = note.title,
+                content = note.content,
+                dueDate = note.dueDate,
+            )
 
         model.addAttribute("updateNoteDto", updateNoteDto)
         model.addAttribute("note", note)
@@ -287,11 +285,12 @@ class NoteController(
         @RequestParam(value = "all", required = false, defaultValue = "false") searchAll: String,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        val notes = if (searchAll == "true") {
-            noteService.searchAccessibleNotes(query, user.id, sortBy, sortOrder)
-        } else {
-            noteService.searchNotes(query, user.id, sortBy, sortOrder)
-        }
+        val notes =
+            if (searchAll == "true") {
+                noteService.searchAccessibleNotes(query, user.id, sortBy, sortOrder)
+            } else {
+                noteService.searchNotes(query, user.id, sortBy, sortOrder)
+            }
         model.addAttribute("notes", notes)
         model.addAttribute("searchQuery", query)
         model.addAttribute("currentSort", sortBy)

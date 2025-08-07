@@ -23,7 +23,6 @@ class NoteIntegrationTest
         private val noteService: NoteService,
         private val userRepository: UserRepository,
     ) {
-
         private lateinit var testUser: User
 
         @BeforeEach
@@ -33,12 +32,13 @@ class NoteIntegrationTest
 
             // Use a unique username for each test run to avoid conflicts
             val uniqueUsername = "testuser_integration_${System.currentTimeMillis()}"
-            testUser = userRepository.save(
-                User(
-                    username = uniqueUsername,
-                    password = "password",
-                ),
-            )
+            testUser =
+                userRepository.save(
+                    User(
+                        username = uniqueUsername,
+                        password = "password",
+                    ),
+                )
         }
 
         @Test
@@ -96,10 +96,11 @@ class NoteIntegrationTest
         @Test
         fun `should create a new note`() {
             // Given
-            val createNoteDto = CreateNoteDto(
-                title = "New Test Note",
-                content = "New Test Content",
-            )
+            val createNoteDto =
+                CreateNoteDto(
+                    title = "New Test Note",
+                    content = "New Test Content",
+                )
 
             // When
             val createdNote = noteService.createNote(createNoteDto, testUser.id!!)
@@ -159,12 +160,13 @@ class NoteIntegrationTest
         fun `should correctly identify overdue notes`() {
             // Given
             val pastDueDate = LocalDateTime.now().minusHours(2)
-            val overdueNote = Note(
-                title = "Overdue Note",
-                content = "This note is overdue",
-                dueDate = pastDueDate,
-                user = testUser,
-            )
+            val overdueNote =
+                Note(
+                    title = "Overdue Note",
+                    content = "This note is overdue",
+                    dueDate = pastDueDate,
+                    user = testUser,
+                )
             val savedNote = noteRepository.save(overdueNote)
 
             // When
@@ -181,12 +183,13 @@ class NoteIntegrationTest
         fun `should correctly identify notes due soon`() {
             // Given
             val dueSoonDate = LocalDateTime.now().plusHours(12)
-            val dueSoonNote = Note(
-                title = "Due Soon Note",
-                content = "This note is due soon",
-                dueDate = dueSoonDate,
-                user = testUser,
-            )
+            val dueSoonNote =
+                Note(
+                    title = "Due Soon Note",
+                    content = "This note is due soon",
+                    dueDate = dueSoonDate,
+                    user = testUser,
+                )
             val savedNote = noteRepository.save(dueSoonNote)
 
             // When
@@ -203,12 +206,13 @@ class NoteIntegrationTest
         fun `should correctly handle notes with future due dates`() {
             // Given
             val futureDueDate = LocalDateTime.now().plusDays(2)
-            val futureNote = Note(
-                title = "Future Note",
-                content = "This note is due in the future",
-                dueDate = futureDueDate,
-                user = testUser,
-            )
+            val futureNote =
+                Note(
+                    title = "Future Note",
+                    content = "This note is due in the future",
+                    dueDate = futureDueDate,
+                    user = testUser,
+                )
             val savedNote = noteRepository.save(futureNote)
 
             // When
@@ -224,12 +228,13 @@ class NoteIntegrationTest
         @Test
         fun `should correctly handle notes without due dates`() {
             // Given
-            val noteWithoutDueDate = Note(
-                title = "No Due Date Note",
-                content = "This note has no due date",
-                dueDate = null,
-                user = testUser,
-            )
+            val noteWithoutDueDate =
+                Note(
+                    title = "No Due Date Note",
+                    content = "This note has no due date",
+                    dueDate = null,
+                    user = testUser,
+                )
             val savedNote = noteRepository.save(noteWithoutDueDate)
 
             // When
@@ -245,21 +250,24 @@ class NoteIntegrationTest
         @Test
         fun `should search notes by title and content`() {
             // Given
-            val note1 = Note(
-                title = "Important Meeting",
-                content = "Discuss project timeline",
-                user = testUser,
-            )
-            val note2 = Note(
-                title = "Shopping List",
-                content = "Buy groceries for the important dinner",
-                user = testUser,
-            )
-            val note3 = Note(
-                title = "Random Note",
-                content = "Some random content",
-                user = testUser,
-            )
+            val note1 =
+                Note(
+                    title = "Important Meeting",
+                    content = "Discuss project timeline",
+                    user = testUser,
+                )
+            val note2 =
+                Note(
+                    title = "Shopping List",
+                    content = "Buy groceries for the important dinner",
+                    user = testUser,
+                )
+            val note3 =
+                Note(
+                    title = "Random Note",
+                    content = "Some random content",
+                    user = testUser,
+                )
 
             noteRepository.save(note1)
             noteRepository.save(note2)

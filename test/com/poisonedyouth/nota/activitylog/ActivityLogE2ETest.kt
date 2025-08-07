@@ -20,7 +20,6 @@ import org.springframework.web.context.WebApplicationContext
 @ActiveProfiles("test")
 @Transactional
 class ActivityLogE2ETest {
-
     @Autowired
     private lateinit var webApplicationContext: WebApplicationContext
 
@@ -47,27 +46,30 @@ class ActivityLogE2ETest {
         // Step 1: Login user (this should create a LOGIN activity)
         println("[DEBUG_LOG] Step 1: Logging in user")
         val session = MockHttpSession()
-        val loginResult = mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/login")
-                .param("username", "testuser")
-                .param("password", "password")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
-            .andReturn()
+        val loginResult =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/auth/login")
+                        .param("username", "testuser")
+                        .param("password", "TestPassword123!")
+                        .session(session),
+                ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+                .andReturn()
 
         val user = session.getAttribute("currentUser") as com.poisonedyouth.nota.user.UserDto
         user shouldNotBe null
 
         // Step 2: Create a note (this should create a CREATE activity)
         println("[DEBUG_LOG] Step 2: Creating a note")
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/notes/new")
-                .param("title", "Test Note")
-                .param("content", "This is a test note content")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/notes/new")
+                    .param("title", "Test Note")
+                    .param("content", "This is a test note content")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
 
         // Get the created note to use its ID in subsequent steps
         val userNotes = noteService.findAllNotes(user.id)
@@ -76,21 +78,23 @@ class ActivityLogE2ETest {
 
         // Step 3: Update the note (this should create an UPDATE activity)
         println("[DEBUG_LOG] Step 3: Updating the note")
-        mockMvc.perform(
-            MockMvcRequestBuilders.put("/notes/${createdNote.id}")
-                .param("title", "Updated Test Note")
-                .param("content", "Updated content")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/notes/${createdNote.id}")
+                    .param("title", "Updated Test Note")
+                    .param("content", "Updated content")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
 
         // Step 4: Archive the note (this should create an ARCHIVE activity)
         println("[DEBUG_LOG] Step 4: Archiving the note")
-        mockMvc.perform(
-            MockMvcRequestBuilders.delete("/notes/${createdNote.id}")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .delete("/notes/${createdNote.id}")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
 
         // Step 5: Check that all activities were logged (with retry for async processing)
         println("[DEBUG_LOG] Step 5: Checking logged activities")
@@ -120,24 +124,27 @@ class ActivityLogE2ETest {
 
         // Step 6: Access the activity log view
         println("[DEBUG_LOG] Step 6: Accessing activity log view")
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/activity-log")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/notes/activity-log")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("activities"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("currentUser"))
 
         // Step 7: Verify that the activity log link is present in the main notes view
         println("[DEBUG_LOG] Step 7: Checking activity log link in main view")
-        val result = mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.view().name("notes/list"))
-            .andReturn()
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get("/notes")
+                        .session(session),
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.view().name("notes/list"))
+                .andReturn()
 
         val content = result.response.contentAsString
         content.contains("Aktivitätsprotokoll") shouldBe true
@@ -151,7 +158,8 @@ class ActivityLogE2ETest {
         println("[DEBUG_LOG] Testing activity log access control")
 
         // Try to access activity log without authentication
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/activity-log"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes/activity-log"))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
 
@@ -203,9 +211,10 @@ class ActivityLogE2ETest {
         // Step 1: Login user
         val session = MockHttpSession()
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/login")
+            MockMvcRequestBuilders
+                .post("/auth/login")
                 .param("username", "testuser")
-                .param("password", "password")
+                .param("password", "TestPassword123!")
                 .session(session),
         )
 
@@ -225,20 +234,22 @@ class ActivityLogE2ETest {
 
         // Step 3: Test first page with pagination controls
         println("[DEBUG_LOG] Testing first page with pagination controls")
-        val firstPageResult = mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/activity-log")
-                .param("page", "0")
-                .param("size", "10")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
-            .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 0))
-            .andExpect(MockMvcResultMatchers.model().attribute("totalPages", 3))
-            .andExpect(MockMvcResultMatchers.model().attribute("totalElements", 26L)) // 25 activities + 1 LOGIN activity
-            .andExpect(MockMvcResultMatchers.model().attribute("hasNext", true))
-            .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", false))
-            .andReturn()
+        val firstPageResult =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get("/notes/activity-log")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .session(session),
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
+                .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 0))
+                .andExpect(MockMvcResultMatchers.model().attribute("totalPages", 3))
+                .andExpect(MockMvcResultMatchers.model().attribute("totalElements", 26L)) // 25 activities + 1 LOGIN activity
+                .andExpect(MockMvcResultMatchers.model().attribute("hasNext", true))
+                .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", false))
+                .andReturn()
 
         val firstPageContent = firstPageResult.response.contentAsString
         // Verify pagination controls are present
@@ -251,18 +262,20 @@ class ActivityLogE2ETest {
 
         // Step 4: Test second page
         println("[DEBUG_LOG] Testing second page navigation")
-        val secondPageResult = mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/activity-log")
-                .param("page", "1")
-                .param("size", "10")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
-            .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 1))
-            .andExpect(MockMvcResultMatchers.model().attribute("hasNext", true))
-            .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", true))
-            .andReturn()
+        val secondPageResult =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get("/notes/activity-log")
+                        .param("page", "1")
+                        .param("size", "10")
+                        .session(session),
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
+                .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 1))
+                .andExpect(MockMvcResultMatchers.model().attribute("hasNext", true))
+                .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", true))
+                .andReturn()
 
         val secondPageContent = secondPageResult.response.contentAsString
         secondPageContent.contains("Seite 2 von 3") shouldBe true
@@ -271,17 +284,19 @@ class ActivityLogE2ETest {
 
         // Step 5: Test last page
         println("[DEBUG_LOG] Testing last page")
-        val lastPageResult = mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/activity-log")
-                .param("page", "2")
-                .param("size", "10")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 2))
-            .andExpect(MockMvcResultMatchers.model().attribute("hasNext", false))
-            .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", true))
-            .andReturn()
+        val lastPageResult =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get("/notes/activity-log")
+                        .param("page", "2")
+                        .param("size", "10")
+                        .session(session),
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 2))
+                .andExpect(MockMvcResultMatchers.model().attribute("hasNext", false))
+                .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", true))
+                .andReturn()
 
         val lastPageContent = lastPageResult.response.contentAsString
         lastPageContent.contains("Seite 3 von 3") shouldBe true
@@ -300,9 +315,10 @@ class ActivityLogE2ETest {
         // Step 1: Login user
         val session = MockHttpSession()
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/login")
+            MockMvcRequestBuilders
+                .post("/auth/login")
                 .param("username", "testuser")
-                .param("password", "password")
+                .param("password", "TestPassword123!")
                 .session(session),
         )
 
@@ -322,14 +338,16 @@ class ActivityLogE2ETest {
 
         // Step 3: Verify pagination controls are not shown
         println("[DEBUG_LOG] Verifying pagination controls are hidden")
-        val result = mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/activity-log")
-                .param("size", "20")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.model().attribute("totalPages", 1))
-            .andReturn()
+        val result =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get("/notes/activity-log")
+                        .param("size", "20")
+                        .session(session),
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.model().attribute("totalPages", 1))
+                .andReturn()
 
         val content = result.response.contentAsString
         // Pagination container should not be present when totalPages <= 1

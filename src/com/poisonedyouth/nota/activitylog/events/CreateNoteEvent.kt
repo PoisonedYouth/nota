@@ -8,9 +8,9 @@ class CreateNoteEvent(
     noteId: Long,
     noteTitle: String,
 ) : ActivityEvent(
-    userId = userId,
-    action = "CREATE",
-    entityType = "NOTE",
-    entityId = noteId,
-    description = "Notiz erstellt: '$noteTitle'",
-)
+        userId = userId,
+        action = "CREATE",
+        entityType = "NOTE",
+        entityId = noteId,
+        description = "Notiz erstellt: '$noteTitle'",
+    )

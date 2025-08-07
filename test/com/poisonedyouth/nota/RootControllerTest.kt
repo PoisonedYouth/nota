@@ -11,7 +11,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
 class RootControllerTest {
-
     private lateinit var mockMvc: MockMvc
     private lateinit var rootController: RootController
 
@@ -25,20 +24,22 @@ class RootControllerTest {
     fun `should redirect to notes when user is logged in`() {
         // Given
         val session = MockHttpSession()
-        val userDto = UserDto(
-            id = 1L,
-            username = "testuser",
-            mustChangePassword = false,
-            role = UserRole.USER,
-        )
+        val userDto =
+            UserDto(
+                id = 1L,
+                username = "testuser",
+                mustChangePassword = false,
+                role = UserRole.USER,
+            )
         session.setAttribute("currentUser", userDto)
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/notes"))
     }
 
@@ -49,18 +50,20 @@ class RootControllerTest {
         // No user in session
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
     }
 
     @Test
     fun `should redirect to login when session is null`() {
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/"))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
     }
@@ -72,11 +75,12 @@ class RootControllerTest {
         session.setAttribute("currentUser", null)
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
     }
 
@@ -87,11 +91,12 @@ class RootControllerTest {
         session.setAttribute("currentUser", "invalid_user_object")
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
     }
 
@@ -99,20 +104,22 @@ class RootControllerTest {
     fun `should work with admin user`() {
         // Given
         val session = MockHttpSession()
-        val adminUser = UserDto(
-            id = 2L,
-            username = "admin",
-            mustChangePassword = false,
-            role = UserRole.ADMIN,
-        )
+        val adminUser =
+            UserDto(
+                id = 2L,
+                username = "admin",
+                mustChangePassword = false,
+                role = UserRole.ADMIN,
+            )
         session.setAttribute("currentUser", adminUser)
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/")
-                .session(session),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/")
+                    .session(session),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/notes"))
     }
 }

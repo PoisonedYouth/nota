@@ -36,7 +36,6 @@ class NoteSharingIntegrationTest
         private val noteRepository: NoteRepository,
         private val noteShareRepository: NoteShareRepository,
     ) {
-
         private lateinit var testUser: User
         private lateinit var targetUser: User
         private lateinit var testNote: Note
@@ -46,43 +45,47 @@ class NoteSharingIntegrationTest
         fun setup() {
             // Create test users with unique usernames to avoid conflicts
             val timestamp = System.currentTimeMillis()
-            testUser = userRepository.save(
-                User(
-                    username = "testuser_integration_$timestamp",
-                    password = "password",
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                ),
-            )
+            testUser =
+                userRepository.save(
+                    User(
+                        username = "testuser_integration_$timestamp",
+                        password = "password",
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                    ),
+                )
 
-            targetUser = userRepository.save(
-                User(
-                    username = "targetuser_integration_$timestamp",
-                    password = "password",
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                ),
-            )
+            targetUser =
+                userRepository.save(
+                    User(
+                        username = "targetuser_integration_$timestamp",
+                        password = "password",
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                    ),
+                )
 
             // Create test note
-            testNote = noteRepository.save(
-                Note(
-                    title = "Test Note",
-                    content = "Test content for sharing",
-                    user = testUser,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                ),
-            )
+            testNote =
+                noteRepository.save(
+                    Note(
+                        title = "Test Note",
+                        content = "Test content for sharing",
+                        user = testUser,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                    ),
+                )
 
             // Create session with authenticated user
             session = MockHttpSession()
-            val testUserDto = UserDto(
-                id = testUser.id!!,
-                username = testUser.username,
-                mustChangePassword = false,
-                role = UserRole.USER,
-            )
+            val testUserDto =
+                UserDto(
+                    id = testUser.id!!,
+                    username = testUser.username,
+                    mustChangePassword = false,
+                    role = UserRole.USER,
+                )
             session.setAttribute("currentUser", testUserDto)
         }
 
@@ -95,46 +98,46 @@ class NoteSharingIntegrationTest
 
         @Test
         fun `should display share modal for note owner`() {
-            mockMvc.perform(
-                get("/notes/modal/${testNote.id}")
-                    .param("mode", "share")
-                    .session(session),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    get("/notes/modal/${testNote.id}")
+                        .param("mode", "share")
+                        .session(session),
+                ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Notiz teilen: Test Note")))
                 .andExpect(content().string(containsString("Notiz teilen")))
         }
 
         @Test
         fun `should redirect when note not found for share modal`() {
-            mockMvc.perform(
-                get("/notes/modal/999")
-                    .param("mode", "share")
-                    .session(session),
-            )
-                .andExpect(status().is3xxRedirection)
+            mockMvc
+                .perform(
+                    get("/notes/modal/999")
+                        .param("mode", "share")
+                        .session(session),
+                ).andExpect(status().is3xxRedirection)
                 .andExpect(redirectedUrl("/notes"))
         }
 
         @Test
         fun `should redirect when user not authenticated for share modal`() {
-            mockMvc.perform(
-                get("/notes/modal/${testNote.id}")
-                    .param("mode", "share"),
-            )
-                .andExpect(status().isForbidden)
+            mockMvc
+                .perform(
+                    get("/notes/modal/${testNote.id}")
+                        .param("mode", "share"),
+                ).andExpect(status().isForbidden)
         }
 
         @Test
         fun `should successfully share note with valid user`() {
-            mockMvc.perform(
-                post("/notes/${testNote.id}/share")
-                    .param("username", targetUser.username)
-                    .param("permission", "read")
-                    .session(session)
-                    .header("HX-Request", "true"),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    post("/notes/${testNote.id}/share")
+                        .param("username", targetUser.username)
+                        .param("permission", "read")
+                        .session(session)
+                        .header("HX-Request", "true"),
+                ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Notiz erfolgreich geteilt!")))
 
             // Verify share was created
@@ -145,14 +148,14 @@ class NoteSharingIntegrationTest
 
         @Test
         fun `should fail when sharing with non-existent user`() {
-            mockMvc.perform(
-                post("/notes/${testNote.id}/share")
-                    .param("username", "nonexistent")
-                    .param("permission", "read")
-                    .session(session)
-                    .header("HX-Request", "true"),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    post("/notes/${testNote.id}/share")
+                        .param("username", "nonexistent")
+                        .param("permission", "read")
+                        .session(session)
+                        .header("HX-Request", "true"),
+                ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Notiz konnte nicht geteilt werden")))
 
             // Verify no share was created
@@ -162,14 +165,14 @@ class NoteSharingIntegrationTest
 
         @Test
         fun `should redirect when note not found for sharing`() {
-            mockMvc.perform(
-                post("/notes/999/share")
-                    .param("username", targetUser.username)
-                    .param("permission", "read")
-                    .session(session)
-                    .header("HX-Request", "true"),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    post("/notes/999/share")
+                        .param("username", targetUser.username)
+                        .param("permission", "read")
+                        .session(session)
+                        .header("HX-Request", "true"),
+                ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Neue Notiz erstellen")))
         }
 
@@ -187,14 +190,14 @@ class NoteSharingIntegrationTest
             )
 
             // Try to share again
-            mockMvc.perform(
-                post("/notes/${testNote.id}/share")
-                    .param("username", targetUser.username)
-                    .param("permission", "read")
-                    .session(session)
-                    .header("HX-Request", "true"),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    post("/notes/${testNote.id}/share")
+                        .param("username", targetUser.username)
+                        .param("permission", "read")
+                        .session(session)
+                        .header("HX-Request", "true"),
+                ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Notiz konnte nicht geteilt werden")))
 
             // Verify only one share exists
@@ -205,22 +208,23 @@ class NoteSharingIntegrationTest
         @Test
         fun `should successfully revoke share`() {
             // Create a share first
-            val noteShare = noteShareRepository.save(
-                NoteShare(
-                    note = testNote,
-                    sharedWithUser = targetUser,
-                    sharedByUser = testUser,
-                    permission = "read",
-                    createdAt = LocalDateTime.now(),
-                ),
-            )
+            val noteShare =
+                noteShareRepository.save(
+                    NoteShare(
+                        note = testNote,
+                        sharedWithUser = targetUser,
+                        sharedByUser = testUser,
+                        permission = "read",
+                        createdAt = LocalDateTime.now(),
+                    ),
+                )
 
-            mockMvc.perform(
-                delete("/notes/${testNote.id}/share/${targetUser.id}")
-                    .session(session)
-                    .header("HX-Request", "true"),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    delete("/notes/${testNote.id}/share/${targetUser.id}")
+                        .session(session)
+                        .header("HX-Request", "true"),
+                ).andExpect(status().isOk)
 
             // Verify share was deleted
             val shares = noteShareRepository.findAllByNote(testNote)
@@ -230,15 +234,16 @@ class NoteSharingIntegrationTest
         @Test
         fun `should display notes shared with user`() {
             // Create a note owned by targetUser
-            val sharedNote = noteRepository.save(
-                Note(
-                    title = "Shared Note",
-                    content = "This note is shared with testuser",
-                    user = targetUser,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                ),
-            )
+            val sharedNote =
+                noteRepository.save(
+                    Note(
+                        title = "Shared Note",
+                        content = "This note is shared with testuser",
+                        user = targetUser,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                    ),
+                )
 
             // Share the note with testUser
             noteShareRepository.save(
@@ -251,37 +256,38 @@ class NoteSharingIntegrationTest
                 ),
             )
 
-            mockMvc.perform(
-                get("/notes/shared")
-                    .session(session),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    get("/notes/shared")
+                        .session(session),
+                ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Mit mir geteilte Notizen")))
                 .andExpect(content().string(containsString("Shared Note")))
         }
 
         @Test
         fun `should show empty state when no shared notes`() {
-            mockMvc.perform(
-                get("/notes/shared")
-                    .session(session),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    get("/notes/shared")
+                        .session(session),
+                ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Keine geteilten Notizen gefunden")))
         }
 
         @Test
         fun `should display both owned and shared notes`() {
             // Create a note owned by targetUser
-            val sharedNote = noteRepository.save(
-                Note(
-                    title = "Shared Note",
-                    content = "This note is shared with testuser",
-                    user = targetUser,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                ),
-            )
+            val sharedNote =
+                noteRepository.save(
+                    Note(
+                        title = "Shared Note",
+                        content = "This note is shared with testuser",
+                        user = targetUser,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                    ),
+                )
 
             // Share the note with testUser
             noteShareRepository.save(
@@ -294,11 +300,11 @@ class NoteSharingIntegrationTest
                 ),
             )
 
-            mockMvc.perform(
-                get("/notes/all")
-                    .session(session),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    get("/notes/all")
+                        .session(session),
+                ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Alle zugänglichen Notizen")))
                 .andExpect(content().string(containsString("Test Note"))) // Owned note
                 .andExpect(content().string(containsString("Shared Note"))) // Shared note
@@ -307,15 +313,16 @@ class NoteSharingIntegrationTest
         @Test
         fun `should successfully open edit modal for shared note`() {
             // Create a note owned by targetUser
-            val sharedNote = noteRepository.save(
-                Note(
-                    title = "Shared Note for Edit",
-                    content = "This note is shared with testuser for editing",
-                    user = targetUser,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                ),
-            )
+            val sharedNote =
+                noteRepository.save(
+                    Note(
+                        title = "Shared Note for Edit",
+                        content = "This note is shared with testuser for editing",
+                        user = targetUser,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                    ),
+                )
 
             // Share the note with testUser with write permission
             noteShareRepository.save(
@@ -329,11 +336,11 @@ class NoteSharingIntegrationTest
             )
 
             // Try to open edit modal for shared note - this should now work
-            mockMvc.perform(
-                get("/notes/modal/${sharedNote.id}/edit")
-                    .session(session),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    get("/notes/modal/${sharedNote.id}/edit")
+                        .session(session),
+                ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Shared Note for Edit")))
         }
     }

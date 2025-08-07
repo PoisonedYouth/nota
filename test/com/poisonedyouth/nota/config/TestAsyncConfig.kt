@@ -13,7 +13,6 @@ import java.util.concurrent.Executor
 @Profile("test")
 @EnableAsync
 class TestAsyncConfig : AsyncConfigurer {
-
     override fun getAsyncExecutor(): Executor {
         // Return a synchronous executor for tests to ensure transaction isolation
         return Executor { runnable -> runnable.run() }

@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional
 @ActiveProfiles("test")
 @Transactional
 class UserRegistrationE2ETest {
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -33,21 +32,24 @@ class UserRegistrationE2ETest {
         val username = "e2euser"
 
         // Step 1: Show registration form
-        mockMvc.perform(MockMvcRequestBuilders.get("/auth/register"))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/auth/register"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/register"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("registerDto"))
 
         // Step 2: Register new user
-        val registrationResult = mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/register")
-                .param("username", username),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.view().name("auth/register-success"))
-            .andExpect(MockMvcResultMatchers.model().attributeExists("user"))
-            .andExpect(MockMvcResultMatchers.model().attributeExists("initialPassword"))
-            .andReturn()
+        val registrationResult =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/auth/register")
+                        .param("username", username),
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.view().name("auth/register-success"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("user"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("initialPassword"))
+                .andReturn()
 
         // Step 3: Verify user was created in database
         val createdUser = userRepository.findByUsername(username)
@@ -57,15 +59,16 @@ class UserRegistrationE2ETest {
 
         // Step 4: Extract initial password from response
         val initialPassword = registrationResult.modelAndView?.model?.get("initialPassword") as String
-        initialPassword shouldHaveLength 12
+        initialPassword shouldHaveLength 16
 
         // Step 5: Login with generated password (should redirect to change password)
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/login")
-                .param("username", username)
-                .param("password", initialPassword),
-        )
-            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/login")
+                    .param("username", username)
+                    .param("password", initialPassword),
+            ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/change-password"))
 
         // Step 6: Verify authentication service works with hashed password
@@ -80,19 +83,21 @@ class UserRegistrationE2ETest {
         val username = "duplicateuser"
 
         // Step 1: Register first user
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/register")
-                .param("username", username),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/register")
+                    .param("username", username),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/register-success"))
 
         // Step 2: Try to register same username again
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/register")
-                .param("username", username),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/register")
+                    .param("username", username),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/register"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
             .andExpect(MockMvcResultMatchers.model().attribute("error", "Username '$username' already exists"))
@@ -103,21 +108,24 @@ class UserRegistrationE2ETest {
         val username = "wrongpassuser"
 
         // Step 1: Register user
-        val registrationResult = mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/register")
-                .param("username", username),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.view().name("auth/register-success"))
-            .andReturn()
+        val registrationResult =
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/auth/register")
+                        .param("username", username),
+                ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.view().name("auth/register-success"))
+                .andReturn()
 
         // Step 2: Try to login with wrong password
-        mockMvc.perform(
-            MockMvcRequestBuilders.post("/auth/login")
-                .param("username", username)
-                .param("password", "wrongpassword"),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/auth/login")
+                    .param("username", username)
+                    .param("password", "wrongpassword"),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("auth/login"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"))
             .andExpect(MockMvcResultMatchers.model().attribute("error", "Ungültiger Benutzername oder Passwort"))

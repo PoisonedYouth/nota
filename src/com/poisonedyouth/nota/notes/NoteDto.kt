@@ -17,8 +17,8 @@ data class NoteDto(
     val user: UserDto,
 ) {
     companion object {
-        fun fromEntity(note: Note): NoteDto {
-            return NoteDto(
+        fun fromEntity(note: Note): NoteDto =
+            NoteDto(
                 id = note.id ?: -1,
                 title = note.title,
                 content = note.content,
@@ -30,20 +30,13 @@ data class NoteDto(
                 userId = note.user.id ?: -1,
                 user = UserDto.fromEntity(note.user),
             )
-        }
     }
 
-    fun getFormattedDate(): String {
-        return updatedAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
-    }
+    fun getFormattedDate(): String = updatedAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
 
-    fun getFormattedDueDate(): String? {
-        return dueDate?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
-    }
+    fun getFormattedDueDate(): String? = dueDate?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
 
-    fun isOverdue(): Boolean {
-        return dueDate?.isBefore(LocalDateTime.now()) ?: false
-    }
+    fun isOverdue(): Boolean = dueDate?.isBefore(LocalDateTime.now()) ?: false
 
     fun isDueSoon(): Boolean {
         if (dueDate == null) return false
@@ -54,13 +47,15 @@ data class NoteDto(
 
     fun getContentPreview(maxLength: Int = 100): String {
         // Strip HTML tags for preview
-        val plainText = content.replace(Regex("<[^>]*>"), "")
-            .replace("&nbsp;", " ")
-            .replace("&amp;", "&")
-            .replace("&lt;", "<")
-            .replace("&gt;", ">")
-            .replace("&quot;", "\"")
-            .trim()
+        val plainText =
+            content
+                .replace(Regex("<[^>]*>"), "")
+                .replace("&nbsp;", " ")
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"")
+                .trim()
 
         return if (plainText.length > maxLength) {
             plainText.substring(0, maxLength) + "..."
@@ -70,7 +65,5 @@ data class NoteDto(
     }
 
     // No-parameter version for Java interoperability (used by Thymeleaf)
-    fun getContentPreview(): String {
-        return getContentPreview(100)
-    }
+    fun getContentPreview(): String = getContentPreview(100)
 }

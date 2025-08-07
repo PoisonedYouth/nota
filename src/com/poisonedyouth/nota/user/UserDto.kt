@@ -7,13 +7,12 @@ data class UserDto(
     val role: UserRole,
 ) {
     companion object {
-        fun fromEntity(user: User): UserDto {
-            return UserDto(
+        fun fromEntity(user: User): UserDto =
+            UserDto(
                 id = user.id!!,
                 username = user.username,
                 mustChangePassword = user.mustChangePassword,
                 role = user.role,
             )
-        }
     }
 }

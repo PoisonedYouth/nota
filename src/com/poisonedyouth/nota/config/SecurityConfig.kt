@@ -12,29 +12,29 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
     private val sessionAuthenticationFilter: SessionAuthenticationFilter,
 ) {
-
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/auth/**").permitAll() // Allow access to custom auth endpoints
-                    .requestMatchers("/api/auth/**").permitAll() // Allow access to REST API auth endpoints
-                    .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Allow static resources
-                    .requestMatchers("/actuator/**").permitAll() // Allow actuator endpoints
-                    .anyRequest().authenticated()
-            }
-            .addFilterBefore(sessionAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+                    .requestMatchers("/auth/**")
+                    .permitAll() // Allow access to custom auth endpoints
+                    .requestMatchers("/api/auth/**")
+                    .permitAll() // Allow access to REST API auth endpoints
+                    .requestMatchers("/css/**", "/js/**", "/images/**")
+                    .permitAll() // Allow static resources
+                    .requestMatchers("/actuator/**")
+                    .permitAll() // Allow actuator endpoints
+                    .anyRequest()
+                    .authenticated()
+            }.addFilterBefore(sessionAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .formLogin { form ->
                 form.disable() // Disable Spring Security's default login form
-            }
-            .httpBasic { basic ->
+            }.httpBasic { basic ->
                 basic.disable() // Disable HTTP Basic authentication
-            }
-            .csrf { csrf ->
+            }.csrf { csrf ->
                 csrf.disable() // Disable CSRF for simplicity (consider enabling in production)
-            }
-            .sessionManagement { session ->
+            }.sessionManagement { session ->
                 session.maximumSessions(1).maxSessionsPreventsLogin(false)
             }
 

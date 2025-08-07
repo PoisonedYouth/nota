@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class ActivityEventListenerTest {
-
     private lateinit var activityLogService: ActivityLogService
     private lateinit var activityEventListener: ActivityEventListener
 
@@ -52,11 +51,12 @@ class ActivityEventListenerTest {
     @Test
     fun `handleActivityEvent should log CreateNoteEvent`() {
         // Given
-        val createEvent = CreateNoteEvent(
-            userId = 1L,
-            noteId = 2L,
-            noteTitle = "Test Note",
-        )
+        val createEvent =
+            CreateNoteEvent(
+                userId = 1L,
+                noteId = 2L,
+                noteTitle = "Test Note",
+            )
         every {
             activityLogService.logActivity(
                 userId = 1L,
@@ -85,11 +85,12 @@ class ActivityEventListenerTest {
     @Test
     fun `handleActivityEvent should log UpdateNoteEvent`() {
         // Given
-        val updateEvent = UpdateNoteEvent(
-            userId = 1L,
-            noteId = 2L,
-            noteTitle = "Updated Note",
-        )
+        val updateEvent =
+            UpdateNoteEvent(
+                userId = 1L,
+                noteId = 2L,
+                noteTitle = "Updated Note",
+            )
         every {
             activityLogService.logActivity(
                 userId = 1L,
@@ -118,11 +119,12 @@ class ActivityEventListenerTest {
     @Test
     fun `handleActivityEvent should log ArchiveNoteEvent`() {
         // Given
-        val archiveEvent = ArchiveNoteEvent(
-            userId = 1L,
-            noteId = 2L,
-            noteTitle = "Archived Note",
-        )
+        val archiveEvent =
+            ArchiveNoteEvent(
+                userId = 1L,
+                noteId = 2L,
+                noteTitle = "Archived Note",
+            )
         every {
             activityLogService.logActivity(
                 userId = 1L,
@@ -151,12 +153,13 @@ class ActivityEventListenerTest {
     @Test
     fun `handleActivityEvent should log ShareNoteEvent`() {
         // Given
-        val shareEvent = ShareNoteEvent(
-            userId = 1L,
-            noteId = 2L,
-            noteTitle = "Shared Note",
-            sharedWithUsername = "recipient",
-        )
+        val shareEvent =
+            ShareNoteEvent(
+                userId = 1L,
+                noteId = 2L,
+                noteTitle = "Shared Note",
+                sharedWithUsername = "recipient",
+            )
         every {
             activityLogService.logActivity(
                 userId = 1L,
@@ -203,11 +206,12 @@ class ActivityEventListenerTest {
     @Test
     fun `should handle events with empty or null titles gracefully`() {
         // Given
-        val eventWithEmptyTitle = CreateNoteEvent(
-            userId = 1L,
-            noteId = 2L,
-            noteTitle = "",
-        )
+        val eventWithEmptyTitle =
+            CreateNoteEvent(
+                userId = 1L,
+                noteId = 2L,
+                noteTitle = "",
+            )
         every {
             activityLogService.logActivity(
                 userId = 1L,

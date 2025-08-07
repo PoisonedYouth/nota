@@ -22,8 +22,8 @@ data class AdminUserStatisticsDto(
             totalNotes: Long,
             archivedNotes: Long,
             sharedNotes: Long,
-        ): AdminUserStatisticsDto {
-            return AdminUserStatisticsDto(
+        ): AdminUserStatisticsDto =
+            AdminUserStatisticsDto(
                 id = user.id!!,
                 username = user.username,
                 createdAt = user.createdAt,
@@ -33,6 +33,5 @@ data class AdminUserStatisticsDto(
                 mustChangePassword = user.mustChangePassword,
                 enabled = user.enabled,
             )
-        }
     }
 }

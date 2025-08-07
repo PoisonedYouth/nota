@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDateTime
 
 class NoteControllerTest {
-
     private lateinit var mockMvc: MockMvc
     private lateinit var noteService: NoteService
     private lateinit var activityLogService: ActivityLogService
@@ -33,12 +32,13 @@ class NoteControllerTest {
         activityLogService = mockk()
         activityEventPublisher = mockk()
         mockSession = MockHttpSession()
-        testUser = UserDto(
-            id = 1L,
-            username = "testuser",
-            mustChangePassword = false,
-            role = UserRole.USER,
-        )
+        testUser =
+            UserDto(
+                id = 1L,
+                username = "testuser",
+                mustChangePassword = false,
+                role = UserRole.USER,
+            )
 
         mockSession.setAttribute("currentUser", testUser)
 
@@ -50,36 +50,38 @@ class NoteControllerTest {
     fun `listNotes should return list view with notes`() {
         // Given
         val now = LocalDateTime.now()
-        val notes = listOf(
-            NoteDto(
-                id = 1L,
-                title = "Note 1",
-                content = "Content 1",
-                createdAt = now,
-                updatedAt = now,
-                archived = false,
-                archivedAt = null,
-                dueDate = null,
-                userId = 1L,
-                user = testUser,
-            ),
-            NoteDto(
-                id = 2L,
-                title = "Note 2",
-                content = "Content 2",
-                createdAt = now,
-                updatedAt = now,
-                archived = false,
-                archivedAt = null,
-                dueDate = null,
-                userId = 1L,
-                user = testUser,
-            ),
-        )
+        val notes =
+            listOf(
+                NoteDto(
+                    id = 1L,
+                    title = "Note 1",
+                    content = "Content 1",
+                    createdAt = now,
+                    updatedAt = now,
+                    archived = false,
+                    archivedAt = null,
+                    dueDate = null,
+                    userId = 1L,
+                    user = testUser,
+                ),
+                NoteDto(
+                    id = 2L,
+                    title = "Note 2",
+                    content = "Content 2",
+                    createdAt = now,
+                    updatedAt = now,
+                    archived = false,
+                    archivedAt = null,
+                    dueDate = null,
+                    userId = 1L,
+                    user = testUser,
+                ),
+            )
         every { noteService.findAllNotes(1L) } returns notes
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes").session(mockSession))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -92,7 +94,8 @@ class NoteControllerTest {
         every { noteService.findAllNotes(1L) } returns emptyList()
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes").session(mockSession))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -104,24 +107,26 @@ class NoteControllerTest {
         // Given
         val noteId = 1L
         val now = LocalDateTime.now()
-        val noteDto = NoteDto(
-            id = noteId,
-            title = "Test Note",
-            content = "Test content",
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            dueDate = null,
-            userId = 1L,
-            user = testUser,
-        )
+        val noteDto =
+            NoteDto(
+                id = noteId,
+                title = "Test Note",
+                content = "Test content",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = null,
+                userId = 1L,
+                user = testUser,
+            )
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns noteDto
         every { noteService.archiveNote(noteId, 1L) } returns true
         every { activityEventPublisher.publishArchiveNoteEvent(any(), any(), any()) } just Runs
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/notes/$noteId").session(mockSession))
+        mockMvc
+            .perform(MockMvcRequestBuilders.delete("/notes/$noteId").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/notes"))
 
@@ -133,23 +138,11 @@ class NoteControllerTest {
         // Given
         val noteId = 1L
         val now = LocalDateTime.now()
-        val noteDto = NoteDto(
-            id = noteId,
-            title = "Test Note",
-            content = "Test content",
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            dueDate = null,
-            userId = 1L,
-            user = testUser,
-        )
-        val remainingNotes = listOf(
+        val noteDto =
             NoteDto(
-                id = 2L,
-                title = "Note 2",
-                content = "Content 2",
+                id = noteId,
+                title = "Test Note",
+                content = "Test content",
                 createdAt = now,
                 updatedAt = now,
                 archived = false,
@@ -157,20 +150,35 @@ class NoteControllerTest {
                 dueDate = null,
                 userId = 1L,
                 user = testUser,
-            ),
-        )
+            )
+        val remainingNotes =
+            listOf(
+                NoteDto(
+                    id = 2L,
+                    title = "Note 2",
+                    content = "Content 2",
+                    createdAt = now,
+                    updatedAt = now,
+                    archived = false,
+                    archivedAt = null,
+                    dueDate = null,
+                    userId = 1L,
+                    user = testUser,
+                ),
+            )
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns noteDto
         every { noteService.archiveNote(noteId, 1L) } returns true
         every { noteService.findAllNotes(1L) } returns remainingNotes
         every { activityEventPublisher.publishArchiveNoteEvent(any(), any(), any()) } just Runs
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.delete("/notes/$noteId")
-                .header("HX-Request", "true")
-                .session(mockSession),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .delete("/notes/$noteId")
+                    .header("HX-Request", "true")
+                    .session(mockSession),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/fragments :: archive-response"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
             .andExpect(MockMvcResultMatchers.model().attribute("notes", remainingNotes))
@@ -184,24 +192,26 @@ class NoteControllerTest {
         // Given
         val query = "test"
         val now = LocalDateTime.now()
-        val searchResults = listOf(
-            NoteDto(
-                id = 1L,
-                title = "Test Note",
-                content = "Test content",
-                createdAt = now,
-                updatedAt = now,
-                archived = false,
-                archivedAt = null,
-                dueDate = null,
-                userId = 1L,
-                user = testUser,
-            ),
-        )
+        val searchResults =
+            listOf(
+                NoteDto(
+                    id = 1L,
+                    title = "Test Note",
+                    content = "Test content",
+                    createdAt = now,
+                    updatedAt = now,
+                    archived = false,
+                    archivedAt = null,
+                    dueDate = null,
+                    userId = 1L,
+                    user = testUser,
+                ),
+            )
         every { noteService.searchNotes(query, 1L) } returns searchResults
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").param("q", query).session(mockSession))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes/search").param("q", query).session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -217,30 +227,32 @@ class NoteControllerTest {
         // Given
         val query = "important"
         val now = LocalDateTime.now()
-        val searchResults = listOf(
-            NoteDto(
-                id = 2L,
-                title = "Important Note",
-                content = "Important content",
-                createdAt = now,
-                updatedAt = now,
-                archived = false,
-                archivedAt = null,
-                dueDate = null,
-                userId = 1L,
-                user = testUser,
-            ),
-        )
+        val searchResults =
+            listOf(
+                NoteDto(
+                    id = 2L,
+                    title = "Important Note",
+                    content = "Important content",
+                    createdAt = now,
+                    updatedAt = now,
+                    archived = false,
+                    archivedAt = null,
+                    dueDate = null,
+                    userId = 1L,
+                    user = testUser,
+                ),
+            )
         every { noteService.searchNotes(query, 1L) } returns searchResults
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/search")
-                .param("q", query)
-                .header("HX-Request", "true")
-                .session(mockSession),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/notes/search")
+                    .param("q", query)
+                    .header("HX-Request", "true")
+                    .session(mockSession),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list :: #notes-container"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("searchQuery"))
@@ -254,24 +266,26 @@ class NoteControllerTest {
     fun `searchNotes should handle empty query parameter`() {
         // Given
         val now = LocalDateTime.now()
-        val allNotes = listOf(
-            NoteDto(
-                id = 1L,
-                title = "Note 1",
-                content = "Content 1",
-                createdAt = now,
-                updatedAt = now,
-                archived = false,
-                archivedAt = null,
-                dueDate = null,
-                userId = 1L,
-                user = testUser,
-            ),
-        )
+        val allNotes =
+            listOf(
+                NoteDto(
+                    id = 1L,
+                    title = "Note 1",
+                    content = "Content 1",
+                    createdAt = now,
+                    updatedAt = now,
+                    archived = false,
+                    archivedAt = null,
+                    dueDate = null,
+                    userId = 1L,
+                    user = testUser,
+                ),
+            )
         every { noteService.searchNotes("", 1L) } returns allNotes
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").session(mockSession))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes/search").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -289,7 +303,8 @@ class NoteControllerTest {
         every { noteService.searchNotes(query, 1L) } returns emptyList()
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/search").param("q", query).session(mockSession))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes/search").param("q", query).session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/list"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
@@ -305,22 +320,24 @@ class NoteControllerTest {
         // Given
         val noteId = 1L
         val now = LocalDateTime.now()
-        val note = NoteDto(
-            id = noteId,
-            title = "Test Note",
-            content = "This is the full content of the test note",
-            createdAt = now,
-            updatedAt = now,
-            archived = false,
-            archivedAt = null,
-            dueDate = now.plusDays(1),
-            userId = 1L,
-            user = testUser,
-        )
+        val note =
+            NoteDto(
+                id = noteId,
+                title = "Test Note",
+                content = "This is the full content of the test note",
+                createdAt = now,
+                updatedAt = now,
+                archived = false,
+                archivedAt = null,
+                dueDate = now.plusDays(1),
+                userId = 1L,
+                user = testUser,
+            )
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns note
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/$noteId").session(mockSession))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes/$noteId").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/detail"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("note"))
@@ -337,7 +354,8 @@ class NoteControllerTest {
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns null
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/$noteId").session(mockSession))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes/$noteId").session(mockSession))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/notes"))
 
@@ -351,7 +369,8 @@ class NoteControllerTest {
         val emptySession = MockHttpSession()
 
         // When/Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/notes/$noteId").session(emptySession))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/notes/$noteId").session(emptySession))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
     }
@@ -361,43 +380,45 @@ class NoteControllerTest {
         // Given
         val query = "test"
         val now = LocalDateTime.now()
-        val accessibleNotes = listOf(
-            NoteDto(
-                id = 1L,
-                title = "My Test Note",
-                content = "My test content",
-                createdAt = now,
-                updatedAt = now,
-                archived = false,
-                archivedAt = null,
-                dueDate = null,
-                userId = 1L,
-                user = testUser,
-            ),
-            NoteDto(
-                id = 2L,
-                title = "Shared Test Note",
-                content = "Shared test content",
-                createdAt = now,
-                updatedAt = now,
-                archived = false,
-                archivedAt = null,
-                dueDate = null,
-                userId = 2L,
-                user = UserDto(2L, "otheruser", false, UserRole.USER),
-            ),
-        )
+        val accessibleNotes =
+            listOf(
+                NoteDto(
+                    id = 1L,
+                    title = "My Test Note",
+                    content = "My test content",
+                    createdAt = now,
+                    updatedAt = now,
+                    archived = false,
+                    archivedAt = null,
+                    dueDate = null,
+                    userId = 1L,
+                    user = testUser,
+                ),
+                NoteDto(
+                    id = 2L,
+                    title = "Shared Test Note",
+                    content = "Shared test content",
+                    createdAt = now,
+                    updatedAt = now,
+                    archived = false,
+                    archivedAt = null,
+                    dueDate = null,
+                    userId = 2L,
+                    user = UserDto(2L, "otheruser", false, UserRole.USER),
+                ),
+            )
         every { noteService.searchAccessibleNotes(query, 1L) } returns accessibleNotes
 
         // When/Then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/notes/search")
-                .param("q", query)
-                .param("all", "true")
-                .header("HX-Request", "true")
-                .session(mockSession),
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/notes/search")
+                    .param("q", query)
+                    .param("all", "true")
+                    .header("HX-Request", "true")
+                    .session(mockSession),
+            ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.view().name("notes/all :: #notes-container"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("notes"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("searchQuery"))
