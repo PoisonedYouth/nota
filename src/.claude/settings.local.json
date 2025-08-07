@@ -17,7 +17,11 @@
       "Bash(./ktlint:*)",
       "Bash(rm:*)",
       "Bash(./tools/detekt.sh:*)",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
+      "Bash(git pull:*)",
+      "Bash(git branch:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }
