@@ -49,7 +49,6 @@ class AdminE2ETest
 
         @BeforeEach
         fun setup() {
-
             // Clean up existing data
             noteShareRepository.deleteAll()
             noteRepository.deleteAll()
@@ -148,12 +147,10 @@ class AdminE2ETest
                     createdAt = LocalDateTime.of(2024, 1, 8, 17, 0),
                 )
             noteShareRepository.save(noteShare2)
-
         }
 
         @Test
         fun `admin overview should display correct statistics and user data`() {
-
             // Login as admin
             val session = MockHttpSession()
             mockMvc
@@ -207,12 +204,10 @@ class AdminE2ETest
             content shouldContain "Archived Notes"
             content shouldContain "Shared Notes"
             content shouldContain "Status"
-
         }
 
         @Test
         fun `admin link should be visible only to admin users`() {
-
             // Login as regular user
             val regularSession = MockHttpSession()
             mockMvc
@@ -264,12 +259,10 @@ class AdminE2ETest
             adminContent shouldContain "My Notes"
             adminContent shouldContain "Admin Overview"
             adminContent shouldContain "/admin/overview"
-
         }
 
         @Test
         fun `non-admin users should not be able to access admin overview`() {
-
             // Try to access admin overview without authentication
             mockMvc
                 .perform(MockMvcRequestBuilders.get("/admin/overview"))
@@ -294,12 +287,10 @@ class AdminE2ETest
                         .session(session),
                 ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
                 .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
-
         }
 
         @Test
         fun `admin root path should redirect to overview`() {
-
             // Login as admin
             val session = MockHttpSession()
             mockMvc
@@ -319,6 +310,5 @@ class AdminE2ETest
                         .session(session),
                 ).andExpect(MockMvcResultMatchers.status().is3xxRedirection)
                 .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/overview"))
-
         }
     }

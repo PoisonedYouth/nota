@@ -41,7 +41,6 @@ class ActivityLogE2ETest {
 
     @Test
     fun `complete activity log workflow should work end to end`() {
-
         // Step 1: Login user (this should create a LOGIN activity)
         val session = MockHttpSession()
         val loginResult =
@@ -140,23 +139,19 @@ class ActivityLogE2ETest {
         val content = result.response.contentAsString
         content.contains("Activity Log") shouldBe true
         content.contains("/notes/activity-log") shouldBe true
-
     }
 
     @Test
     fun `activity log should be accessible only to authenticated users`() {
-
         // Try to access activity log without authentication
         mockMvc
             .perform(MockMvcRequestBuilders.get("/notes/activity-log"))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
             .andExpect(MockMvcResultMatchers.redirectedUrl("/auth/login"))
-
     }
 
     @Test
     fun `activity log should show user-specific activities only`() {
-
         // Create activities for user 1
         activityLogService.logActivity(
             userId = 1L,
@@ -187,12 +182,10 @@ class ActivityLogE2ETest {
         val user2Activities = activityLogService.getAllActivities(2L)
         user2Activities.size shouldBe 1
         user2Activities[0].description shouldBe "User 2 created a note"
-
     }
 
     @Test
     fun `activity log pagination should work correctly`() {
-
         // Step 1: Login user
         val session = MockHttpSession()
         mockMvc.perform(
@@ -285,12 +278,10 @@ class ActivityLogE2ETest {
         // Next button should be disabled on last page
         lastPageContent.contains("Next →") shouldBe true
         lastPageContent.contains("btn-secondary disabled") shouldBe true
-
     }
 
     @Test
     fun `activity log should not show pagination for single page`() {
-
         // Step 1: Login user
         val session = MockHttpSession()
         mockMvc.perform(
@@ -330,6 +321,5 @@ class ActivityLogE2ETest {
         // Pagination container should not be present when totalPages <= 1
         content.contains("pagination-container") shouldBe false
         content.contains("Page 1 of 1") shouldBe false
-
     }
 }

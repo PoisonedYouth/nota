@@ -111,7 +111,6 @@ class NoteSharingE2ETest
 
         @Test
         fun `Complete note sharing workflow`() {
-
             // Step 1: Owner shares note with another user
             mockMvc
                 .perform(
@@ -192,12 +191,10 @@ class NoteSharingE2ETest
                         .session(sharedSession),
                 ).andExpect(status().is3xxRedirection)
                 .andExpect(redirectedUrl("/notes"))
-
         }
 
         @Test
         fun `Share note with multiple users`() {
-
             // Create another user
             val timestamp = System.currentTimeMillis()
             val anotherUser =
@@ -236,12 +233,10 @@ class NoteSharingE2ETest
 
             val usernames = shares.map { it.sharedWithUser.username }.toSet()
             usernames shouldBe setOf(sharedUser.username, anotherUser.username)
-
         }
 
         @Test
         fun `Prevent sharing with non-existent user`() {
-
             mockMvc
                 .perform(
                     post("/notes/${testNote.id}/share")
@@ -255,6 +250,5 @@ class NoteSharingE2ETest
             // Verify no share was created
             val shares = noteShareRepository.findAllByNote(testNote)
             shares.size shouldBe 0
-
         }
     }
