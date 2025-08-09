@@ -24,7 +24,8 @@
       "Bash(git push:*)",
       "mcp__ide__getDiagnostics",
       "Bash(sed:*)",
-      "Bash(./tools/detekt.sh:*)"
+      "Bash(./tools/detekt.sh:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

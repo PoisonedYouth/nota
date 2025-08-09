@@ -1,0 +1,20 @@
+{
+  "name": "Nota - Smart Notes",
+  "short_name": "Nota",
+  "description": "A smart note-taking application with file attachments and sharing capabilities",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "education"],
+  "lang": "en",
+  "orientation": "portrait-primary"
+}
