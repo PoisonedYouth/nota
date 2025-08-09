@@ -31,6 +31,7 @@ test-dependencies:
   - io.mockk:mockk:1.13.8
   - io.kotest:kotest-assertions-core-jvm:5.8.1
   - io.kotest:kotest-runner-junit5:5.8.1
+  - com.lemonappdev:konsist:0.16.1
 
 settings:
   kotlin:
