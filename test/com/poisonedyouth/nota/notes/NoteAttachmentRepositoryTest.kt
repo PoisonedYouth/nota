@@ -35,8 +35,24 @@ class NoteAttachmentRepositoryTest
         @Test
         fun `should save and load attachments for note`() {
             // Given
-            val a1 = attachmentRepository.save(NoteAttachment(note = note, filename = "a.txt", contentType = "text/plain", fileSize = 3, data = byteArrayOf(0x61, 0x62, 0x63)))
-            val a2 = attachmentRepository.save(NoteAttachment(note = note, filename = "b.bin", contentType = "application/octet-stream", fileSize = 2, data = byteArrayOf(0x01, 0x02)))
+            val a1 = attachmentRepository.save(
+                NoteAttachment(
+                    note = note,
+                    filename = "a.txt",
+                    contentType = "text/plain",
+                    fileSize = 3,
+                    data = byteArrayOf(0x61, 0x62, 0x63),
+                ),
+            )
+            val a2 = attachmentRepository.save(
+                NoteAttachment(
+                    note = note,
+                    filename = "b.bin",
+                    contentType = "application/octet-stream",
+                    fileSize = 2,
+                    data = byteArrayOf(0x01, 0x02),
+                ),
+            )
 
             // When
             val list = attachmentRepository.findAllByNoteIdOrderByCreatedAtDesc(note.id!!)

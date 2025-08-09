@@ -1528,3 +1528,78 @@ textarea.form-control {
 .note-info a:hover {
     text-decoration: underline;
 }
+
+/* Note Activities Section */
+.note-activities-section {
+    background: var(--background-white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.note-activities-section .section-title {
+    color: var(--text-primary);
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+}
+
+.note-activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.note-activity-item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.75rem;
+    background: var(--background-secondary);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary-color);
+}
+
+.note-activity-item .activity-icon {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+}
+
+.note-activity-item .activity-content {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.note-activity-item .activity-description {
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.note-activity-item .activity-time {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.note-activities-section .no-activities {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.note-activities-section .no-activities p {
+    margin: 0;
+    font-style: italic;
+}

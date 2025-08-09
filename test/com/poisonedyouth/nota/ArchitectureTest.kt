@@ -15,8 +15,8 @@ class ArchitectureTest {
             .withName { it.endsWith("Controller") }
             .assertTrue { controller ->
                 !controller.text.contains("Repository") ||
-                controller.text.contains("@Repository") || // Allow annotation usage
-                controller.name.endsWith("Service") // Allow services to use repositories
+                    controller.text.contains("@Repository") || // Allow annotation usage
+                    controller.name.endsWith("Service") // Allow services to use repositories
             }
     }
 
@@ -30,7 +30,7 @@ class ArchitectureTest {
                 // Controllers should primarily contain "Service" dependencies, not "Repository"
                 val repositoryCount = controller.text.split("Repository").size - 1
                 val serviceCount = controller.text.split("Service").size - 1
-                
+
                 // If repositories are referenced, services should be more prevalent
                 repositoryCount == 0 || serviceCount >= repositoryCount
             }
@@ -45,7 +45,7 @@ class ArchitectureTest {
             .assertTrue { adminController ->
                 // Admin controllers should use AdminService
                 adminController.text.contains("AdminService") ||
-                adminController.text.contains("adminService")
+                    adminController.text.contains("adminService")
             }
     }
 
@@ -58,7 +58,7 @@ class ArchitectureTest {
             .assertTrue { noteController ->
                 // Note controllers should use NoteService
                 noteController.text.contains("NoteService") ||
-                noteController.text.contains("noteService")
+                    noteController.text.contains("noteService")
             }
     }
 
@@ -71,7 +71,7 @@ class ArchitectureTest {
             .assertTrue { userController ->
                 // User controllers should use UserService
                 userController.text.contains("UserService") ||
-                userController.text.contains("userService")
+                    userController.text.contains("userService")
             }
     }
 
@@ -84,7 +84,7 @@ class ArchitectureTest {
             .assertTrue { activityController ->
                 // Activity controllers should use ActivityService
                 activityController.text.contains("ActivityLogService") ||
-                activityController.text.contains("activityLogService")
+                    activityController.text.contains("activityLogService")
             }
     }
 
@@ -108,8 +108,8 @@ class ArchitectureTest {
             .withName { it.contains("Config") || it.contains("Security") }
             .assertTrue { configClass ->
                 // Config classes should not contain repository references
-                !configClass.text.contains("Repository") || 
-                configClass.text.contains("@Repository") // Allow annotation usage
+                !configClass.text.contains("Repository") ||
+                    configClass.text.contains("@Repository") // Allow annotation usage
             }
     }
 
@@ -132,11 +132,11 @@ class ArchitectureTest {
             .classes()
             .assertTrue { klass ->
                 val packageName = klass.packagee?.name ?: ""
-                
+
                 // Verify that packages are properly structured
                 when {
                     packageName.contains("admin") -> true
-                    packageName.contains("config") -> true  
+                    packageName.contains("config") -> true
                     packageName.contains("notes") -> true
                     packageName.contains("activitylog") -> true
                     packageName.contains("user") -> true

@@ -15,13 +15,13 @@ class GlobalExceptionHandler {
         ex: MaxUploadSizeExceededException,
         request: HttpServletRequest,
         model: Model,
-        redirectAttributes: RedirectAttributes
+        redirectAttributes: RedirectAttributes,
     ): String {
         val errorMessage = "File too large! Maximum file size is 25MB."
-        
+
         // Check if this is an HTMX request
         val htmxRequest = request.getHeader("HX-Request")
-        
+
         return if (htmxRequest != null) {
             // HTMX request - return error fragment
             model.addAttribute("error", errorMessage)

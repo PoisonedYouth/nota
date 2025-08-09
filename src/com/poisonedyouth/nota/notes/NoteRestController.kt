@@ -176,7 +176,6 @@ class NoteRestController(
         )
     }
 
-
     @GetMapping("/search")
     fun searchNotes(
         @RequestParam(value = "q", required = false, defaultValue = "") query: String,

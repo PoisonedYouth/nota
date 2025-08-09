@@ -114,8 +114,8 @@ class ActivityLogE2ETest {
         activities[3].action shouldBe "LOGIN"
         activities[3].description shouldBe "User logged in"
 
-        // Step 6: Access the activity log view
-        mockMvc
+        // Step 6: Access the general activity log view (should only show LOGIN activity, not note activities)
+        val activityLogResult = mockMvc
             .perform(
                 MockMvcRequestBuilders
                     .get("/notes/activity-log")
@@ -124,6 +124,14 @@ class ActivityLogE2ETest {
             .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("activities"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("currentUser"))
+            .andReturn()
+
+        // Verify that general activity log shows only LOGIN activity (not note activities)
+        @Suppress("UNCHECKED_CAST")
+        val activitiesInView = activityLogResult.modelAndView?.model?.get("activities") as List<*>
+        activitiesInView.size shouldBe 1 // Only LOGIN activity should be shown
+        val loginActivity = activitiesInView[0] as ActivityLogDto
+        loginActivity.action shouldBe "LOGIN"
 
         // Step 7: Verify that the activity log link is present in the main notes view
         val result =
@@ -152,22 +160,22 @@ class ActivityLogE2ETest {
 
     @Test
     fun `activity log should show user-specific activities only`() {
-        // Create activities for user 1
+        // Create general activities for user 1
         activityLogService.logActivity(
             userId = 1L,
-            action = "CREATE",
-            entityType = "NOTE",
-            entityId = 123L,
-            description = "User 1 created a note",
+            action = "LOGIN",
+            entityType = "USER",
+            entityId = 1L,
+            description = "User 1 logged in",
         )
 
-        // Create activities for user 2
+        // Create general activities for user 2
         activityLogService.logActivity(
             userId = 2L,
-            action = "CREATE",
-            entityType = "NOTE",
-            entityId = 456L,
-            description = "User 2 created a note",
+            action = "LOGIN",
+            entityType = "USER",
+            entityId = 2L,
+            description = "User 2 logged in",
         )
 
         // Wait a bit for potential async processing (though this test uses direct service calls)
@@ -176,12 +184,12 @@ class ActivityLogE2ETest {
         // Verify user 1 only sees their activities
         val user1Activities = activityLogService.getAllActivities(1L)
         user1Activities.size shouldBe 1
-        user1Activities[0].description shouldBe "User 1 created a note"
+        user1Activities[0].description shouldBe "User 1 logged in"
 
         // Verify user 2 only sees their activities
         val user2Activities = activityLogService.getAllActivities(2L)
         user2Activities.size shouldBe 1
-        user2Activities[0].description shouldBe "User 2 created a note"
+        user2Activities[0].description shouldBe "User 2 logged in"
     }
 
     @Test
@@ -198,14 +206,14 @@ class ActivityLogE2ETest {
 
         val user = session.getAttribute("currentUser") as com.poisonedyouth.nota.user.UserDto
 
-        // Step 2: Create many activities to trigger pagination
+        // Step 2: Create many general activities to trigger pagination
         repeat(25) { index ->
             activityLogService.logActivity(
                 userId = user.id,
-                action = "CREATE",
-                entityType = "NOTE",
-                entityId = index.toLong(),
-                description = "Test activity $index",
+                action = "USER_ACTION",
+                entityType = "USER",
+                entityId = user.id,
+                description = "Test general activity $index",
             )
         }
 
@@ -222,7 +230,7 @@ class ActivityLogE2ETest {
                 .andExpect(MockMvcResultMatchers.view().name("notes/activity-log"))
                 .andExpect(MockMvcResultMatchers.model().attribute("currentPage", 0))
                 .andExpect(MockMvcResultMatchers.model().attribute("totalPages", 3))
-                .andExpect(MockMvcResultMatchers.model().attribute("totalElements", 26L)) // 25 activities + 1 LOGIN activity
+                .andExpect(MockMvcResultMatchers.model().attribute("totalElements", 26L)) // 25 general activities + 1 LOGIN activity
                 .andExpect(MockMvcResultMatchers.model().attribute("hasNext", true))
                 .andExpect(MockMvcResultMatchers.model().attribute("hasPrevious", false))
                 .andReturn()
@@ -294,14 +302,14 @@ class ActivityLogE2ETest {
 
         val user = session.getAttribute("currentUser") as com.poisonedyouth.nota.user.UserDto
 
-        // Step 2: Create only a few activities (less than page size)
+        // Step 2: Create only a few general activities (less than page size)
         repeat(5) { index ->
             activityLogService.logActivity(
                 userId = user.id,
-                action = "CREATE",
-                entityType = "NOTE",
-                entityId = index.toLong(),
-                description = "Test activity $index",
+                action = "USER_ACTION",
+                entityType = "USER",
+                entityId = user.id,
+                description = "Test general activity $index",
             )
         }
 

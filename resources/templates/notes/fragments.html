@@ -247,6 +247,36 @@
     <!-- Error message fragment -->
     <div th:fragment="attachment-error" class="alert alert-error" th:if="${error}" th:text="${error}"></div>
 
+    <!-- Note Activities Section -->
+    <div th:fragment="note-activities-section" class="note-activities-section">
+        <h4 class="section-title">Recent Note Activity</h4>
+        
+        <div th:if="${noteActivities != null and not #lists.isEmpty(noteActivities)}" class="note-activities-list">
+            <div th:each="activity : ${noteActivities}" class="note-activity-item">
+                <div class="activity-icon">
+                    <span th:switch="${activity.action}">
+                        <span th:case="'CREATE'">➕</span>
+                        <span th:case="'UPDATE'">✏️</span>
+                        <span th:case="'ARCHIVE'">📦</span>
+                        <span th:case="'SHARE'">🔗</span>
+                        <span th:case="'UPLOAD_ATTACHMENT'">📎</span>
+                        <span th:case="'DOWNLOAD_ATTACHMENT'">⬇️</span>
+                        <span th:case="'DELETE_ATTACHMENT'">🗑️</span>
+                        <span th:case="*">📝</span>
+                    </span>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-description" th:text="${activity.description}"></div>
+                    <div class="activity-time" th:text="${activity.formattedCreatedAt}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${noteActivities == null or #lists.isEmpty(noteActivities)}" class="no-activities">
+            <p>No recent activity for this note</p>
+        </div>
+    </div>
+
     <script>
         function validateFileSize(input) {
             const maxSizeInBytes = 25 * 1024 * 1024; // 25MB

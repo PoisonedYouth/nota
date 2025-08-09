@@ -63,10 +63,12 @@ class NoteController(
         }
 
         val attachments = noteAttachmentService.listAttachments(id, user.id)
-        
+        val noteActivities = activityLogService.getNoteActivitiesPage(user.id, id, 0, 10)
+
         model.addAttribute("note", note)
         model.addAttribute("currentUser", user)
         model.addAttribute("attachments", attachments)
+        model.addAttribute("noteActivities", noteActivities.content)
         return "notes/detail"
     }
 
@@ -448,7 +450,7 @@ class NoteController(
         @RequestParam(value = "size", required = false, defaultValue = "20") size: Int,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        val activitiesPage = activityLogService.getActivitiesPage(user.id, page, size)
+        val activitiesPage = activityLogService.getGeneralActivitiesPage(user.id, page, size)
         model.addAttribute("activities", activitiesPage.content)
         model.addAttribute("currentUser", user)
         model.addAttribute("currentPage", page)
@@ -471,7 +473,7 @@ class NoteController(
         model: Model,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        
+
         if (file.isEmpty) {
             if (htmxRequest != null) {
                 model.addAttribute("error", "Please select a file to upload")
@@ -482,15 +484,15 @@ class NoteController(
 
         return try {
             val uploadedAttachment = noteAttachmentService.addAttachment(id, file, user.id)
-            
+
             // Publish upload attachment event
             activityEventPublisher.publishUploadAttachmentEvent(
                 user.id,
                 id,
                 uploadedAttachment.id,
-                uploadedAttachment.filename
+                uploadedAttachment.filename,
             )
-            
+
             if (htmxRequest != null) {
                 // Return updated attachments section
                 val attachments = noteAttachmentService.listAttachments(id, user.id)
@@ -518,7 +520,7 @@ class NoteController(
         session: HttpSession,
     ): ResponseEntity<ByteArrayResource> {
         val user = requireAuthentication(session) ?: return ResponseEntity.status(401).build()
-        
+
         val attachment = noteAttachmentService.getAttachment(id, attachmentId, user.id)
             ?: return ResponseEntity.notFound().build()
 
@@ -527,7 +529,7 @@ class NoteController(
             user.id,
             id,
             attachmentId,
-            attachment.filename
+            attachment.filename,
         )
 
         val resource = ByteArrayResource(attachment.data)
@@ -550,22 +552,22 @@ class NoteController(
         model: Model,
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
-        
+
         // Get attachment details before deleting for activity logging
         val attachment = noteAttachmentService.getAttachment(id, attachmentId, user.id)
-        
+
         val success = noteAttachmentService.deleteAttachment(id, attachmentId, user.id)
-        
+
         // Publish delete attachment event if deletion was successful
         if (success && attachment != null) {
             activityEventPublisher.publishDeleteAttachmentEvent(
                 user.id,
                 id,
                 attachmentId,
-                attachment.filename
+                attachment.filename,
             )
         }
-        
+
         return if (htmxRequest != null) {
             if (success) {
                 // Return updated attachments section
@@ -593,7 +595,7 @@ class NoteController(
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
         val note = noteService.findAccessibleNoteById(id, user.id) ?: return "redirect:/notes"
         val attachments = noteAttachmentService.listAttachments(id, user.id)
-        
+
         model.addAttribute("note", note)
         model.addAttribute("attachments", attachments)
         return "notes/fragments :: attachments-section"

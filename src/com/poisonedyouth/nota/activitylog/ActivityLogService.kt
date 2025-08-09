@@ -49,6 +49,27 @@ class ActivityLogService(
         return activityPage.map { ActivityLogDto.fromEntity(it) }
     }
 
+    fun getGeneralActivitiesPage(
+        userId: Long,
+        page: Int = 0,
+        size: Int = 20,
+    ): Page<ActivityLogDto> {
+        val pageable = PageRequest.of(page, size)
+        val activityPage = activityLogRepository.findGeneralUserActivitiesByUserIdOrderByCreatedAtDesc(userId, pageable)
+        return activityPage.map { ActivityLogDto.fromEntity(it) }
+    }
+
+    fun getNoteActivitiesPage(
+        userId: Long,
+        noteId: Long,
+        page: Int = 0,
+        size: Int = 20,
+    ): Page<ActivityLogDto> {
+        val pageable = PageRequest.of(page, size)
+        val activityPage = activityLogRepository.findNoteActivitiesByUserIdAndNoteIdOrderByCreatedAtDesc(userId, noteId, pageable)
+        return activityPage.map { ActivityLogDto.fromEntity(it) }
+    }
+
     fun getAllActivities(userId: Long): List<ActivityLogDto> =
         activityLogRepository
             .findByUserIdOrderByCreatedAtDesc(userId)

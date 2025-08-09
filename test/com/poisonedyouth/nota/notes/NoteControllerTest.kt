@@ -337,6 +337,9 @@ class NoteControllerTest {
             )
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns note
         every { noteAttachmentService.listAttachments(noteId, 1L) } returns emptyList()
+        every { activityLogService.getNoteActivitiesPage(1L, noteId, 0, 10) } returns mockk {
+            every { content } returns emptyList()
+        }
 
         // When/Then
         mockMvc

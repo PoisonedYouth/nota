@@ -25,7 +25,10 @@
       "mcp__ide__getDiagnostics",
       "Bash(sed:*)",
       "Bash(./tools/detekt.sh:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*ActivityLogE2ETest\")",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteControllerTest\")",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*ActivityLogIntegrationTest\")"
     ],
     "deny": []
   }

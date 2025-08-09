@@ -608,3 +608,4 @@ Co-authored-by: Claude <noreply@anthropic.com>
 - Always run static code analysis before finishing a task.
 - Name integration tests with the suffix IT, end to end tests with the suffix E2E.
 - **NEVER commit code unless all tests pass successfully** - This includes unit tests, integration tests, E2E tests, and architecture validation tests. Only commit when the entire test suite is green.
+- **NEVER commit code with failing static analysis** - This includes ktlint, detekt, and other static code analysis tools.

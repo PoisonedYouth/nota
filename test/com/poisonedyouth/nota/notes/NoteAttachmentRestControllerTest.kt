@@ -3,13 +3,10 @@ package com.poisonedyouth.nota.notes
 import com.poisonedyouth.nota.user.UserDto
 import com.poisonedyouth.nota.user.UserRole
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.http.MediaType
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.MockMvc

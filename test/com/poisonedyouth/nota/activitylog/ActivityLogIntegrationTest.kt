@@ -39,7 +39,7 @@ class ActivityLogIntegrationTest {
         val user = UserDto(1L, "testuser", false, UserRole.USER)
         session.setAttribute("currentUser", user)
 
-        // Create some test activities
+        // Create general activities that will be shown in the general activity log
         activityLogService.logActivity(
             userId = user.id,
             action = "LOGIN",
@@ -49,10 +49,10 @@ class ActivityLogIntegrationTest {
         )
         activityLogService.logActivity(
             userId = user.id,
-            action = "CREATE",
-            entityType = "NOTE",
-            entityId = 123L,
-            description = "Note created: 'Test Note'",
+            action = "LOGOUT",
+            entityType = "USER",
+            entityId = user.id,
+            description = "User logged out",
         )
 
         // When & Then
@@ -83,14 +83,14 @@ class ActivityLogIntegrationTest {
         val user = UserDto(1L, "testuser", false, UserRole.USER)
         session.setAttribute("currentUser", user)
 
-        // Create multiple test activities
+        // Create multiple general activities for pagination testing
         repeat(25) { index ->
             activityLogService.logActivity(
                 userId = user.id,
-                action = "CREATE",
-                entityType = "NOTE",
-                entityId = index.toLong(),
-                description = "Note created: 'Test Note $index'",
+                action = "LOGIN",
+                entityType = "USER",
+                entityId = user.id,
+                description = "User login session $index",
             )
         }
 
@@ -120,14 +120,14 @@ class ActivityLogIntegrationTest {
         val user = UserDto(1L, "testuser", false, UserRole.USER)
         session.setAttribute("currentUser", user)
 
-        // Create multiple test activities
+        // Create multiple general activities for pagination testing
         repeat(25) { index ->
             activityLogService.logActivity(
                 userId = user.id,
-                action = "CREATE",
-                entityType = "NOTE",
-                entityId = index.toLong(),
-                description = "Note created: 'Test Note $index'",
+                action = "LOGIN",
+                entityType = "USER",
+                entityId = user.id,
+                description = "User login session $index",
             )
         }
 
