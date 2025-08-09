@@ -14,6 +14,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "note_attachments")
+@Suppress("LongParameterList") // JPA entity requires all these parameters for proper mapping
 class NoteAttachment(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -504,9 +504,21 @@ class NoteController(
             } else {
                 "redirect:/notes/$id"
             }
-        } catch (e: Exception) {
+        } catch (e: IllegalArgumentException) {
             if (htmxRequest != null) {
-                model.addAttribute("error", "Failed to upload file: ${e.message}")
+                model.addAttribute("error", "Invalid file: ${e.message}")
+                return "notes/fragments :: attachment-error"
+            }
+            "redirect:/notes/$id"
+        } catch (e: IllegalStateException) {
+            if (htmxRequest != null) {
+                model.addAttribute("error", "File upload error: ${e.message}")
+                return "notes/fragments :: attachment-error"
+            }
+            "redirect:/notes/$id"
+        } catch (e: UnsupportedOperationException) {
+            if (htmxRequest != null) {
+                model.addAttribute("error", "File type not supported: ${e.message}")
                 return "notes/fragments :: attachment-error"
             }
             "redirect:/notes/$id"
