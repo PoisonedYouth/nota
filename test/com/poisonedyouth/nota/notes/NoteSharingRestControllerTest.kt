@@ -1,7 +1,6 @@
 package com.poisonedyouth.nota.notes
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher
 import com.poisonedyouth.nota.user.UserDto
 import com.poisonedyouth.nota.user.UserRole
 import io.mockk.every
@@ -21,16 +20,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 class NoteSharingRestControllerTest {
     private lateinit var mockMvc: MockMvc
     private lateinit var noteService: NoteService
-    private lateinit var activityEventPublisher: ActivityEventPublisher
     private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setup() {
         noteService = mockk()
-        activityEventPublisher = mockk(relaxed = true)
         objectMapper = ObjectMapper()
-        val controller = NoteRestController(noteService, activityEventPublisher)
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
+        val sharingController = NoteSharingRestController(noteService)
+        val noteController = NoteRestController(noteService, mockk(relaxed = true))
+        // Setup both controllers since archived endpoint is still in NoteRestController
+        mockMvc = MockMvcBuilders.standaloneSetup(sharingController, noteController).build()
     }
 
     private fun createSession(): MockHttpSession {
