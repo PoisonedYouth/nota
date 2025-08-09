@@ -129,6 +129,78 @@ class ActivityEventPublisherTest {
     }
 
     @Test
+    fun `publishUploadAttachmentEvent should publish UploadAttachmentEvent`() {
+        // Given
+        val userId = 1L
+        val noteId = 2L
+        val attachmentId = 3L
+        val filename = "document.pdf"
+        val eventSlot = slot<UploadAttachmentEvent>()
+
+        every { applicationEventPublisher.publishEvent(capture(eventSlot)) } returns Unit
+
+        // When
+        activityEventPublisher.publishUploadAttachmentEvent(userId, noteId, attachmentId, filename)
+
+        // Then
+        verify { applicationEventPublisher.publishEvent(any<UploadAttachmentEvent>()) }
+        val capturedEvent = eventSlot.captured
+        capturedEvent.userId shouldBe userId
+        capturedEvent.action shouldBe "UPLOAD"
+        capturedEvent.entityType shouldBe "ATTACHMENT"
+        capturedEvent.entityId shouldBe attachmentId
+        capturedEvent.description shouldBe "Attachment uploaded: '$filename' to note $noteId"
+    }
+
+    @Test
+    fun `publishDownloadAttachmentEvent should publish DownloadAttachmentEvent`() {
+        // Given
+        val userId = 1L
+        val noteId = 2L
+        val attachmentId = 3L
+        val filename = "report.xlsx"
+        val eventSlot = slot<DownloadAttachmentEvent>()
+
+        every { applicationEventPublisher.publishEvent(capture(eventSlot)) } returns Unit
+
+        // When
+        activityEventPublisher.publishDownloadAttachmentEvent(userId, noteId, attachmentId, filename)
+
+        // Then
+        verify { applicationEventPublisher.publishEvent(any<DownloadAttachmentEvent>()) }
+        val capturedEvent = eventSlot.captured
+        capturedEvent.userId shouldBe userId
+        capturedEvent.action shouldBe "DOWNLOAD"
+        capturedEvent.entityType shouldBe "ATTACHMENT"
+        capturedEvent.entityId shouldBe attachmentId
+        capturedEvent.description shouldBe "Attachment downloaded: '$filename' from note $noteId"
+    }
+
+    @Test
+    fun `publishDeleteAttachmentEvent should publish DeleteAttachmentEvent`() {
+        // Given
+        val userId = 1L
+        val noteId = 2L
+        val attachmentId = 3L
+        val filename = "image.png"
+        val eventSlot = slot<DeleteAttachmentEvent>()
+
+        every { applicationEventPublisher.publishEvent(capture(eventSlot)) } returns Unit
+
+        // When
+        activityEventPublisher.publishDeleteAttachmentEvent(userId, noteId, attachmentId, filename)
+
+        // Then
+        verify { applicationEventPublisher.publishEvent(any<DeleteAttachmentEvent>()) }
+        val capturedEvent = eventSlot.captured
+        capturedEvent.userId shouldBe userId
+        capturedEvent.action shouldBe "DELETE"
+        capturedEvent.entityType shouldBe "ATTACHMENT"
+        capturedEvent.entityId shouldBe attachmentId
+        capturedEvent.description shouldBe "Attachment deleted: '$filename' from note $noteId"
+    }
+
+    @Test
     fun `should handle multiple events published in sequence`() {
         // Given
         val userId = 1L

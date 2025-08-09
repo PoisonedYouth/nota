@@ -23,6 +23,7 @@ class NoteControllerTest {
     private lateinit var noteService: NoteService
     private lateinit var activityLogService: ActivityLogService
     private lateinit var activityEventPublisher: ActivityEventPublisher
+    private lateinit var noteAttachmentService: NoteAttachmentService
     private lateinit var mockSession: MockHttpSession
     private lateinit var testUser: UserDto
 
@@ -31,6 +32,7 @@ class NoteControllerTest {
         noteService = mockk()
         activityLogService = mockk()
         activityEventPublisher = mockk()
+        noteAttachmentService = mockk()
         mockSession = MockHttpSession()
         testUser =
             UserDto(
@@ -42,7 +44,7 @@ class NoteControllerTest {
 
         mockSession.setAttribute("currentUser", testUser)
 
-        val controller = NoteController(noteService, activityLogService, activityEventPublisher)
+        val controller = NoteController(noteService, activityLogService, activityEventPublisher, noteAttachmentService)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
     }
 
@@ -334,6 +336,7 @@ class NoteControllerTest {
                 user = testUser,
             )
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns note
+        every { noteAttachmentService.listAttachments(noteId, 1L) } returns emptyList()
 
         // When/Then
         mockMvc
@@ -342,9 +345,11 @@ class NoteControllerTest {
             .andExpect(MockMvcResultMatchers.view().name("notes/detail"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("note"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("currentUser"))
+            .andExpect(MockMvcResultMatchers.model().attributeExists("attachments"))
             .andExpect(MockMvcResultMatchers.model().attribute("note", note))
 
         verify { noteService.findAccessibleNoteById(noteId, 1L) }
+        verify { noteAttachmentService.listAttachments(noteId, 1L) }
     }
 
     @Test

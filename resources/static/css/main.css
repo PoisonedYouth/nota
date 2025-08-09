@@ -1299,3 +1299,232 @@ textarea.form-control {
         gap: 0.25rem;
     }
 }
+
+/* Attachment Styles */
+.attachments-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--card-background);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.attachments-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.attachments-section h3 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Upload Form */
+.attachment-upload-form {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--background-color);
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--border-color);
+    transition: var(--transition);
+}
+
+.attachment-upload-form:hover {
+    border-color: var(--primary-color);
+    background: rgba(59, 130, 246, 0.02);
+}
+
+.upload-form {
+    margin: 0;
+}
+
+.upload-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.file-input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--card-background);
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.file-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.file-input::-webkit-file-upload-button {
+    padding: 0.375rem 0.75rem;
+    margin-right: 0.75rem;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.file-input::-webkit-file-upload-button:hover {
+    background: var(--border-hover);
+}
+
+/* Attachments List */
+.attachments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.attachment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+}
+
+.attachment-item:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+.attachment-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.attachment-icon {
+    font-size: 1.5rem;
+    min-width: 2rem;
+    text-align: center;
+}
+
+.attachment-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.attachment-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.attachment-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.attachment-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.attachment-actions .btn {
+    padding: 0.375rem 0.5rem;
+    min-width: auto;
+}
+
+.no-attachments {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.no-attachments p {
+    margin: 0;
+}
+
+/* Alert styles for attachment messages */
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    border: 1px solid;
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .attachment-item {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .attachment-actions {
+        justify-content: flex-end;
+    }
+
+    .upload-group {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .file-input {
+        width: 100%;
+    }
+}
+
+/* Attachment info in forms */
+.attachment-info {
+    margin: 1rem 0;
+}
+
+.note-info {
+    background-color: var(--background-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+}
+
+.note-info p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.note-info a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.note-info a:hover {
+    text-decoration: underline;
+}

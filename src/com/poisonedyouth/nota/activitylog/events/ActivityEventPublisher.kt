@@ -46,4 +46,31 @@ class ActivityEventPublisher(
     ) {
         eventPublisher.publishEvent(ShareNoteEvent(userId, noteId, noteTitle, sharedWithUsername))
     }
+
+    fun publishUploadAttachmentEvent(
+        userId: Long,
+        noteId: Long,
+        attachmentId: Long,
+        filename: String,
+    ) {
+        eventPublisher.publishEvent(UploadAttachmentEvent(userId, noteId, attachmentId, filename))
+    }
+
+    fun publishDownloadAttachmentEvent(
+        userId: Long,
+        noteId: Long,
+        attachmentId: Long,
+        filename: String,
+    ) {
+        eventPublisher.publishEvent(DownloadAttachmentEvent(userId, noteId, attachmentId, filename))
+    }
+
+    fun publishDeleteAttachmentEvent(
+        userId: Long,
+        noteId: Long,
+        attachmentId: Long,
+        filename: String,
+    ) {
+        eventPublisher.publishEvent(DeleteAttachmentEvent(userId, noteId, attachmentId, filename))
+    }
 }

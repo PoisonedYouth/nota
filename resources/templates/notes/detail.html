@@ -71,6 +71,11 @@
                         <div class="content-text" th:utext="${note.content}"></div>
                     </div>
                 </div>
+
+                <!-- Attachments Section -->
+                <div class="note-attachments-section">
+                    <div th:replace="~{notes/fragments :: attachments-section}"></div>
+                </div>
             </div>
         </div>
     </div>

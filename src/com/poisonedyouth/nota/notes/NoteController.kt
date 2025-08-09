@@ -4,6 +4,10 @@ import com.poisonedyouth.nota.activitylog.ActivityLogService
 import com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher
 import com.poisonedyouth.nota.user.UserDto
 import jakarta.servlet.http.HttpSession
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.multipart.MultipartFile
 
 @Controller
 @RequestMapping("/notes")
@@ -24,6 +29,7 @@ class NoteController(
     private val noteService: NoteService,
     private val activityLogService: ActivityLogService,
     private val activityEventPublisher: ActivityEventPublisher,
+    private val noteAttachmentService: NoteAttachmentService,
 ) {
     private fun getCurrentUser(session: HttpSession): UserDto? = session.getAttribute("currentUser") as? UserDto
 
@@ -56,8 +62,11 @@ class NoteController(
             return "redirect:/notes"
         }
 
+        val attachments = noteAttachmentService.listAttachments(id, user.id)
+        
         model.addAttribute("note", note)
         model.addAttribute("currentUser", user)
+        model.addAttribute("attachments", attachments)
         return "notes/detail"
     }
 
@@ -91,14 +100,8 @@ class NoteController(
         // Publish create note event
         activityEventPublisher.publishCreateNoteEvent(user.id, newNote.id, newNote.title)
 
-        return if (htmxRequest != null) {
-            // HTMX Request: Return only the new note as fragment
-            model.addAttribute("note", newNote)
-            "notes/fragments :: note-card"
-        } else {
-            // Normal Request: Redirect to list
-            "redirect:/notes"
-        }
+        // Redirect to note detail page so user can add attachments
+        return "redirect:/notes/${newNote.id}"
     }
 
     @GetMapping("/modal/new")
@@ -455,5 +458,144 @@ class NoteController(
         model.addAttribute("hasPrevious", activitiesPage.hasPrevious())
         model.addAttribute("pageSize", size)
         return "notes/activity-log"
+    }
+
+    // Attachment endpoints
+
+    @PostMapping("/{id}/attachments")
+    fun uploadAttachment(
+        @PathVariable id: Long,
+        @RequestParam("file") file: MultipartFile,
+        session: HttpSession,
+        @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
+        model: Model,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        
+        if (file.isEmpty) {
+            if (htmxRequest != null) {
+                model.addAttribute("error", "Please select a file to upload")
+                return "notes/fragments :: attachment-error"
+            }
+            return "redirect:/notes/$id"
+        }
+
+        return try {
+            val uploadedAttachment = noteAttachmentService.addAttachment(id, file, user.id)
+            
+            // Publish upload attachment event
+            activityEventPublisher.publishUploadAttachmentEvent(
+                user.id,
+                id,
+                uploadedAttachment.id,
+                uploadedAttachment.filename
+            )
+            
+            if (htmxRequest != null) {
+                // Return updated attachments section
+                val attachments = noteAttachmentService.listAttachments(id, user.id)
+                val note = noteService.findAccessibleNoteById(id, user.id)
+                model.addAttribute("attachments", attachments)
+                model.addAttribute("note", note)
+                model.addAttribute("success", "File uploaded successfully")
+                "notes/fragments :: attachments-section"
+            } else {
+                "redirect:/notes/$id"
+            }
+        } catch (e: Exception) {
+            if (htmxRequest != null) {
+                model.addAttribute("error", "Failed to upload file: ${e.message}")
+                return "notes/fragments :: attachment-error"
+            }
+            "redirect:/notes/$id"
+        }
+    }
+
+    @GetMapping("/{id}/attachments/{attachmentId}/download")
+    fun downloadAttachment(
+        @PathVariable id: Long,
+        @PathVariable attachmentId: Long,
+        session: HttpSession,
+    ): ResponseEntity<ByteArrayResource> {
+        val user = requireAuthentication(session) ?: return ResponseEntity.status(401).build()
+        
+        val attachment = noteAttachmentService.getAttachment(id, attachmentId, user.id)
+            ?: return ResponseEntity.notFound().build()
+
+        // Publish download attachment event
+        activityEventPublisher.publishDownloadAttachmentEvent(
+            user.id,
+            id,
+            attachmentId,
+            attachment.filename
+        )
+
+        val resource = ByteArrayResource(attachment.data)
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.parseMediaType(attachment.contentType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE)
+        headers.setContentDispositionFormData("attachment", attachment.filename)
+        headers.contentLength = attachment.fileSize
+
+        return ResponseEntity.ok()
+            .headers(headers)
+            .body(resource)
+    }
+
+    @DeleteMapping("/{id}/attachments/{attachmentId}")
+    fun deleteAttachment(
+        @PathVariable id: Long,
+        @PathVariable attachmentId: Long,
+        session: HttpSession,
+        @RequestHeader(value = "HX-Request", required = false) htmxRequest: String?,
+        model: Model,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        
+        // Get attachment details before deleting for activity logging
+        val attachment = noteAttachmentService.getAttachment(id, attachmentId, user.id)
+        
+        val success = noteAttachmentService.deleteAttachment(id, attachmentId, user.id)
+        
+        // Publish delete attachment event if deletion was successful
+        if (success && attachment != null) {
+            activityEventPublisher.publishDeleteAttachmentEvent(
+                user.id,
+                id,
+                attachmentId,
+                attachment.filename
+            )
+        }
+        
+        return if (htmxRequest != null) {
+            if (success) {
+                // Return updated attachments section
+                val attachments = noteAttachmentService.listAttachments(id, user.id)
+                val note = noteService.findAccessibleNoteById(id, user.id)
+                model.addAttribute("attachments", attachments)
+                model.addAttribute("note", note)
+                model.addAttribute("success", "Attachment deleted successfully")
+                "notes/fragments :: attachments-section"
+            } else {
+                model.addAttribute("error", "Failed to delete attachment")
+                "notes/fragments :: attachment-error"
+            }
+        } else {
+            "redirect:/notes/$id"
+        }
+    }
+
+    @GetMapping("/{id}/attachments")
+    fun getAttachmentsSection(
+        @PathVariable id: Long,
+        session: HttpSession,
+        model: Model,
+    ): String {
+        val user = requireAuthentication(session) ?: return "redirect:/auth/login"
+        val note = noteService.findAccessibleNoteById(id, user.id) ?: return "redirect:/notes"
+        val attachments = noteAttachmentService.listAttachments(id, user.id)
+        
+        model.addAttribute("note", note)
+        model.addAttribute("attachments", attachments)
+        return "notes/fragments :: attachments-section"
     }
 }
