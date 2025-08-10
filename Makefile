@@ -1,13 +1,18 @@
 # Makefile for Nota project
 # Provides convenient targets for build, test, code quality checks
 
-.PHONY: help build test ktlint detekt clean all check pre-commit install-hooks
+.PHONY: help build test test-ui test-ui-headed test-ui-debug test-ui-ci ktlint detekt clean all check pre-commit install-hooks
 
 # Default target
 help:
 	@echo "Available targets:"
 	@echo "  build        - Build the project using Amper"
-	@echo "  test         - Run all tests using Amper"
+	@echo "  test         - Run all backend tests using Amper"
+	@echo "  test-ui      - Run UI tests using Playwright"
+	@echo "  test-ui-headed - Run UI tests in headed mode (visible browser)"
+	@echo "  test-ui-debug - Run UI tests in debug mode"
+	@echo "  test-ui-ci   - Run UI tests in CI mode (list reporter)"
+	@echo "  test-all     - Run both backend and UI tests"
 	@echo "  ktlint       - Run ktlint code style checks"
 	@echo "  ktlint-fix   - Run ktlint and auto-fix style issues"
 	@echo "  detekt       - Run detekt static analysis"
@@ -15,7 +20,7 @@ help:
 	@echo "  check        - Run all code quality checks (ktlint + detekt)"
 	@echo "  pre-commit   - Run pre-commit hooks (ktlint + detekt non-interactive)"
 	@echo "  clean        - Clean build artifacts"
-	@echo "  all          - Build, test, and run all checks"
+	@echo "  all          - Build, test (backend + UI), and run all checks"
 	@echo "  install-hooks- Install git pre-commit hooks"
 	@echo "  help         - Show this help message"
 
@@ -24,10 +29,34 @@ build:
 	@echo "Building project with Amper..."
 	./amper build
 
-# Run tests
+# Run backend tests
 test:
-	@echo "Running tests with Amper..."
+	@echo "Running backend tests with Amper..."
 	./amper test
+
+# Run UI tests with Playwright
+test-ui:
+	@echo "Running UI tests with Playwright..."
+	npm run test:ui
+
+# Run UI tests in headed mode (visible browser)
+test-ui-headed:
+	@echo "Running UI tests in headed mode..."
+	npm run test:ui:headed
+
+# Run UI tests in debug mode
+test-ui-debug:
+	@echo "Running UI tests in debug mode..."
+	npm run test:ui:debug
+
+# Run UI tests in CI mode (list reporter)
+test-ui-ci:
+	@echo "Running UI tests with CI-friendly output..."
+	npx playwright test --reporter=list,html
+
+# Run all tests (backend + UI)
+test-all: test test-ui
+	@echo "All tests (backend + UI) completed"
 
 # Run ktlint style checks
 ktlint:
@@ -69,6 +98,6 @@ install-hooks:
 	@echo "Installing git pre-commit hooks..."
 	./tools/install-hooks.sh
 
-# Run everything: build, test, and checks
-all: build test check
-	@echo "Build, test, and all checks completed successfully"
+# Run everything: build, test (backend + UI), and checks
+all: build test-all check
+	@echo "Build, all tests, and all checks completed successfully"

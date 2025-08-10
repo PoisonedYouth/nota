@@ -64,25 +64,57 @@
                     </div>
                 </div>
 
-                <!-- Content Section -->
-                <div class="note-content-section">
-                    <h2 class="section-heading">Content</h2>
-                    <div class="content-wrapper">
-                        <div class="content-text" th:utext="${note.content}"></div>
+                <!-- Tabbed Content Section -->
+                <div class="note-tabs-container">
+                    <div class="note-tabs">
+                        <button class="tab-button active" onclick="switchTab('content')">
+                            📝 Content
+                        </button>
+                        <button class="tab-button" onclick="switchTab('attachments')">
+                            📎 Attachments
+                        </button>
+                        <button class="tab-button" onclick="switchTab('activity')">
+                            📊 Activity Log
+                        </button>
                     </div>
-                </div>
 
-                <!-- Attachments Section -->
-                <div class="note-attachments-section">
-                    <div th:replace="~{notes/fragments :: attachments-section}"></div>
-                </div>
+                    <div class="tab-content">
+                        <!-- Content Tab -->
+                        <div id="content-tab" class="tab-panel active">
+                            <div class="content-wrapper">
+                                <div class="content-text" th:utext="${note.content}"></div>
+                            </div>
+                        </div>
 
-                <!-- Note Activities Section -->
-                <div class="note-activities-container">
-                    <div th:replace="~{notes/fragments :: note-activities-section}"></div>
+                        <!-- Attachments Tab -->
+                        <div id="attachments-tab" class="tab-panel">
+                            <div th:replace="~{notes/fragments :: attachments-section}"></div>
+                        </div>
+
+                        <!-- Activity Log Tab -->
+                        <div id="activity-tab" class="tab-panel">
+                            <div th:replace="~{notes/fragments :: note-activities-section}"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Remove active class from all tabs and panels
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            // Add active class to clicked tab and corresponding panel
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+    </script>
 </body>
 </html>

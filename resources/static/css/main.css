@@ -2702,6 +2702,135 @@ textarea.form-control {
     }
 }
 
+/* Note Detail Tabs */
+.note-tabs-container {
+    margin-top: var(--space-8);
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.note-tabs {
+    display: flex;
+    background: var(--surface-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-normal);
+    border-bottom: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-button::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
+    transform: translateX(-100%);
+    transition: var(--transition-normal);
+}
+
+.tab-button:hover {
+    background: var(--surface);
+    color: var(--text-primary);
+}
+
+.tab-button.active {
+    background: var(--surface);
+    color: var(--primary-600);
+    font-weight: var(--font-bold);
+}
+
+.tab-button.active::before {
+    transform: translateX(0);
+}
+
+.tab-content {
+    position: relative;
+}
+
+.tab-panel {
+    display: none;
+    padding: var(--space-6);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.tab-panel .content-wrapper {
+    max-width: none;
+}
+
+.tab-panel .content-text {
+    line-height: var(--leading-relaxed);
+    color: var(--text-primary);
+}
+
+/* Enhanced attachment and activity sections within tabs */
+.tab-panel .attachments-section,
+.tab-panel .note-activities-section {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.tab-panel .section-header h3,
+.tab-panel .section-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--space-2);
+}
+
+/* Mobile responsive tabs */
+@media (max-width: 768px) {
+    .note-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-button {
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .tab-button::before {
+        height: 100%;
+        width: 3px;
+        left: 0;
+        top: 0;
+        transform: translateY(-100%);
+    }
+    
+    .tab-button.active::before {
+        transform: translateY(0);
+    }
+    
+    .tab-panel {
+        padding: var(--space-4);
+    }
+}
+
 /* Activity Log Styles */
 .activity-log-container {
     margin-top: 2rem;

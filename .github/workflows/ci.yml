@@ -325,10 +325,120 @@ jobs:
           build/logs/amper_*_test/
         retention-days: 30
 
+  ui-tests:
+    name: UI Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: [build-jar]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Cache Amper dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.m2
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          .amper/cache
+        key: ${{ runner.os }}-amper-${{ hashFiles('**/module.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-amper-
+
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-playwright-
+
+    - name: Install Node.js dependencies
+      run: npm ci
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+
+    - name: Make Amper executable
+      run: chmod +x ./amper
+
+    - name: Start application in background
+      env:
+        SPRING_PROFILES_ACTIVE: test
+      run: |
+        echo "Starting application for UI testing..."
+        ./amper run > app.log 2>&1 &
+        APP_PID=$!
+        echo $APP_PID > app.pid
+        
+        # Wait for application to start
+        echo "Waiting for application to start..."
+        for i in {1..60}; do
+          if curl -f http://localhost:8080/auth/login > /dev/null 2>&1; then
+            echo "Application started successfully after $i seconds"
+            break
+          fi
+          if [ $i -eq 60 ]; then
+            echo "Application failed to start within 60 seconds"
+            echo "Application logs:"
+            cat app.log
+            exit 1
+          fi
+          sleep 1
+        done
+
+    - name: Run Playwright UI tests
+      run: |
+        echo "Running Playwright UI tests..."
+        npx playwright test --reporter=list,html
+
+    - name: Stop application
+      if: always()
+      run: |
+        if [ -f app.pid ]; then
+          APP_PID=$(cat app.pid)
+          kill $APP_PID || true
+          rm app.pid
+        fi
+
+    - name: Upload Playwright report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: |
+          playwright-report/
+          test-results/
+        retention-days: 30
+
+    - name: Upload application logs
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: app-logs-ui-tests
+        path: app.log
+        retention-days: 7
+
   report:
     name: Generate Report
     runs-on: ubuntu-latest
-    needs: [test, code-quality, build-jar, security-scan, integration-test]
+    needs: [test, code-quality, build-jar, security-scan, integration-test, ui-tests]
     if: always()
 
     steps:
@@ -370,6 +480,13 @@ jobs:
           echo "✅ **Integration Tests**: Passed" >> $GITHUB_STEP_SUMMARY
         else
           echo "❌ **Integration Tests**: Failed" >> $GITHUB_STEP_SUMMARY
+        fi
+
+        # UI Tests
+        if [ -d "artifacts/playwright-report" ]; then
+          echo "✅ **UI Tests (Playwright)**: Passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **UI Tests (Playwright)**: Failed" >> $GITHUB_STEP_SUMMARY
         fi
 
         # Security scan
