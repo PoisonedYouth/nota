@@ -28,7 +28,16 @@
       "Bash(rm:*)",
       "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*ActivityLogE2ETest\")",
       "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteControllerTest\")",
-      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*ActivityLogIntegrationTest\")"
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*ActivityLogIntegrationTest\")",
+      "Bash(git reset:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(SPRING_PROFILES_ACTIVE=test timeout 30s ./amper run)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(npm test)",
+      "Bash(npm run:*)",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*ActivityLog*\")"
     ],
     "deny": []
   }
