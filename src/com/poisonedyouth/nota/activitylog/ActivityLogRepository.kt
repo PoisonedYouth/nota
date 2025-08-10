@@ -22,7 +22,8 @@ interface ActivityLogRepository : JpaRepository<ActivityLog, Long> {
 
     // General user activities (LOGIN, etc.) - activities that are not related to specific notes
     @Query(
-        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND a.entityType != 'NOTE' AND a.entityType != 'ATTACHMENT' ORDER BY a.createdAt DESC",
+        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND a.entityType != 'NOTE' " +
+            "AND a.entityType != 'ATTACHMENT' ORDER BY a.createdAt DESC",
     )
     fun findGeneralUserActivitiesByUserIdOrderByCreatedAtDesc(
         @Param("userId") userId: Long,
@@ -30,7 +31,8 @@ interface ActivityLogRepository : JpaRepository<ActivityLog, Long> {
     ): Page<ActivityLog>
 
     @Query(
-        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND a.entityType != 'NOTE' AND a.entityType != 'ATTACHMENT' ORDER BY a.createdAt DESC",
+        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND a.entityType != 'NOTE' " +
+            "AND a.entityType != 'ATTACHMENT' ORDER BY a.createdAt DESC",
     )
     fun findGeneralUserActivitiesByUserIdOrderByCreatedAtDesc(
         @Param("userId") userId: Long,
@@ -38,7 +40,10 @@ interface ActivityLogRepository : JpaRepository<ActivityLog, Long> {
 
     // Note-related activities for a specific note
     @Query(
-        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND ((a.entityType = 'NOTE' AND a.entityId = :noteId) OR (a.entityType = 'ATTACHMENT' AND a.entityId IN (SELECT att.id FROM NoteAttachment att WHERE att.note.id = :noteId))) ORDER BY a.createdAt DESC",
+        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND " +
+            "((a.entityType = 'NOTE' AND a.entityId = :noteId) OR " +
+            "(a.entityType = 'ATTACHMENT' AND a.entityId IN " +
+            "(SELECT att.id FROM NoteAttachment att WHERE att.note.id = :noteId))) ORDER BY a.createdAt DESC",
     )
     fun findNoteActivitiesByUserIdAndNoteIdOrderByCreatedAtDesc(
         @Param("userId") userId: Long,
@@ -47,7 +52,10 @@ interface ActivityLogRepository : JpaRepository<ActivityLog, Long> {
     ): Page<ActivityLog>
 
     @Query(
-        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND ((a.entityType = 'NOTE' AND a.entityId = :noteId) OR (a.entityType = 'ATTACHMENT' AND a.entityId IN (SELECT att.id FROM NoteAttachment att WHERE att.note.id = :noteId))) ORDER BY a.createdAt DESC",
+        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND " +
+            "((a.entityType = 'NOTE' AND a.entityId = :noteId) OR " +
+            "(a.entityType = 'ATTACHMENT' AND a.entityId IN " +
+            "(SELECT att.id FROM NoteAttachment att WHERE att.note.id = :noteId))) ORDER BY a.createdAt DESC",
     )
     fun findNoteActivitiesByUserIdAndNoteIdOrderByCreatedAtDesc(
         @Param("userId") userId: Long,
@@ -56,7 +64,8 @@ interface ActivityLogRepository : JpaRepository<ActivityLog, Long> {
 
     // All note-related activities for a user (across all their notes)
     @Query(
-        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND (a.entityType = 'NOTE' OR a.entityType = 'ATTACHMENT') ORDER BY a.createdAt DESC",
+        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND " +
+            "(a.entityType = 'NOTE' OR a.entityType = 'ATTACHMENT') ORDER BY a.createdAt DESC",
     )
     fun findAllNoteActivitiesByUserIdOrderByCreatedAtDesc(
         @Param("userId") userId: Long,
@@ -64,7 +73,8 @@ interface ActivityLogRepository : JpaRepository<ActivityLog, Long> {
     ): Page<ActivityLog>
 
     @Query(
-        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND (a.entityType = 'NOTE' OR a.entityType = 'ATTACHMENT') ORDER BY a.createdAt DESC",
+        "SELECT a FROM ActivityLog a WHERE a.userId = :userId AND " +
+            "(a.entityType = 'NOTE' OR a.entityType = 'ATTACHMENT') ORDER BY a.createdAt DESC",
     )
     fun findAllNoteActivitiesByUserIdOrderByCreatedAtDesc(
         @Param("userId") userId: Long,
