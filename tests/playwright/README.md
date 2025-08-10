@@ -111,8 +111,8 @@ test.describe('Feature Name', () => {
 
 ### Authentication
 All tests automatically handle login with test credentials:
-- Username: `user1`
-- Password: `password`
+- Username: `testuser`
+- Password: `TestPassword123!`
 
 ### Wait Strategies
 Tests use appropriate waiting strategies:

@@ -4,17 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Nota</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="shortcut icon" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/favicon.svg">
     <meta name="theme-color" content="#3b82f6">
     <link rel="manifest" href="/manifest.json">
-    
+
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
+    <nav class="navbar" aria-label="Primary Navigation">
+        <div class="navbar-brand">Nota</div>
+    </nav>
+    <main id="main-content" tabindex="-1" role="main">
     <div class="container">
         <div class="login-form">
             <div class="login-logo">
@@ -37,7 +41,7 @@
                         <span class="label-icon">👤</span>
                         Username
                     </label>
-                    <input type="text" id="username" th:field="*{username}" required 
+                    <input type="text" id="username" th:field="*{username}" required
                            placeholder="Your username">
                 </div>
 
@@ -46,7 +50,7 @@
                         <span class="label-icon">🔒</span>
                         Password
                     </label>
-                    <input type="password" id="password" th:field="*{password}" required 
+                    <input type="password" id="password" th:field="*{password}" required
                            placeholder="Your password">
                 </div>
 
@@ -64,5 +68,6 @@
             </div>
         </div>
     </div>
+    </main>
 </body>
 </html>
