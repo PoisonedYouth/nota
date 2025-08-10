@@ -3,8 +3,10 @@ package com.poisonedyouth.nota.config
 import com.poisonedyouth.nota.notes.CreateNoteDto
 import com.poisonedyouth.nota.notes.NoteService
 import com.poisonedyouth.nota.user.UserService
+import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Profile
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 
 @Component
@@ -13,6 +15,7 @@ class DataInitializer(
     private val userService: UserService,
     private val noteService: NoteService,
 ) : CommandLineRunner {
+    private val logger = LoggerFactory.getLogger(DataInitializer::class.java)
     override fun run(vararg args: String?) {
         // Create a test user if it doesn't exist (only in test profile)
         val testUser = if (userService.findByUsername("testuser") == null) {
@@ -38,8 +41,11 @@ class DataInitializer(
                 ),
                 testUser.id,
             )
-        } catch (e: Exception) {
-            // Notes might already exist, ignore
+            logger.info("Sample notes created successfully")
+        } catch (e: DataIntegrityViolationException) {
+            logger.debug("Sample notes already exist, skipping creation: ${e.message}")
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Invalid data provided for sample note creation: ${e.message}")
         }
     }
 }
