@@ -67,13 +67,13 @@
                 <!-- Tabbed Content Section -->
                 <div class="note-tabs-container">
                     <div class="note-tabs">
-                        <button class="tab-button active" onclick="switchTab('content')">
+                        <button class="tab-button active" onclick="switchTab('content', this)">
                             📝 Content
                         </button>
-                        <button class="tab-button" onclick="switchTab('attachments')">
+                        <button class="tab-button" onclick="switchTab('attachments', this)">
                             📎 Attachments
                         </button>
-                        <button class="tab-button" onclick="switchTab('activity')">
+                        <button class="tab-button" onclick="switchTab('activity', this)">
                             📊 Activity Log
                         </button>
                     </div>
@@ -100,21 +100,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        function switchTab(tabName) {
-            // Remove active class from all tabs and panels
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-panel').forEach(panel => {
-                panel.classList.remove('active');
-            });
-
-            // Add active class to clicked tab and corresponding panel
-            event.target.classList.add('active');
-            document.getElementById(tabName + '-tab').classList.add('active');
-        }
-    </script>
 </body>
 </html>

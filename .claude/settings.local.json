@@ -37,7 +37,10 @@
       "Bash(true)",
       "Bash(npm test)",
       "Bash(npm run:*)",
-      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*ActivityLog*\")"
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*ActivityLog*\")",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(gh api:*)"
     ],
     "deny": []
   }

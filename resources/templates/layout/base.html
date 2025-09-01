@@ -75,6 +75,94 @@
                 }
             }
         });
+        
+        // Tab switching functionality for note detail pages
+        function switchTab(tabName, clickedButton) {
+            // Remove active class from all tabs and panels
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            // Add active class to clicked tab and corresponding panel
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            } else {
+                // Fallback: find the button by tabName
+                const targetButton = Array.from(document.querySelectorAll('.tab-button'))
+                    .find(btn => btn.textContent.toLowerCase().includes(tabName));
+                if (targetButton) {
+                    targetButton.classList.add('active');
+                }
+            }
+            
+            const targetPanel = document.getElementById(tabName + '-tab');
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+        }
+        
+        // Quill editor initialization for note forms
+        function initializeQuillEditor() {
+            const editorElement = document.getElementById('content-editor');
+            const hiddenInput = document.getElementById('content');
+
+            if (!editorElement || editorElement.classList.contains('ql-container')) {
+                return; // Already initialized or element doesn't exist
+            }
+
+            // Initialize Quill
+            const quill = new Quill('#content-editor', {
+                theme: 'snow',
+                placeholder: 'Enter note content...',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['blockquote', 'code-block'],
+                        ['link'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            // Set initial content if available
+            if (hiddenInput && hiddenInput.value) {
+                quill.root.innerHTML = hiddenInput.value;
+            }
+
+            // Update hidden input when content changes
+            quill.on('text-change', function() {
+                if (hiddenInput) {
+                    hiddenInput.value = quill.root.innerHTML;
+                }
+            });
+
+            // Ensure content is updated before form submission
+            const form = editorElement.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    if (hiddenInput) {
+                        hiddenInput.value = quill.root.innerHTML;
+                    }
+                });
+            }
+        }
+        
+        // Initialize Quill editor when HTMX loads content
+        document.addEventListener('htmx:afterSettle', function(event) {
+            if (event.target.querySelector && event.target.querySelector('#content-editor')) {
+                setTimeout(initializeQuillEditor, 100); // Small delay to ensure DOM is ready
+            }
+        });
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeQuillEditor();
+        });
     </script>
 </body>
 </html>

@@ -106,63 +106,6 @@
                 </button>
             </div>
         </form>
-
-        <script>
-            // Initialize Quill editor when the fragment is loaded
-            document.addEventListener('DOMContentLoaded', function() {
-                initializeQuillEditor();
-            });
-
-            // Also initialize when HTMX loads the fragment
-            document.addEventListener('htmx:afterSettle', function(event) {
-                if (event.target.querySelector('#content-editor')) {
-                    initializeQuillEditor();
-                }
-            });
-
-            function initializeQuillEditor() {
-                const editorElement = document.getElementById('content-editor');
-                const hiddenInput = document.getElementById('content');
-
-                if (!editorElement || editorElement.classList.contains('ql-container')) {
-                    return; // Already initialized
-                }
-
-                // Initialize Quill
-                const quill = new Quill('#content-editor', {
-                    theme: 'snow',
-                    placeholder: 'Enter note content...',
-                    modules: {
-                        toolbar: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['blockquote', 'code-block'],
-                            ['link'],
-                            ['clean']
-                        ]
-                    }
-                });
-
-                // Set initial content if available
-                if (hiddenInput.value) {
-                    quill.root.innerHTML = hiddenInput.value;
-                }
-
-                // Update hidden input when content changes
-                quill.on('text-change', function() {
-                    hiddenInput.value = quill.root.innerHTML;
-                });
-
-                // Ensure content is updated before form submission
-                const form = editorElement.closest('form');
-                if (form) {
-                    form.addEventListener('submit', function() {
-                        hiddenInput.value = quill.root.innerHTML;
-                    });
-                }
-            }
-        </script>
     </div>
 
     <!-- Archive response fragment that removes note card and updates count -->
