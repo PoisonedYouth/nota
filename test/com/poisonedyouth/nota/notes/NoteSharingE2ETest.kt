@@ -35,6 +35,7 @@ class NoteSharingE2ETest
         private val userRepository: UserRepository,
         private val noteRepository: NoteRepository,
         private val noteShareRepository: NoteShareRepository,
+        private val userService: com.poisonedyouth.nota.user.UserService,
     ) {
         private lateinit var ownerUser: User
         private lateinit var sharedUser: User
@@ -44,27 +45,50 @@ class NoteSharingE2ETest
 
         @BeforeEach
         fun setup() {
-            // Create test users with unique usernames to avoid conflicts
+            // Create a second test user using UserService to get proper password hashing
             val timestamp = System.currentTimeMillis()
-            ownerUser =
-                userRepository.save(
-                    User(
-                        username = "noteowner_e2e_$timestamp",
-                        password = "password",
-                        createdAt = LocalDateTime.now(),
-                        updatedAt = LocalDateTime.now(),
-                    ),
-                )
-
-            sharedUser =
-                userRepository.save(
-                    User(
-                        username = "shareduser_e2e_$timestamp",
-                        password = "password",
-                        createdAt = LocalDateTime.now(),
-                        updatedAt = LocalDateTime.now(),
-                    ),
-                )
+            val sharedUsername = "sharetest_$timestamp"
+            val registerDto = com.poisonedyouth.nota.user.RegisterDto(sharedUsername)
+            val registrationResult = userService.registerUser(registerDto)
+            sharedUser = userRepository.findByUsername(sharedUsername)!!
+            
+            // Update the user to not require password change for testing purposes
+            val updatedSharedUser = User(
+                id = sharedUser.id,
+                username = sharedUser.username,
+                password = sharedUser.password,
+                mustChangePassword = false,
+                role = sharedUser.role,
+                createdAt = sharedUser.createdAt,
+                updatedAt = LocalDateTime.now()
+            )
+            sharedUser = userRepository.save(updatedSharedUser)
+            
+            val testPassword = "TestPassword123!"
+            val generatedPassword = registrationResult.initialPassword
+            
+            // Login as the existing test users - first login might not redirect if it's a first-time login
+            ownerSession = MockHttpSession()
+            mockMvc.perform(
+                post("/auth/login")
+                    .param("username", "testuser")
+                    .param("password", testPassword)
+                    .session(ownerSession)
+            ) // Don't expect specific status for now
+            
+            sharedSession = MockHttpSession()
+            mockMvc.perform(
+                post("/auth/login")
+                    .param("username", sharedUsername)
+                    .param("password", generatedPassword)
+                    .session(sharedSession)
+            ) // Don't expect specific status for now
+            
+            
+            
+            
+            // Get the owner user from database
+            ownerUser = userRepository.findByUsername("testuser")!!
 
             // Create test note
             testNote =
@@ -77,29 +101,18 @@ class NoteSharingE2ETest
                         updatedAt = LocalDateTime.now(),
                     ),
                 )
+        }
 
-            // Create sessions for both users
-            ownerSession = MockHttpSession()
-            ownerSession.setAttribute(
-                "currentUser",
-                UserDto(
-                    id = ownerUser.id!!,
-                    username = ownerUser.username,
-                    mustChangePassword = ownerUser.mustChangePassword,
-                    role = UserRole.USER,
-                ),
+        private fun createAuthenticatedSession(user: User): MockHttpSession {
+            val session = MockHttpSession()
+            val userDto = UserDto(
+                id = user.id!!,
+                username = user.username,
+                mustChangePassword = user.mustChangePassword,
+                role = user.role
             )
-
-            sharedSession = MockHttpSession()
-            sharedSession.setAttribute(
-                "currentUser",
-                UserDto(
-                    id = sharedUser.id!!,
-                    username = sharedUser.username,
-                    mustChangePassword = sharedUser.mustChangePassword,
-                    role = UserRole.USER,
-                ),
-            )
+            session.setAttribute("currentUser", userDto)
+            return session
         }
 
         @AfterEach
@@ -109,7 +122,9 @@ class NoteSharingE2ETest
             userRepository.deleteAll()
         }
 
+
         @Test
+        @Transactional
         fun `Complete note sharing workflow`() {
             // Step 1: Owner shares note with another user
             mockMvc
@@ -117,8 +132,8 @@ class NoteSharingE2ETest
                     post("/notes/${testNote.id}/share")
                         .param("username", sharedUser.username)
                         .param("permission", "read")
-                        .session(ownerSession)
-                        .header("HX-Request", "true"),
+                        .header("HX-Request", "true")
+                        .session(createAuthenticatedSession(ownerUser)),
                 ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Note shared successfully!")))
 
@@ -131,7 +146,7 @@ class NoteSharingE2ETest
             mockMvc
                 .perform(
                     get("/notes/shared")
-                        .session(sharedSession),
+                        .session(createAuthenticatedSession(sharedUser)),
                 ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("E2E Test Note")))
                 .andExpect(content().string(containsString("Notes shared with me")))
@@ -140,7 +155,7 @@ class NoteSharingE2ETest
             mockMvc
                 .perform(
                     get("/notes/all")
-                        .session(sharedSession),
+                        .session(createAuthenticatedSession(sharedUser)),
                 ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("E2E Test Note")))
                 .andExpect(content().string(containsString("All accessible notes")))
@@ -149,7 +164,7 @@ class NoteSharingE2ETest
             mockMvc
                 .perform(
                     get("/notes/${testNote.id}")
-                        .session(sharedSession),
+                        .session(createAuthenticatedSession(sharedUser)),
                 ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("E2E Test Note")))
                 .andExpect(content().string(containsString("This note will be shared in E2E test")))
@@ -159,7 +174,7 @@ class NoteSharingE2ETest
                 .perform(
                     get("/notes/modal/${testNote.id}")
                         .param("mode", "share")
-                        .session(ownerSession),
+                        .session(createAuthenticatedSession(ownerUser)),
                 ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Currently shared with:")))
                 .andExpect(content().string(containsString(sharedUser.username)))
@@ -168,8 +183,8 @@ class NoteSharingE2ETest
             mockMvc
                 .perform(
                     delete("/notes/${testNote.id}/share/${sharedUser.id}")
-                        .session(ownerSession)
-                        .header("HX-Request", "true"),
+                        .header("HX-Request", "true")
+                        .session(createAuthenticatedSession(ownerUser)),
                 ).andExpect(status().isOk)
 
             // Verify share was deleted
@@ -180,7 +195,7 @@ class NoteSharingE2ETest
             mockMvc
                 .perform(
                     get("/notes/shared")
-                        .session(sharedSession),
+                        .session(createAuthenticatedSession(sharedUser)),
                 ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("No shared notes found")))
 
@@ -188,13 +203,15 @@ class NoteSharingE2ETest
             mockMvc
                 .perform(
                     get("/notes/${testNote.id}")
-                        .session(sharedSession),
+                        .session(createAuthenticatedSession(sharedUser)),
                 ).andExpect(status().is3xxRedirection)
                 .andExpect(redirectedUrl("/notes"))
         }
 
         @Test
+        @Transactional
         fun `Share note with multiple users`() {
+
             // Create another user
             val timestamp = System.currentTimeMillis()
             val anotherUser =
@@ -213,8 +230,8 @@ class NoteSharingE2ETest
                     post("/notes/${testNote.id}/share")
                         .param("username", sharedUser.username)
                         .param("permission", "read")
-                        .session(ownerSession)
-                        .header("HX-Request", "true"),
+                        .header("HX-Request", "true")
+                        .session(createAuthenticatedSession(ownerUser)),
                 ).andExpect(status().isOk)
 
             // Share with second user
@@ -223,8 +240,8 @@ class NoteSharingE2ETest
                     post("/notes/${testNote.id}/share")
                         .param("username", anotherUser.username)
                         .param("permission", "read")
-                        .session(ownerSession)
-                        .header("HX-Request", "true"),
+                        .header("HX-Request", "true")
+                        .session(createAuthenticatedSession(ownerUser)),
                 ).andExpect(status().isOk)
 
             // Verify both shares exist
@@ -242,8 +259,8 @@ class NoteSharingE2ETest
                     post("/notes/${testNote.id}/share")
                         .param("username", "nonexistentuser")
                         .param("permission", "read")
-                        .session(ownerSession)
-                        .header("HX-Request", "true"),
+                        .header("HX-Request", "true")
+                        .session(createAuthenticatedSession(ownerUser)),
                 ).andExpect(status().isOk)
                 .andExpect(content().string(containsString("Note could not be shared")))
 

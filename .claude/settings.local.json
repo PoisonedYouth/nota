@@ -40,7 +40,13 @@
       "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*ActivityLog*\")",
       "Bash(lsof:*)",
       "Bash(kill:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteSharingE2ETest\")",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteE2ETest\")",
+      "Bash(SPRING_PROFILES_ACTIVE=test timeout 30s ./amper test --include-classes=\"*NoteSharingE2ETest\")",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteSharingE2ETest\" --include-methods=\"*Complete*\" --fail-fast)",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteSharingE2ETest*\" --fail-fast)",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteSharingE2ETest\" --include-methods=\"*Prevent*\")"
     ],
     "deny": []
   }
