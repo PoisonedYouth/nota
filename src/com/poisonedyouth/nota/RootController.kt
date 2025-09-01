@@ -1,6 +1,6 @@
 package com.poisonedyouth.nota
 
-import com.poisonedyouth.nota.user.UserDto
+import com.poisonedyouth.nota.security.SecurityUtils
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping
 class RootController {
     @GetMapping("/")
     fun root(session: HttpSession): String {
-        val currentUser = session.getAttribute("currentUser") as? UserDto
+        val currentUser = SecurityUtils.currentUser(session)
         return if (currentUser != null) {
             "redirect:/notes"
         } else {

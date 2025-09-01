@@ -1,5 +1,6 @@
 package com.poisonedyouth.nota.admin
 
+import com.poisonedyouth.nota.security.SecurityUtils
 import com.poisonedyouth.nota.user.UserDto
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
@@ -19,7 +20,7 @@ class AdminController(
      * Check if current user is admin and redirect to login if not authenticated
      */
     private fun checkAdminAccess(session: HttpSession): UserDto? {
-        val currentUser = session.getAttribute("currentUser") as? UserDto
+        val currentUser = SecurityUtils.currentUser(session)
         return if (currentUser != null && adminService.isAdmin(currentUser.username)) {
             currentUser
         } else {

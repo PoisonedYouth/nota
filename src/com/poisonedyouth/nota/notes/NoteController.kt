@@ -31,7 +31,7 @@ class NoteController(
     private val activityEventPublisher: ActivityEventPublisher,
     private val noteAttachmentService: NoteAttachmentService,
 ) {
-    private fun getCurrentUser(session: HttpSession): UserDto? = session.getAttribute("currentUser") as? UserDto
+    private fun getCurrentUser(session: HttpSession): UserDto? = com.poisonedyouth.nota.security.SecurityUtils.currentUser(session)
 
     private fun requireAuthentication(session: HttpSession): UserDto? = getCurrentUser(session)
 

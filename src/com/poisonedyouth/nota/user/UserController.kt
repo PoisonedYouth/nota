@@ -1,6 +1,7 @@
 package com.poisonedyouth.nota.user
 
 import com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher
+import com.poisonedyouth.nota.security.SecurityUtils
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -82,7 +83,7 @@ class UserController(
         session: HttpSession,
         model: Model,
     ): String {
-        val currentUser = session.getAttribute("currentUser") as? UserDto
+        val currentUser = SecurityUtils.currentUser(session)
         return if (currentUser != null) {
             model.addAttribute("changePasswordDto", ChangePasswordDto("", "", ""))
             "auth/change-password"
@@ -97,7 +98,7 @@ class UserController(
         session: HttpSession,
         model: Model,
     ): String {
-        val currentUser = session.getAttribute("currentUser") as? UserDto
+        val currentUser = SecurityUtils.currentUser(session)
         return if (currentUser != null) {
             try {
                 val updatedUser = userService.changePassword(currentUser.username, changePasswordDto)
