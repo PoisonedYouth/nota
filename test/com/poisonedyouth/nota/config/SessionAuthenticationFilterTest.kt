@@ -20,10 +20,12 @@ class SessionAuthenticationFilterTest {
     private lateinit var response: HttpServletResponse
     private lateinit var filterChain: FilterChain
     private lateinit var session: HttpSession
+    private lateinit var userDetailsService: com.poisonedyouth.nota.user.NotaUserDetailsService
 
     @BeforeEach
     fun setup() {
-        sessionAuthenticationFilter = SessionAuthenticationFilter()
+        userDetailsService = mockk(relaxed = true)
+        sessionAuthenticationFilter = SessionAuthenticationFilter(userDetailsService)
         request = mockk(relaxed = true)
         response = mockk(relaxed = true)
         filterChain = mockk(relaxed = true)
@@ -84,6 +86,16 @@ class SessionAuthenticationFilterTest {
         every { request.requestURI } returns "/notes"
         every { request.getSession(false) } returns session
         every { session.getAttribute("currentUser") } returns userDto
+
+        val userPrincipal = com.poisonedyouth.nota.user.UserPrincipal(
+            id = 1L,
+            usernameValue = "testuser",
+            passwordHash = "hash",
+            role = UserRole.USER,
+            enabledValue = true,
+            mustChangePassword = false,
+        )
+        every { userDetailsService.loadUserByUsername("testuser") } returns userPrincipal
 
         // When
         sessionAuthenticationFilter.doFilterInternal(request, response, filterChain)
@@ -150,5 +162,63 @@ class SessionAuthenticationFilterTest {
 
         // Then
         SecurityContextHolder.getContext().authentication shouldBe null
+    }
+
+    @Test
+    fun `should not authenticate when user is disabled`() {
+        // Given
+        val userDto =
+            com.poisonedyouth.nota.user.UserDto(
+                id = 2L,
+                username = "disabled_user",
+                mustChangePassword = false,
+                role = com.poisonedyouth.nota.user.UserRole.USER,
+            )
+
+        every { request.requestURI } returns "/notes"
+        every { request.getSession(false) } returns session
+        every { session.getAttribute("currentUser") } returns userDto
+
+        val disabledPrincipal = com.poisonedyouth.nota.user.UserPrincipal(
+            id = 2L,
+            usernameValue = "disabled_user",
+            passwordHash = "hash",
+            role = com.poisonedyouth.nota.user.UserRole.USER,
+            enabledValue = false,
+            mustChangePassword = false,
+        )
+        every { userDetailsService.loadUserByUsername("disabled_user") } returns disabledPrincipal
+
+        // When
+        sessionAuthenticationFilter.doFilterInternal(request, response, filterChain)
+
+        // Then
+        org.springframework.security.core.context.SecurityContextHolder.getContext().authentication shouldBe null
+    }
+
+    @Test
+    fun `should not authenticate when user no longer exists`() {
+        // Given
+        val userDto =
+            com.poisonedyouth.nota.user.UserDto(
+                id = 3L,
+                username = "ghost",
+                mustChangePassword = false,
+                role = com.poisonedyouth.nota.user.UserRole.USER,
+            )
+
+        every { request.requestURI } returns "/notes"
+        every { request.getSession(false) } returns session
+        every { session.getAttribute("currentUser") } returns userDto
+
+        every {
+            userDetailsService.loadUserByUsername("ghost")
+        } throws org.springframework.security.core.userdetails.UsernameNotFoundException("not found")
+
+        // When
+        sessionAuthenticationFilter.doFilterInternal(request, response, filterChain)
+
+        // Then
+        org.springframework.security.core.context.SecurityContextHolder.getContext().authentication shouldBe null
     }
 }

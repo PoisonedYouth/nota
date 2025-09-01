@@ -11,8 +11,9 @@ done
 # Check if ktlint is installed
 if ! command -v ktlint &> /dev/null; then
     echo "ktlint is not installed. Installing..."
+    mkdir -p "$PWD/tools"
     cd "$PWD/tools"
-    curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.6.0/ktlint
+    curl -sSLo ktlint https://github.com/pinterest/ktlint/releases/latest/download/ktlint
     chmod +x ktlint
     sudo mv ktlint /usr/local/bin/
     cd -

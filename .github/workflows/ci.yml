@@ -89,7 +89,7 @@ jobs:
       run: |
         if [ ! -f /usr/local/bin/ktlint ]; then
           echo "Installing ktlint..."
-          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.6.0/ktlint
+          curl -sSLo ktlint https://github.com/pinterest/ktlint/releases/latest/download/ktlint
           chmod +x ktlint
           sudo mv ktlint /usr/local/bin/
           echo "ktlint installed successfully"
@@ -115,9 +115,19 @@ jobs:
       run: |
         echo "Running ktlint style checks..."
         mkdir -p build/reports
-        # Use auto-format first to align with .editorconfig, then check
-        ktlint --format "src/**/*.kt" "test/**/*.kt" || true
-        ktlint --reporter=checkstyle,output=build/reports/ktlint-checkstyle.xml --color --reporter=plain "src/**/*.kt" "test/**/*.kt"
+        # Collect Kotlin files tracked by git to avoid shell glob issues on CI
+        FILES=$(git ls-files '*.kt' '*.kts')
+        if [ -z "$FILES" ]; then
+          echo "No Kotlin files found. Skipping ktlint."
+          # Create empty report for artifact consistency
+          echo '<?xml version="1.0" encoding="utf-8"?>' > build/reports/ktlint-checkstyle.xml
+          echo '<checkstyle version="8.0">' >> build/reports/ktlint-checkstyle.xml
+          echo '</checkstyle>' >> build/reports/ktlint-checkstyle.xml
+          exit 0
+        fi
+        # Auto-format first to align with .editorconfig, then run strict check
+        ktlint --format $FILES || true
+        ktlint --reporter=checkstyle,output=build/reports/ktlint-checkstyle.xml --color --reporter=plain $FILES
 
     - name: Run detekt
       run: |
@@ -386,7 +396,7 @@ jobs:
         ./amper run > app.log 2>&1 &
         APP_PID=$!
         echo $APP_PID > app.pid
-        
+
         # Wait for application to start
         echo "Waiting for application to start..."
         for i in {1..120}; do
