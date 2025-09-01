@@ -2,6 +2,7 @@ package com.poisonedyouth.nota.user
 
 import com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher
 import com.poisonedyouth.nota.security.SecurityUtils
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -47,13 +48,17 @@ class UserController(
     @PostMapping("/login")
     fun login(
         @ModelAttribute loginDto: LoginDto,
-        session: HttpSession,
+        request: HttpServletRequest,
         model: Model,
     ): String {
         val authResult = userService.authenticate(loginDto)
         return when (authResult) {
             is AuthenticationResult.Success -> {
                 val user = authResult.user
+
+                // Regenerate session id to prevent session fixation and store current user
+                val session = request.getSession(true)
+                request.changeSessionId()
                 session.setAttribute("currentUser", user)
 
                 // Publish login event
@@ -95,13 +100,17 @@ class UserController(
     @PostMapping("/change-password")
     fun changePassword(
         @ModelAttribute changePasswordDto: ChangePasswordDto,
-        session: HttpSession,
+        request: HttpServletRequest,
         model: Model,
     ): String {
-        val currentUser = SecurityUtils.currentUser(session)
+        val currentUser = SecurityUtils.currentUser(request.session)
         return if (currentUser != null) {
             try {
                 val updatedUser = userService.changePassword(currentUser.username, changePasswordDto)
+
+                // Regenerate session id after credential change and update current user
+                val session = request.getSession(true)
+                request.changeSessionId()
                 session.setAttribute("currentUser", updatedUser)
                 "redirect:/notes"
             } catch (e: IllegalArgumentException) {

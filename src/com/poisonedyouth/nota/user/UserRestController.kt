@@ -1,6 +1,7 @@
 package com.poisonedyouth.nota.user
 
 import com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -32,11 +33,17 @@ class UserRestController(
     @PostMapping("/login")
     fun login(
         @RequestBody loginDto: LoginDto,
+        request: HttpServletRequest,
     ): ResponseEntity<*> {
         val authResult = userService.authenticate(loginDto)
         return when (authResult) {
             is AuthenticationResult.Success -> {
                 val user = authResult.user
+
+                // Regenerate session id to prevent session fixation and establish session
+                val session = request.getSession(true)
+                request.changeSessionId()
+                session.setAttribute("currentUser", user)
 
                 // Publish login event
                 activityEventPublisher.publishLoginEvent(user.id)
@@ -64,13 +71,15 @@ class UserRestController(
     @PostMapping("/change-password")
     fun changePassword(
         @RequestBody changePasswordDto: ChangePasswordDto,
-        session: HttpSession,
+        request: HttpServletRequest,
     ): ResponseEntity<*> {
-        val currentUser = getCurrentUser(session)
+        val currentUser = getCurrentUser(request.session)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("error" to "Authentication required"))
         return try {
             val updated = userService.changePassword(currentUser.username, changePasswordDto)
-            // Replace session user
+            // Regenerate session id after credential change and replace session user
+            val session = request.getSession(true)
+            request.changeSessionId()
             session.setAttribute("currentUser", updated)
             ResponseEntity.ok(mapOf("user" to updated))
         } catch (e: IllegalArgumentException) {

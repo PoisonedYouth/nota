@@ -37,7 +37,10 @@ class SecurityConfig(
             }.csrf { csrf ->
                 csrf.disable() // Disable CSRF for simplicity (consider enabling in production)
             }.sessionManagement { session ->
-                session.maximumSessions(1).maxSessionsPreventsLogin(false)
+                session
+                    .maximumSessions(1).maxSessionsPreventsLogin(false)
+                // Defensive: if future Spring-authenticated logins are used, migrate session on authentication
+                session.sessionFixation { it.migrateSession() }
             }
 
         return http.build()
