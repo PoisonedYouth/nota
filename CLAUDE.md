@@ -562,7 +562,7 @@ Where:
 3. **Start with lowercase letter** in the description
 4. **Don't end the subject line with a period**
 5. **Include the NOTA-x prefix** for all commits to maintain traceability
-6. **Use the body to explain what and why** rather than how
+6. **Use the body to explain why the change is necessary (context, motivation, constraints, trade-offs)** — not what changed. The "what" should be evident from the subject and the diff. Optionally include rejected alternatives or risks if helpful.
 7. **Reference issues/PRs** in the footer when applicable
 
 ### Scope Examples
