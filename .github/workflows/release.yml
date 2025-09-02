@@ -1,206 +1,73 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"   # semantic version tags like 0.0.2
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version (e.g., v1.0.0)'
-        required: true
-        type: string
 
 env:
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'corretto'
 
 jobs:
-  release:
-    name: Build and Release
+  build-and-release:
+    name: Build and Create Release
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Set up JDK ${{ env.JAVA_VERSION }}
-      uses: actions/setup-java@v4
-      with:
-        java-version: ${{ env.JAVA_VERSION }}
-        distribution: ${{ env.JAVA_DISTRIBUTION }}
-        
-    - name: Cache Amper dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.m2
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-          .amper/cache
-        key: ${{ runner.os }}-amper-${{ hashFiles('**/module.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-amper-
-    
-    - name: Make Amper executable
-      run: chmod +x ./amper
-      
-    - name: Set version
-      run: |
-        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-          VERSION="${{ github.event.inputs.version }}"
-        else
-          VERSION="${{ github.event.release.tag_name }}"
-        fi
-        echo "RELEASE_VERSION=${VERSION}" >> $GITHUB_ENV
-        echo "Building version: ${VERSION}"
-        
-    - name: Run full build and test pipeline
-      run: |
-        echo "Running complete build pipeline for release..."
-        make all
-        
-    - name: Build release JAR
-      run: |
-        ./amper build
-        
-        # Find the built JAR file
-        JAR_PATH=$(find build -name "*.jar" -type f | grep -v sources | head -1)
-        if [ -z "$JAR_PATH" ]; then
-          echo "No JAR file found in build directory"
-          ls -la build/
-          exit 1
-        fi
-        
-        # Create release JAR with version
-        cp "$JAR_PATH" "nota-${{ env.RELEASE_VERSION }}.jar"
-        
-        echo "Release JAR created: nota-${{ env.RELEASE_VERSION }}.jar"
-        ls -la nota-*.jar
-        
-    - name: Generate release notes
-      run: |
-        echo "# Nota ${{ env.RELEASE_VERSION }}" > release-notes.md
-        echo "" >> release-notes.md
-        echo "## 📦 Release Information" >> release-notes.md
-        echo "- **Version**: ${{ env.RELEASE_VERSION }}" >> release-notes.md
-        echo "- **Build Date**: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> release-notes.md
-        echo "- **Java Version**: ${{ env.JAVA_VERSION }}" >> release-notes.md
-        echo "- **Commit**: ${{ github.sha }}" >> release-notes.md
-        echo "" >> release-notes.md
-        echo "## 🚀 Features & Improvements" >> release-notes.md
-        echo "- Enhanced password complexity validation" >> release-notes.md
-        echo "- Comprehensive test coverage" >> release-notes.md
-        echo "- Static code analysis integration" >> release-notes.md
-        echo "- Automated CI/CD pipeline" >> release-notes.md
-        echo "" >> release-notes.md
-        echo "## 🔧 Installation" >> release-notes.md
-        echo '```bash' >> release-notes.md
-        echo "# Download the JAR file" >> release-notes.md
-        echo "wget https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/nota-${{ env.RELEASE_VERSION }}.jar" >> release-notes.md
-        echo "" >> release-notes.md
-        echo "# Run the application" >> release-notes.md
-        echo "java -jar nota-${{ env.RELEASE_VERSION }}.jar" >> release-notes.md
-        echo '```' >> release-notes.md
-        echo "" >> release-notes.md
-        echo "## 🛡️ Security" >> release-notes.md
-        echo "This release includes enhanced security features:" >> release-notes.md
-        echo "- Password complexity validation (minimum 12 characters)" >> release-notes.md
-        echo "- Required character types (uppercase, lowercase, digits, special characters)" >> release-notes.md
-        echo "- Secure password generation with cryptographic randomness" >> release-notes.md
-        
-    - name: Verify JAR functionality
-      run: |
-        echo "Verifying JAR functionality..."
-        JAR_FILE="nota-${{ env.RELEASE_VERSION }}.jar"
-        
-        # Basic JAR validation
-        if ! jar -tf "$JAR_FILE" > /dev/null; then
-          echo "JAR file is corrupted or invalid"
-          exit 1
-        fi
-        
-        # Check for main class
-        if ! jar -tf "$JAR_FILE" | grep -q "com/poisonedyouth/nota/ApplicationKt.class"; then
-          echo "Main application class not found in JAR"
-          exit 1
-        fi
-        
-        # Check JAR size (should be reasonable for a Spring Boot app)
-        JAR_SIZE=$(stat -f%z "$JAR_FILE" 2>/dev/null || stat -c%s "$JAR_FILE")
-        if [ "$JAR_SIZE" -lt 10000000 ]; then  # Less than 10MB might indicate issues
-          echo "Warning: JAR file seems unusually small ($JAR_SIZE bytes)"
-        fi
-        
-        echo "JAR verification completed successfully"
-        echo "JAR size: $(du -h "$JAR_FILE" | cut -f1)"
-        
-    - name: Create GitHub Release (if workflow_dispatch)
-      if: github.event_name == 'workflow_dispatch'
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ env.RELEASE_VERSION }}
-        name: "Nota ${{ env.RELEASE_VERSION }}"
-        body_path: release-notes.md
-        files: |
-          nota-${{ env.RELEASE_VERSION }}.jar
-        draft: false
-        prerelease: false
-        generate_release_notes: true
-        
-    - name: Upload release assets (if release event)
-      if: github.event_name == 'release'
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          nota-${{ env.RELEASE_VERSION }}.jar
-        
-    - name: Create Docker image preparation
-      run: |
-        echo "Preparing Docker context..."
-        cat > Dockerfile << EOF
-        FROM amazoncorretto:21-alpine
-        
-        # Create app user
-        RUN addgroup -g 1001 nota && adduser -u 1001 -G nota -D nota
-        
-        # Set working directory
-        WORKDIR /app
-        
-        # Copy JAR file
-        COPY nota-${{ env.RELEASE_VERSION }}.jar app.jar
-        
-        # Change ownership
-        RUN chown -R nota:nota /app
-        
-        # Switch to app user
-        USER nota
-        
-        # Expose port
-        EXPOSE 8080
-        
-        # Health check
-        HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
-          CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-        
-        # Run application
-        ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
-        EOF
-        
-        echo "Dockerfile created for containerization"
-        
-    - name: Build summary
-      run: |
-        echo "## 🎉 Release ${{ env.RELEASE_VERSION }} Completed!" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📋 Release Details" >> $GITHUB_STEP_SUMMARY
-        echo "- **Version**: ${{ env.RELEASE_VERSION }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **JAR Size**: $(du -h nota-${{ env.RELEASE_VERSION }}.jar | cut -f1)" >> $GITHUB_STEP_SUMMARY
-        echo "- **Build Time**: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
-        echo "1. Download the JAR from the release page" >> $GITHUB_STEP_SUMMARY
-        echo "2. Run with: \`java -jar nota-${{ env.RELEASE_VERSION }}.jar\`" >> $GITHUB_STEP_SUMMARY
-        echo "3. Access the application at http://localhost:8080" >> $GITHUB_STEP_SUMMARY
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - name: Cache Amper dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            .amper/cache
+          key: ${{ runner.os }}-amper-${{ hashFiles('**/module.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-amper-
+
+      - name: Make Amper executable
+        run: chmod +x ./amper
+
+      - name: Build and package application
+        run: ./amper package
+
+      - name: Locate executable JAR and prepare assets
+        id: jar
+        run: |
+          EXECUTABLE_JAR_PATH=$(find build -name "*-executable.jar" -type f | head -1)
+          if [ -z "$EXECUTABLE_JAR_PATH" ]; then
+            echo "No executable JAR file found in build directory"
+            ls -la build/ || true
+            exit 1
+          fi
+          TAG=${GITHUB_REF##*/}
+          BASENAME="nota-${TAG}.jar"
+          cp "$EXECUTABLE_JAR_PATH" "$BASENAME"
+          echo "jar_path=$BASENAME" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            ${{ steps.jar.outputs.jar_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
