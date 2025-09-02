@@ -105,11 +105,13 @@ class ArchitectureTest {
         Konsist
             .scopeFromProject()
             .classes()
-            .withName { it.contains("Config") || it.contains("Security") }
+            .withName { (it.contains("Config") || it.contains("Security")) && !it.endsWith("IT") && !it.endsWith("Test") }
             .assertTrue { configClass ->
-                // Config classes should not contain repository references
+                // Config classes in production code should not contain repository references
                 !configClass.text.contains("Repository") ||
-                    configClass.text.contains("@Repository") // Allow annotation usage
+                    configClass.text.contains("@Repository") ||
+                    // Allow Spring Security's CookieCsrfTokenRepository, which is not a data repository
+                    configClass.text.contains("CookieCsrfTokenRepository")
             }
     }
 

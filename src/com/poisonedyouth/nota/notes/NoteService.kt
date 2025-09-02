@@ -22,75 +22,11 @@ class NoteService(
     }
 
     private fun sanitizeHtmlContent(content: String): String {
-        val sanitized = removeDangerousElements(content)
-        return filterAllowedTags(sanitized).trim()
-    }
-
-    private fun getAllowedTags(): Set<String> =
-        setOf(
-            "p",
-            "br",
-            "strong",
-            "b",
-            "em",
-            "i",
-            "u",
-            "s",
-            "strike",
-            "h1",
-            "h2",
-            "h3",
-            "h4",
-            "h5",
-            "h6",
-            "ul",
-            "ol",
-            "li",
-            "blockquote",
-            "code",
-            "pre",
-            "a",
-        )
-
-    private fun removeDangerousElements(content: String): String =
-        content
-            .replace(Regex("<script[^>]*>.*?</script>", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("<iframe[^>]*>.*?</iframe>", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("<object[^>]*>.*?</object>", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("<embed[^>]*>.*?</embed>", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("<form[^>]*>.*?</form>", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("javascript:", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("on\\w+\\s*=", RegexOption.IGNORE_CASE), "")
-
-    private fun filterAllowedTags(content: String): String {
-        val allowedTags = getAllowedTags()
-        return content.replace(Regex("<(/?)([a-zA-Z][a-zA-Z0-9]*)[^>]*>")) { matchResult ->
-            val isClosing = matchResult.groupValues[1].isNotEmpty()
-            val tagName = matchResult.groupValues[2].lowercase()
-
-            if (allowedTags.contains(tagName)) {
-                if (tagName == "a" && !isClosing) {
-                    sanitizeAnchorTag(matchResult.value)
-                } else {
-                    "<${if (isClosing) "/" else ""}$tagName>"
-                }
-            } else {
-                ""
-            }
-        }
-    }
-
-    private fun sanitizeAnchorTag(anchorTagValue: String): String {
-        val href =
-            Regex("href\\s*=\\s*[\"']([^\"']*)[\"']", RegexOption.IGNORE_CASE)
-                .find(anchorTagValue)
-                ?.groupValues
-                ?.get(1) ?: ""
-        return if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("mailto:")) {
-            "<a href=\"$href\">"
-        } else {
-            "<a>"
-        }
+        val allowlist = org.owasp.html.Sanitizers.BLOCKS
+            .and(org.owasp.html.Sanitizers.FORMATTING)
+            .and(org.owasp.html.Sanitizers.LINKS)
+        val sanitized = allowlist.sanitize(content)
+        return sanitized.trim()
     }
 
     fun createNote(
