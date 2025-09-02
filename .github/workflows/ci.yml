@@ -388,51 +388,12 @@ jobs:
     - name: Make Amper executable
       run: chmod +x ./amper
 
-    - name: Start application in background
+    - name: Run Playwright UI tests
       env:
         SPRING_PROFILES_ACTIVE: test
       run: |
-        echo "Starting application for UI testing..."
-        ./amper run > app.log 2>&1 &
-        APP_PID=$!
-        echo $APP_PID > app.pid
-
-        # Wait for application to start
-        echo "Waiting for application to start..."
-        for i in {1..120}; do
-          if curl -f http://localhost:8080/auth/login > /dev/null 2>&1; then
-            echo "Application started successfully after $i seconds"
-            break
-          fi
-          if [ $i -eq 120 ]; then
-            echo "Application failed to start within 120 seconds"
-            echo "Application logs:"
-            cat app.log
-            echo "Process status:"
-            ps aux | grep amper || true
-            exit 1
-          fi
-          # Show progress every 10 seconds
-          if [ $((i % 10)) -eq 0 ]; then
-            echo "Still waiting... (${i}s elapsed)"
-            tail -5 app.log 2>/dev/null || true
-          fi
-          sleep 1
-        done
-
-    - name: Run Playwright UI tests
-      run: |
-        echo "Running Playwright UI tests..."
+        echo "Running Playwright UI tests (server managed by Playwright webServer)..."
         npx playwright test --reporter=list,html
-
-    - name: Stop application
-      if: always()
-      run: |
-        if [ -f app.pid ]; then
-          APP_PID=$(cat app.pid)
-          kill $APP_PID || true
-          rm app.pid
-        fi
 
     - name: Upload Playwright report
       uses: actions/upload-artifact@v4
@@ -444,13 +405,6 @@ jobs:
           test-results/
         retention-days: 30
 
-    - name: Upload application logs
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: app-logs-ui-tests
-        path: app.log
-        retention-days: 7
 
   report:
     name: Generate Report
