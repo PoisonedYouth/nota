@@ -10,7 +10,7 @@
                th:text="${note?.title}"
                class="note-title-link"></a>
         </h3>
-        
+
         <!-- Note metadata -->
         <div class="note-meta">
             <div class="note-meta-info">
@@ -19,7 +19,7 @@
                 <span class="note-owner" th:text="|by ${note?.user?.username}|"></span>
             </div>
         </div>
-        
+
         <!-- Note actions - separate from meta for better layout -->
         <div th:if="${!note?.archived}" class="note-actions">
             <button class="btn btn-secondary btn-sm"
@@ -133,10 +133,11 @@
                   hx-swap="outerHTML"
                   enctype="multipart/form-data"
                   class="upload-form">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="upload-group">
-                    <input type="file" 
-                           id="attachment-file" 
-                           name="file" 
+                    <input type="file"
+                           id="attachment-file"
+                           name="file"
                            class="file-input"
                            onchange="validateFileSize(this)"
                            required>
@@ -193,7 +194,7 @@
     <!-- Note Activities Section -->
     <div th:fragment="note-activities-section" class="note-activities-section">
         <h4 class="section-title">Recent Note Activity</h4>
-        
+
         <div th:if="${noteActivities != null and not #lists.isEmpty(noteActivities)}" class="note-activities-list">
             <div th:each="activity : ${noteActivities}" class="note-activity-item">
                 <div class="activity-icon">
@@ -224,7 +225,7 @@
         function validateFileSize(input) {
             const maxSizeInBytes = 25 * 1024 * 1024; // 25MB
             const file = input.files[0];
-            
+
             if (file && file.size > maxSizeInBytes) {
                 alert('File too large! Maximum file size is 25MB.');
                 input.value = ''; // Clear the input

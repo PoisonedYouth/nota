@@ -51,6 +51,7 @@
                       hx-post th:hx-post="@{/notes/{id}/share(id=${note.id})}"
                       hx-target="#unified-note-modal"
                       hx-swap="outerHTML">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <div class="form-group">
                         <label for="username">Share with username:</label>
                         <input type="text"

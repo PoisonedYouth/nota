@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Nota</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="shortcut icon" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/favicon.svg">
     <meta name="theme-color" content="#3b82f6">
     <link rel="manifest" href="/manifest.json">
-    
+
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
@@ -24,6 +24,7 @@
             </div>
 
             <form th:action="@{/auth/register}" method="post" th:object="${registerDto}">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="form-group">
                     <label for="username">Username:</label>
                     <input type="text" id="username" th:field="*{username}" required>

@@ -3,7 +3,6 @@ package com.poisonedyouth.nota.notes
 import com.poisonedyouth.nota.user.User
 import com.poisonedyouth.nota.user.UserDto
 import com.poisonedyouth.nota.user.UserRepository
-import com.poisonedyouth.nota.user.UserRole
 import io.kotest.matchers.shouldBe
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.AfterEach
@@ -51,7 +50,7 @@ class NoteSharingE2ETest
             val registerDto = com.poisonedyouth.nota.user.RegisterDto(sharedUsername)
             val registrationResult = userService.registerUser(registerDto)
             sharedUser = userRepository.findByUsername(sharedUsername)!!
-            
+
             // Update the user to not require password change for testing purposes
             val updatedSharedUser = User(
                 id = sharedUser.id,
@@ -60,33 +59,30 @@ class NoteSharingE2ETest
                 mustChangePassword = false,
                 role = sharedUser.role,
                 createdAt = sharedUser.createdAt,
-                updatedAt = LocalDateTime.now()
+                updatedAt = LocalDateTime.now(),
             )
             sharedUser = userRepository.save(updatedSharedUser)
-            
+
             val testPassword = "TestPassword123!"
             val generatedPassword = registrationResult.initialPassword
-            
+
             // Login as the existing test users - first login might not redirect if it's a first-time login
             ownerSession = MockHttpSession()
             mockMvc.perform(
                 post("/auth/login")
                     .param("username", "testuser")
                     .param("password", testPassword)
-                    .session(ownerSession)
+                    .session(ownerSession),
             ) // Don't expect specific status for now
-            
+
             sharedSession = MockHttpSession()
             mockMvc.perform(
                 post("/auth/login")
                     .param("username", sharedUsername)
                     .param("password", generatedPassword)
-                    .session(sharedSession)
+                    .session(sharedSession),
             ) // Don't expect specific status for now
-            
-            
-            
-            
+
             // Get the owner user from database
             ownerUser = userRepository.findByUsername("testuser")!!
 
@@ -109,7 +105,7 @@ class NoteSharingE2ETest
                 id = user.id!!,
                 username = user.username,
                 mustChangePassword = user.mustChangePassword,
-                role = user.role
+                role = user.role,
             )
             session.setAttribute("currentUser", userDto)
             return session
@@ -121,7 +117,6 @@ class NoteSharingE2ETest
             noteRepository.deleteAll()
             userRepository.deleteAll()
         }
-
 
         @Test
         @Transactional
@@ -211,7 +206,6 @@ class NoteSharingE2ETest
         @Test
         @Transactional
         fun `Share note with multiple users`() {
-
             // Create another user
             val timestamp = System.currentTimeMillis()
             val anotherUser =

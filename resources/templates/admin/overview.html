@@ -81,11 +81,13 @@
                                 <td>
                                     <div class="action-buttons">
                                         <form th:if="${user.enabled}" th:action="@{/admin/users/{id}/disable(id=${user.id})}" method="post" style="display: inline;">
+                                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                             <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to disable this user?')">
                                                 Disable
                                             </button>
                                         </form>
                                         <form th:if="${!user.enabled}" th:action="@{/admin/users/{id}/enable(id=${user.id})}" method="post" style="display: inline;">
+                                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                             <button type="submit" class="btn btn-sm btn-success">
                                                 Enable
                                             </button>

@@ -19,7 +19,7 @@
 - Execute all tests before finishing a task that changes code.
 - Do not commit changes before running all tests and static code analysis.
 - Check that tests cover new functionality.
-- Use Conventional Commits for all commit messages. Include the project issue identifier in square brackets at the beginning, e.g., [NOTA-123] type(scope)!: short description. Format: type(scope)!: short description. Common types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert. Use imperative present tense, no trailing period; reference issues when relevant; include BREAKING CHANGE footer when applicable. In the commit body, focus on why the change is necessary (context, motivation, trade-offs) rather than what changed—the "what" should be clear from the subject and the diff. Example: explain the underlying issue, constraints, and alternative approaches considered.
+- Use Conventional Commits for all commit messages. Include the project issue identifier in square brackets at the beginning (the number should be increasing), e.g., [NOTA-123] type(scope)!: short description. Format: type(scope)!: short description. Common types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert. Use imperative present tense, no trailing period; reference issues when relevant; include BREAKING CHANGE footer when applicable. In the commit body, focus on why the change is necessary (context, motivation, trade-offs) rather than what changed—the "what" should be clear from the subject and the diff. Example: explain the underlying issue, constraints, and alternative approaches considered.
 
 ## Local Quality and Tooling
 - Use the Makefile targets to keep commands consistent:

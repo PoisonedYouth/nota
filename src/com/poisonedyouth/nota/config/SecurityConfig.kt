@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.util.matcher.RequestMatcher
 
 @Configuration
 @EnableWebSecurity
@@ -29,14 +31,27 @@ class SecurityConfig(
                     .permitAll() // Allow actuator endpoints
                     .anyRequest()
                     .authenticated()
-            }.addFilterBefore(sessionAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            }
+            .addFilterBefore(sessionAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .formLogin { form ->
                 form.disable() // Disable Spring Security's default login form
-            }.httpBasic { basic ->
+            }
+            .httpBasic { basic ->
                 basic.disable() // Disable HTTP Basic authentication
-            }.csrf { csrf ->
-                csrf.disable() // Disable CSRF for simplicity (consider enabling in production)
-            }.sessionManagement { session ->
+            }
+            .csrf { csrf ->
+                val htmxRequestMatcher = RequestMatcher { request ->
+                    val header = request.getHeader("HX-Request")
+                    header != null && header.equals("true", ignoreCase = true)
+                }
+                csrf
+                    .ignoringRequestMatchers(
+                        AntPathRequestMatcher("/auth/**"),
+                        AntPathRequestMatcher("/api/auth/**"),
+                        htmxRequestMatcher,
+                    )
+            }
+            .sessionManagement { session ->
                 session
                     .maximumSessions(1).maxSessionsPreventsLogin(false)
                 // Defensive: if future Spring-authenticated logins are used, migrate session on authentication

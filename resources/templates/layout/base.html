@@ -12,6 +12,10 @@
     <meta name="theme-color" content="#3b82f6">
     <link rel="manifest" href="/manifest.json">
 
+    <!-- CSRF Meta (populated by Spring Security) -->
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}" />
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,6 +52,7 @@
                         <span class="user-role" th:text="${currentUser.role.name()}">Role</span>
                     </div>
                     <form th:action="@{/auth/logout}" method="post" class="logout-form">
+                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn btn-secondary">
                             <span>🚪</span> Logout
                         </button>
@@ -65,6 +70,29 @@
     <div id="modal-container"></div>
 
     <script>
+        // Utility to read cookies
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // Configure HTMX to send CSRF header from cookie (CookieCsrfTokenRepository)
+        document.addEventListener('htmx:configRequest', function (event) {
+            const token = getCookie('XSRF-TOKEN');
+            // Default Spring header name when using CookieCsrfTokenRepository
+            if (token) {
+                event.detail.headers['X-XSRF-TOKEN'] = token;
+            }
+            // Also honor meta header name if present
+            const metaHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+            const metaToken = document.querySelector('meta[name="_csrf"]')?.content;
+            if (metaHeader && metaToken) {
+                event.detail.headers[metaHeader] = metaToken;
+            }
+        });
+
         // Handle modal cancel buttons with event delegation
         document.addEventListener('click', function(event) {
             if (event.target.classList.contains('cancel-modal-btn')) {
@@ -75,7 +103,7 @@
                 }
             }
         });
-        
+
         // Tab switching functionality for note detail pages
         function switchTab(tabName, clickedButton) {
             // Remove active class from all tabs and panels
@@ -97,13 +125,13 @@
                     targetButton.classList.add('active');
                 }
             }
-            
+
             const targetPanel = document.getElementById(tabName + '-tab');
             if (targetPanel) {
                 targetPanel.classList.add('active');
             }
         }
-        
+
         // Quill editor initialization for note forms
         function initializeQuillEditor() {
             const editorElement = document.getElementById('content-editor');
@@ -151,14 +179,14 @@
                 });
             }
         }
-        
+
         // Initialize Quill editor when HTMX loads content
         document.addEventListener('htmx:afterSettle', function(event) {
             if (event.target.querySelector && event.target.querySelector('#content-editor')) {
                 setTimeout(initializeQuillEditor, 100); // Small delay to ensure DOM is ready
             }
         });
-        
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             initializeQuillEditor();
