@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
 
@@ -44,7 +45,20 @@ class SecurityConfig(
                     val header = request.getHeader("HX-Request")
                     header != null && header.equals("true", ignoreCase = true)
                 }
+
+                // Use CookieCsrfTokenRepository so frontend can read token from cookie
+                val csrfRepository = CookieCsrfTokenRepository.withHttpOnlyFalse().apply {
+                    // Harden CSRF cookie attributes
+                    setCookieCustomizer { builder ->
+                        builder
+                            .path("/")
+                            .sameSite("Lax")
+                            .secure(true)
+                    }
+                }
+
                 csrf
+                    .csrfTokenRepository(csrfRepository)
                     .ignoringRequestMatchers(
                         AntPathRequestMatcher("/auth/**"),
                         AntPathRequestMatcher("/api/auth/**"),
