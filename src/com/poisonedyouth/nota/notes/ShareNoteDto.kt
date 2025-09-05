@@ -1,7 +1,12 @@
 package com.poisonedyouth.nota.notes
 
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
+
 data class ShareNoteDto(
+    @field:NotBlank(message = "Username is required")
     val username: String,
+    @field:Pattern(regexp = "read|edit", message = "Permission must be 'read' or 'edit'")
     val permission: String = "read",
 )
 

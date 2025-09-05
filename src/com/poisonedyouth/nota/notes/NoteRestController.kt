@@ -25,7 +25,7 @@ class NoteRestController(
 
     @PostMapping
     fun createNote(
-        @RequestBody createNoteDto: CreateNoteDto,
+        @jakarta.validation.Valid @RequestBody createNoteDto: CreateNoteDto,
         session: HttpSession,
     ): ResponseEntity<*> {
         val user =
@@ -97,7 +97,7 @@ class NoteRestController(
     @PutMapping("/{id}")
     fun updateNote(
         @PathVariable id: Long,
-        @RequestBody updateNoteDto: UpdateNoteDto,
+        @jakarta.validation.Valid @RequestBody updateNoteDto: UpdateNoteDto,
         session: HttpSession,
     ): ResponseEntity<*> {
         val user =

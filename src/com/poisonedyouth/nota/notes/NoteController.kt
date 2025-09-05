@@ -80,7 +80,7 @@ class NoteController(
 
     @PostMapping("/new")
     fun createNote(
-        @ModelAttribute createNoteDto: CreateNoteDto,
+        @jakarta.validation.Valid @ModelAttribute createNoteDto: CreateNoteDto,
         bindingResult: BindingResult,
         model: Model,
         session: HttpSession,
@@ -241,7 +241,7 @@ class NoteController(
     @Suppress("LongParameterList")
     fun updateNote(
         @PathVariable id: Long,
-        @ModelAttribute updateNoteDto: UpdateNoteDto,
+        @jakarta.validation.Valid @ModelAttribute updateNoteDto: UpdateNoteDto,
         bindingResult: BindingResult,
         model: Model,
         session: HttpSession,
@@ -325,7 +325,7 @@ class NoteController(
     @Suppress("LongParameterList")
     fun shareNote(
         @PathVariable id: Long,
-        @ModelAttribute shareNoteDto: ShareNoteDto,
+        @jakarta.validation.Valid @ModelAttribute shareNoteDto: ShareNoteDto,
         bindingResult: BindingResult,
         model: Model,
         session: HttpSession,

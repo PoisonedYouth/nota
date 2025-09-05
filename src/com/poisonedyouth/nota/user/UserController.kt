@@ -31,10 +31,14 @@ class UserController(
 
     @PostMapping("/register")
     fun register(
-        @ModelAttribute registerDto: RegisterDto,
+        @jakarta.validation.Valid @ModelAttribute registerDto: RegisterDto,
+        bindingResult: org.springframework.validation.BindingResult,
         model: Model,
     ): String =
-        try {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("registerDto", registerDto)
+            "auth/register"
+        } else try {
             val registrationResult = userService.registerUser(registerDto)
             model.addAttribute("user", registrationResult.user)
             model.addAttribute("initialPassword", registrationResult.initialPassword)
@@ -47,7 +51,8 @@ class UserController(
 
     @PostMapping("/login")
     fun login(
-        @ModelAttribute loginDto: LoginDto,
+        @jakarta.validation.Valid @ModelAttribute loginDto: LoginDto,
+        bindingResult: org.springframework.validation.BindingResult,
         request: HttpServletRequest,
         model: Model,
     ): String {
@@ -99,7 +104,8 @@ class UserController(
 
     @PostMapping("/change-password")
     fun changePassword(
-        @ModelAttribute changePasswordDto: ChangePasswordDto,
+        @jakarta.validation.Valid @ModelAttribute changePasswordDto: ChangePasswordDto,
+        bindingResult: org.springframework.validation.BindingResult,
         request: HttpServletRequest,
         model: Model,
     ): String {
