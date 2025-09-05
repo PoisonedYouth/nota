@@ -10,21 +10,21 @@ class NoteAttachmentService(
     private val noteAttachmentRepository: NoteAttachmentRepository,
     private val noteRepository: NoteRepository,
     private val noteService: NoteService,
+    private val fileUploadSafetyValidator: FileUploadSafetyValidator,
 ) {
     fun addAttachment(noteId: Long, file: MultipartFile, userId: Long): NoteAttachmentDto {
-        if (file.isEmpty) {
-            throw IllegalArgumentException("File must not be empty")
-        }
-        if (file.originalFilename.isNullOrBlank()) {
-            throw IllegalArgumentException("Filename is required")
-        }
         if (!noteService.canUserAccessNote(noteId, userId)) {
             throw IllegalArgumentException("User not allowed to access note")
         }
+
+        // Validate file safety (size, extension, content type by magic)
+        fileUploadSafetyValidator.validate(file)
+        val sanitizedName = fileUploadSafetyValidator.sanitizeFilename(file.originalFilename)
+
         val note = noteRepository.findById(noteId).orElseThrow { IllegalArgumentException("Note not found") }
         val entity = NoteAttachment(
             note = note,
-            filename = file.originalFilename!!,
+            filename = sanitizedName,
             contentType = file.contentType,
             fileSize = file.size,
             data = file.bytes,
