@@ -388,12 +388,46 @@ jobs:
     - name: Make Amper executable
       run: chmod +x ./amper
 
-    - name: Run Playwright UI tests
+    - name: Start application server
       env:
         SPRING_PROFILES_ACTIVE: test
       run: |
-        echo "Running Playwright UI tests (server managed by Playwright webServer)..."
-        npx playwright test --reporter=list,html
+        echo "Starting application server in background..."
+        ./amper run &
+        SERVER_PID=$!
+        echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+        
+        # Wait for server to be ready
+        echo "Waiting for server to start on port 8080..."
+        for i in {1..60}; do
+          if curl -f http://localhost:8080/actuator/health 2>/dev/null || curl -f http://localhost:8080/ 2>/dev/null; then
+            echo "Server is ready after ${i} seconds!"
+            break
+          fi
+          if [ $i -eq 60 ]; then
+            echo "Server failed to start within 60 seconds"
+            kill $SERVER_PID 2>/dev/null || true
+            exit 1
+          fi
+          sleep 1
+        done
+
+    - name: Run Playwright UI tests
+      run: |
+        echo "Running Playwright UI tests..."
+        # Run only chromium browser in CI to reduce test time
+        npx playwright test --project=chromium --reporter=list,html
+
+    - name: Stop application server
+      if: always()
+      run: |
+        echo "Stopping application server..."
+        if [ -n "$SERVER_PID" ]; then
+          kill $SERVER_PID 2>/dev/null || true
+        fi
+        pkill -f "amper run" 2>/dev/null || true
+        # Wait a moment for clean shutdown
+        sleep 2
 
     - name: Upload Playwright report
       uses: actions/upload-artifact@v4

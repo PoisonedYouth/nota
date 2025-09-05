@@ -6,15 +6,17 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/playwright',
   /* Increase default test timeout to reduce flaky timeouts on slower environments */
-  timeout: 120 * 1000,
+  timeout: process.env.CI ? 60 * 1000 : 120 * 1000, // Shorter timeout in CI to prevent hanging
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0, // Reduce retries in CI to prevent excessive runtime
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : 3,
+  /* Global timeout for the entire test run */
+  globalTimeout: process.env.CI ? 20 * 60 * 1000 : undefined, // 20 minutes max in CI
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? 'list' : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -69,8 +71,8 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests (including in CI). */
-  webServer: {
+  /* Run your local dev server before starting the tests (only locally, CI handles server separately). */
+  webServer: process.env.CI ? undefined : {
     command: './amper run',
     url: 'http://localhost:8080',
     reuseExistingServer: true,
