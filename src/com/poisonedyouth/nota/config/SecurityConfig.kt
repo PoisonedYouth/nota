@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
+import org.springframework.security.web.header.writers.StaticHeadersWriter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
 
@@ -65,6 +66,28 @@ class SecurityConfig(
                         htmxRequestMatcher,
                     )
             }
+            .headers { headers ->
+                // X-Content-Type-Options: nosniff
+                headers.contentTypeOptions { }
+                // X-Frame-Options: DENY (prevent clickjacking)
+                headers.frameOptions { it.deny() }
+                // Strict CSP aligned with our static asset usage
+                headers.addHeaderWriter(
+                    StaticHeadersWriter(
+                        "Content-Security-Policy",
+                        cspPolicy()
+                    )
+                )
+                // Defensive additional headers
+                headers.referrerPolicy { it.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN) }
+                // Note: Permissions-Policy toggled via custom writer to avoid deprecated API
+                headers.addHeaderWriter(
+                    StaticHeadersWriter(
+                        "Permissions-Policy",
+                        "geolocation=(), microphone=(), camera=()"
+                    )
+                )
+            }
             .sessionManagement { session ->
                 session
                     .maximumSessions(1).maxSessionsPreventsLogin(false)
@@ -73,5 +96,18 @@ class SecurityConfig(
             }
 
         return http.build()
+    }
+
+    private fun cspPolicy(): String = buildString {
+        append("default-src 'self'; ")
+        append("base-uri 'self'; ")
+        append("object-src 'none'; ")
+        append("frame-ancestors 'none'; ") // also enforces anti-framing like X-Frame-Options
+        append("img-src 'self' data:; ")
+        append("font-src 'self'; ")
+        append("style-src 'self' 'unsafe-inline'; ") // allow inline styles if templates require; revisit to tighten
+        append("script-src 'self'; ")
+        append("connect-src 'self'; ")
+        append("form-action 'self'; ")
     }
 }

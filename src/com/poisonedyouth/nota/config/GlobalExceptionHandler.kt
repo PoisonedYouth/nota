@@ -155,6 +155,24 @@ class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse)
     }
 
+    @ExceptionHandler(
+        org.springframework.security.access.AccessDeniedException::class,
+        org.springframework.security.authorization.AuthorizationDeniedException::class,
+    )
+    fun handleAccessDenied(
+        ex: Exception,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiErrorResponse> {
+        logger.warn("Access denied: {}", ex.message)
+        val errorResponse = ErrorUtils.createApiErrorResponse(
+            ErrorCode.FORBIDDEN,
+            request.requestURI,
+            request.method,
+            "Access is denied",
+        )
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse)
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception, request: HttpServletRequest): ResponseEntity<ApiErrorResponse> {
         logger.error("Unexpected error occurred", ex)
