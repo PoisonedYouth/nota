@@ -52,7 +52,9 @@
       "Bash(gh run watch:*)",
       "Bash(gh release list:*)",
       "Bash(gh release view:*)",
-      "Bash(gh release edit:*)"
+      "Bash(gh release edit:*)",
+      "Bash(gh release delete:*)",
+      "Bash(gh release create:*)"
     ],
     "deny": []
   }
