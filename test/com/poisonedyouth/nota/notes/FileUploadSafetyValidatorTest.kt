@@ -51,4 +51,17 @@ class FileUploadSafetyValidatorTest {
         val sanitized = validator.sanitizeFilename("../..\\/etc/passwd")
         sanitized.shouldBe("passwd")
     }
+
+    @Test
+    fun `rejects oversize file`() {
+        val big = ByteArray(props.maxSizeBytes.toInt() + 1) { 0x20 }
+        val file = MockMultipartFile("file", "too_big.txt", "text/plain", big)
+        shouldThrow<IllegalArgumentException> { validator.validate(file) }
+    }
+
+    @Test
+    fun `rejects missing filename`() {
+        val file = MockMultipartFile("file", null, "text/plain", "Hello".toByteArray())
+        shouldThrow<IllegalStateException> { validator.validate(file) }
+    }
 }
