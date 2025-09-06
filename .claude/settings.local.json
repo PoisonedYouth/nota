@@ -47,7 +47,11 @@
       "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteSharingE2ETest\" --include-methods=\"*Complete*\" --fail-fast)",
       "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteSharingE2ETest*\" --fail-fast)",
       "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteSharingE2ETest\" --include-methods=\"*Prevent*\")",
-      "Bash(git cherry-pick:*)"
+      "Bash(git cherry-pick:*)",
+      "Bash(git tag:*)",
+      "Bash(gh run watch:*)",
+      "Bash(gh release list:*)",
+      "Bash(gh release view:*)"
     ],
     "deny": []
   }
