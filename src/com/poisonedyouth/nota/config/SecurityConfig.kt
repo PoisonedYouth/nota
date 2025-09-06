@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
@@ -67,26 +68,7 @@ class SecurityConfig(
                     )
             }
             .headers { headers ->
-                // X-Content-Type-Options: nosniff
-                headers.contentTypeOptions { }
-                // X-Frame-Options: DENY (prevent clickjacking)
-                headers.frameOptions { it.deny() }
-                // Strict CSP aligned with our static asset usage
-                headers.addHeaderWriter(
-                    StaticHeadersWriter(
-                        "Content-Security-Policy",
-                        cspPolicy()
-                    )
-                )
-                // Defensive additional headers
-                headers.referrerPolicy { it.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN) }
-                // Note: Permissions-Policy toggled via custom writer to avoid deprecated API
-                headers.addHeaderWriter(
-                    StaticHeadersWriter(
-                        "Permissions-Policy",
-                        "geolocation=(), microphone=(), camera=()"
-                    )
-                )
+                applySecurityHeaders(headers)
             }
             .sessionManagement { session ->
                 session
@@ -109,5 +91,33 @@ class SecurityConfig(
         append("script-src 'self'; ")
         append("connect-src 'self'; ")
         append("form-action 'self'; ")
+    }
+
+    private fun applySecurityHeaders(headers: HeadersConfigurer<HttpSecurity>) {
+        // X-Content-Type-Options: nosniff
+        headers.contentTypeOptions { }
+        // X-Frame-Options: DENY (prevent clickjacking)
+        headers.frameOptions { it.deny() }
+        // Strict CSP aligned with our static asset usage
+        headers.addHeaderWriter(
+            StaticHeadersWriter(
+                "Content-Security-Policy",
+                cspPolicy(),
+            ),
+        )
+        // Defensive additional headers
+        headers.referrerPolicy {
+            it.policy(
+                org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy
+                    .STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
+            )
+        }
+        // Note: Permissions-Policy toggled via custom writer to avoid deprecated API
+        headers.addHeaderWriter(
+            StaticHeadersWriter(
+                "Permissions-Policy",
+                "geolocation=(), microphone=(), camera=()",
+            ),
+        )
     }
 }
