@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 @RequestMapping("/admin")
 class AdminController(
     private val adminService: AdminService,
+    private val activityEventPublisher: com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher,
 ) {
     /**
      * Check if current user is admin and redirect to login if not authenticated
@@ -72,6 +73,8 @@ class AdminController(
         return if (currentUser != null) {
             val success = adminService.disableUser(userId)
             if (success) {
+                // Publish activity event for admin action
+                activityEventPublisher.publishUserDisabledEvent(currentUser.id, userId)
                 redirectAttributes.addFlashAttribute("successMessage", "User has been disabled successfully")
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "Failed to disable user. Admin users cannot be disabled.")
@@ -96,6 +99,8 @@ class AdminController(
         return if (currentUser != null) {
             val success = adminService.enableUser(userId)
             if (success) {
+                // Publish activity event for admin action
+                activityEventPublisher.publishUserEnabledEvent(currentUser.id, userId)
                 redirectAttributes.addFlashAttribute("successMessage", "User has been enabled successfully")
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "Failed to enable user")

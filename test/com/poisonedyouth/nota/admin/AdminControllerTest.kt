@@ -21,7 +21,8 @@ class AdminControllerTest {
     @BeforeEach
     fun setup() {
         adminService = mockk()
-        val controller = AdminController(adminService)
+        val activityEventPublisher = mockk<com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher>(relaxed = true)
+        val controller = AdminController(adminService, activityEventPublisher)
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
     }
 

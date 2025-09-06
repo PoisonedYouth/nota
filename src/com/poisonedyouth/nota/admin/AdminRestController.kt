@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @PreAuthorize("hasRole('ADMIN')")
 class AdminRestController(
     private val adminService: AdminService,
+    private val activityEventPublisher: com.poisonedyouth.nota.activitylog.events.ActivityEventPublisher,
 ) {
     private fun getCurrentUser(session: HttpSession): UserDto? = session.getAttribute("currentUser") as? UserDto
 
@@ -57,6 +58,8 @@ class AdminRestController(
         ensureAdmin(session)?.let { return it }
         val success = adminService.disableUser(userId)
         return if (success) {
+            val currentUser = getCurrentUser(session)!!
+            activityEventPublisher.publishUserDisabledEvent(currentUser.id, userId)
             ResponseEntity.ok(mapOf("message" to "User has been disabled successfully"))
         } else {
             ResponseEntity
@@ -73,6 +76,8 @@ class AdminRestController(
         ensureAdmin(session)?.let { return it }
         val success = adminService.enableUser(userId)
         return if (success) {
+            val currentUser = getCurrentUser(session)!!
+            activityEventPublisher.publishUserEnabledEvent(currentUser.id, userId)
             ResponseEntity.ok(mapOf("message" to "User has been enabled successfully"))
         } else {
             ResponseEntity

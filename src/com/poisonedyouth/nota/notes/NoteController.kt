@@ -394,7 +394,15 @@ class NoteController(
     ): String {
         val user = requireAuthentication(session) ?: return "redirect:/auth/login"
 
-        noteService.revokeNoteShare(id, userId, user.id)
+        // Capture context for activity logging
+        val noteBefore = noteService.findNoteById(id, user.id)
+
+        val success = noteService.revokeNoteShare(id, userId, user.id)
+
+        // Publish revoke share event
+        if (success && noteBefore != null) {
+            activityEventPublisher.publishRevokeShareNoteEvent(user.id, id, noteBefore.title, userId)
+        }
 
         return if (htmxRequest != null) {
             val note = noteService.findNoteById(id, user.id)

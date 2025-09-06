@@ -201,6 +201,69 @@ class ActivityEventPublisherTest {
     }
 
     @Test
+    fun `publishRevokeShareNoteEvent should publish RevokeShareNoteEvent`() {
+        // Given
+        val userId = 1L
+        val noteId = 2L
+        val noteTitle = "Note"
+        val targetUserId = 99L
+        val eventSlot = slot<RevokeShareNoteEvent>()
+
+        every { applicationEventPublisher.publishEvent(capture(eventSlot)) } returns Unit
+
+        // When
+        activityEventPublisher.publishRevokeShareNoteEvent(userId, noteId, noteTitle, targetUserId)
+
+        // Then
+        verify { applicationEventPublisher.publishEvent(any<RevokeShareNoteEvent>()) }
+        val capturedEvent = eventSlot.captured
+        capturedEvent.userId shouldBe userId
+        capturedEvent.action shouldBe "REVOKE_SHARE"
+        capturedEvent.entityType shouldBe "NOTE"
+        capturedEvent.entityId shouldBe noteId
+    }
+
+    @Test
+    fun `publishUserDisabledEvent should publish UserDisabledEvent`() {
+        // Given
+        val adminId = 1L
+        val targetUserId = 5L
+        val eventSlot = slot<UserDisabledEvent>()
+        every { applicationEventPublisher.publishEvent(capture(eventSlot)) } returns Unit
+
+        // When
+        activityEventPublisher.publishUserDisabledEvent(adminId, targetUserId)
+
+        // Then
+        verify { applicationEventPublisher.publishEvent(any<UserDisabledEvent>()) }
+        val capturedEvent = eventSlot.captured
+        capturedEvent.userId shouldBe adminId
+        capturedEvent.action shouldBe "DISABLE"
+        capturedEvent.entityType shouldBe "USER"
+        capturedEvent.entityId shouldBe targetUserId
+    }
+
+    @Test
+    fun `publishUserEnabledEvent should publish UserEnabledEvent`() {
+        // Given
+        val adminId = 1L
+        val targetUserId = 5L
+        val eventSlot = slot<UserEnabledEvent>()
+        every { applicationEventPublisher.publishEvent(capture(eventSlot)) } returns Unit
+
+        // When
+        activityEventPublisher.publishUserEnabledEvent(adminId, targetUserId)
+
+        // Then
+        verify { applicationEventPublisher.publishEvent(any<UserEnabledEvent>()) }
+        val capturedEvent = eventSlot.captured
+        capturedEvent.userId shouldBe adminId
+        capturedEvent.action shouldBe "ENABLE"
+        capturedEvent.entityType shouldBe "USER"
+        capturedEvent.entityId shouldBe targetUserId
+    }
+
+    @Test
     fun `should handle multiple events published in sequence`() {
         // Given
         val userId = 1L

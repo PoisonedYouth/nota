@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
  * Service for publishing activity events
  */
 @Service
+@Suppress("TooManyFunctions")
 class ActivityEventPublisher(
     private val eventPublisher: ApplicationEventPublisher,
 ) {
@@ -45,6 +46,29 @@ class ActivityEventPublisher(
         sharedWithUsername: String,
     ) {
         eventPublisher.publishEvent(ShareNoteEvent(userId, noteId, noteTitle, sharedWithUsername))
+    }
+
+    fun publishRevokeShareNoteEvent(
+        userId: Long,
+        noteId: Long,
+        noteTitle: String,
+        sharedWithUserId: Long,
+    ) {
+        eventPublisher.publishEvent(RevokeShareNoteEvent(userId, noteId, noteTitle, sharedWithUserId))
+    }
+
+    fun publishUserDisabledEvent(
+        adminUserId: Long,
+        targetUserId: Long,
+    ) {
+        eventPublisher.publishEvent(UserDisabledEvent(adminUserId, targetUserId))
+    }
+
+    fun publishUserEnabledEvent(
+        adminUserId: Long,
+        targetUserId: Long,
+    ) {
+        eventPublisher.publishEvent(UserEnabledEvent(adminUserId, targetUserId))
     }
 
     fun publishUploadAttachmentEvent(
