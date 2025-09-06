@@ -258,3 +258,8 @@ For the best development experience, it's recommended to install plugins for you
 - VS Code: 
   - [Ktlint extension](https://marketplace.visualstudio.com/items?itemName=mathiasfrohlich.Kotlin)
   - [Detekt extension](https://marketplace.visualstudio.com/items?itemName=detekt.vscode-detekt)
+
+
+## Developer docs
+
+- Security model, CSRF, sorting, sanitization, upload limits, and error model: see [docs/developer-security.md](docs/developer-security.md)
