@@ -4,11 +4,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.security.SecureRandom
+import java.time.Clock
 
 @Service
 @Transactional
 class UserService(
     private val userRepository: UserRepository,
+    private val clock: Clock,
 ) {
     private val passwordEncoder = BCryptPasswordEncoder()
 
@@ -141,7 +143,7 @@ class UserService(
                 password = hashedNewPassword,
                 mustChangePassword = false,
                 createdAt = user.createdAt,
-                updatedAt = java.time.LocalDateTime.now(),
+                updatedAt = java.time.LocalDateTime.now(clock),
             )
         val savedUser = userRepository.save(updatedUser)
         return UserDto.fromEntity(savedUser)

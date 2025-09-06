@@ -1,5 +1,6 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.common.EntityMapperUtils
 import com.poisonedyouth.nota.user.UserDto
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -15,11 +16,12 @@ data class NoteDto(
     val dueDate: LocalDateTime?,
     val userId: Long,
     val user: UserDto,
+    val version: Long,
 ) {
     companion object {
         fun fromEntity(note: Note): NoteDto =
             NoteDto(
-                id = note.id ?: -1,
+                id = EntityMapperUtils.validateId(note.id, "Note"),
                 title = note.title,
                 content = note.content,
                 createdAt = note.createdAt,
@@ -27,9 +29,13 @@ data class NoteDto(
                 archived = note.archived,
                 archivedAt = note.archivedAt,
                 dueDate = note.dueDate,
-                userId = note.user.id ?: -1,
+                userId = EntityMapperUtils.validateId(note.user.id, "User"),
                 user = UserDto.fromEntity(note.user),
+                version = note.version,
             )
+
+        fun fromEntityList(notes: List<Note>): List<NoteDto> =
+            EntityMapperUtils.mapList(notes) { fromEntity(it) }
     }
 
     fun getFormattedDate(): String = updatedAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))

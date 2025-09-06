@@ -19,7 +19,7 @@ class UserServiceTest {
     @BeforeEach
     fun setup() {
         userRepository = mockk()
-        userService = UserService(userRepository)
+        userService = UserService(userRepository, java.time.Clock.systemDefaultZone())
     }
 
     @Test

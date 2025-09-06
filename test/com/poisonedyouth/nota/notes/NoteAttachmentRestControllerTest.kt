@@ -45,7 +45,7 @@ class NoteAttachmentRestControllerTest {
     @Test
     fun `upload, list, download and delete attachment`() {
         val file = MockMultipartFile("file", "readme.txt", "text/plain", "Hello".toByteArray())
-        val dto = NoteAttachmentDto(1L, "readme.txt", "text/plain", 5, LocalDateTime.now())
+        val dto = NoteAttachmentDto(1L, "readme.txt", "text/plain", 5, LocalDateTime.now(), 0L)
 
         every { attachmentService.addAttachment(1L, any(), 1L) } returns dto
         every { attachmentService.listAttachments(1L, 1L) } returns listOf(dto)

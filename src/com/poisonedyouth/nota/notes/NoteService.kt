@@ -1,9 +1,13 @@
 package com.poisonedyouth.nota.notes
 
+import com.poisonedyouth.nota.common.NotaOptimisticLockException
 import com.poisonedyouth.nota.user.UserRepository
+import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Clock
+import java.time.LocalDateTime
 
 @Service
 @Transactional
@@ -12,6 +16,7 @@ class NoteService(
     private val noteRepository: NoteRepository,
     private val userRepository: UserRepository,
     private val noteShareRepository: NoteShareRepository,
+    private val clock: Clock,
 ) {
     private fun createSort(
         sortBy: String,
@@ -41,12 +46,15 @@ class NoteService(
             userRepository.findById(userId).orElseThrow {
                 IllegalArgumentException("User not found")
             }
+        val now = LocalDateTime.now(clock)
         val note =
             Note(
                 title = createNoteDto.title,
                 content = sanitizeHtmlContent(createNoteDto.content),
                 dueDate = createNoteDto.dueDate,
                 user = user,
+                createdAt = now,
+                updatedAt = now,
             )
 
         val savedNote = noteRepository.save(note)
@@ -82,22 +90,28 @@ class NoteService(
         id: Long,
         userId: Long,
     ): Boolean {
-        val user = userRepository.findById(userId).orElse(null) ?: return false
-        val note = noteRepository.findByIdAndUser(id, user) ?: return false
-        val archivedNote =
-            Note(
-                id = note.id,
-                title = note.title,
-                content = note.content,
-                dueDate = note.dueDate,
-                createdAt = note.createdAt,
-                updatedAt = java.time.LocalDateTime.now(),
-                archived = true,
-                archivedAt = java.time.LocalDateTime.now(),
-                user = note.user,
-            )
-        noteRepository.save(archivedNote)
-        return true
+        return try {
+            val user = userRepository.findById(userId).orElse(null) ?: return false
+            val note = noteRepository.findByIdAndUser(id, user) ?: return false
+            val now = LocalDateTime.now(clock)
+            val archivedNote =
+                Note(
+                    id = note.id,
+                    title = note.title,
+                    content = note.content,
+                    dueDate = note.dueDate,
+                    createdAt = note.createdAt,
+                    updatedAt = now,
+                    archived = true,
+                    archivedAt = now,
+                    user = note.user,
+                    version = note.version,
+                )
+            noteRepository.save(archivedNote)
+            true
+        } catch (ex: OptimisticLockingFailureException) {
+            throw NotaOptimisticLockException("Note was modified by another user. Please refresh and try again.").also { it.initCause(ex) }
+        }
     }
 
     fun findAllArchivedNotes(userId: Long): List<NoteDto> {
@@ -118,24 +132,29 @@ class NoteService(
             throw IllegalArgumentException("Note content cannot be empty")
         }
 
-        val user = userRepository.findById(userId).orElse(null) ?: return null
-        val note = noteRepository.findByIdAndUser(updateNoteDto.id, user) ?: return null
+        return try {
+            val user = userRepository.findById(userId).orElse(null) ?: return null
+            val note = noteRepository.findByIdAndUser(updateNoteDto.id, user) ?: return null
 
-        val updatedNote =
-            Note(
-                id = note.id,
-                title = updateNoteDto.title,
-                content = sanitizeHtmlContent(updateNoteDto.content),
-                dueDate = updateNoteDto.dueDate,
-                createdAt = note.createdAt,
-                updatedAt = java.time.LocalDateTime.now(),
-                archived = note.archived,
-                archivedAt = note.archivedAt,
-                user = note.user,
-            )
+            val updatedNote =
+                Note(
+                    id = note.id,
+                    title = updateNoteDto.title,
+                    content = sanitizeHtmlContent(updateNoteDto.content),
+                    dueDate = updateNoteDto.dueDate,
+                    createdAt = note.createdAt,
+                    updatedAt = LocalDateTime.now(clock),
+                    archived = note.archived,
+                    archivedAt = note.archivedAt,
+                    user = note.user,
+                    version = note.version,
+                )
 
-        val savedNote = noteRepository.save(updatedNote)
-        return NoteDto.fromEntity(savedNote)
+            val savedNote = noteRepository.save(updatedNote)
+            NoteDto.fromEntity(savedNote)
+        } catch (ex: OptimisticLockingFailureException) {
+            throw NotaOptimisticLockException("Note was modified by another user. Please refresh and try again.").also { it.initCause(ex) }
+        }
     }
 
     fun searchNotes(

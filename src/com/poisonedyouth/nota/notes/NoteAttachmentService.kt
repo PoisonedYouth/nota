@@ -63,6 +63,7 @@ data class NoteAttachmentDto(
     val contentType: String?,
     val fileSize: Long,
     val createdAt: java.time.LocalDateTime,
+    val version: Long,
 ) {
     companion object {
         fun fromEntity(entity: NoteAttachment): NoteAttachmentDto =
@@ -72,6 +73,7 @@ data class NoteAttachmentDto(
                 contentType = entity.contentType,
                 fileSize = entity.fileSize,
                 createdAt = entity.createdAt,
+                version = entity.version,
             )
     }
 }

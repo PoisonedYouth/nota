@@ -7,6 +7,7 @@ import com.poisonedyouth.nota.user.UserRepository
 import com.poisonedyouth.nota.user.UserRole
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Clock
 import java.time.LocalDateTime
 
 @Service
@@ -15,6 +16,7 @@ class AdminService(
     private val userRepository: UserRepository,
     private val noteRepository: NoteRepository,
     private val noteShareRepository: NoteShareRepository,
+    private val clock: Clock,
 ) {
     /**
      * Get statistics for all users in the system
@@ -81,7 +83,7 @@ class AdminService(
                 mustChangePassword = user.mustChangePassword,
                 role = user.role,
                 createdAt = user.createdAt,
-                updatedAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(clock),
                 enabled = false,
             )
         userRepository.save(updatedUser)
@@ -103,7 +105,7 @@ class AdminService(
                 mustChangePassword = user.mustChangePassword,
                 role = user.role,
                 createdAt = user.createdAt,
-                updatedAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(clock),
                 enabled = true,
             )
         userRepository.save(updatedUser)

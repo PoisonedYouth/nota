@@ -146,5 +146,6 @@ class NoteDtoTest {
             dueDate = dueDate,
             userId = 1L,
             user = testUserDto,
+            version = 0L,
         )
 }

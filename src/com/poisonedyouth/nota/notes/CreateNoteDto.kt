@@ -1,9 +1,8 @@
 package com.poisonedyouth.nota.notes
 
-import java.time.LocalDateTime
-
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import java.time.LocalDateTime
 
 data class CreateNoteDto(
     @field:NotBlank(message = "Title is required")

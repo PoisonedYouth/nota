@@ -18,7 +18,7 @@ class NoteSharingServiceTest :
         val noteRepository = mockk<NoteRepository>()
         val userRepository = mockk<UserRepository>()
         val noteShareRepository = mockk<NoteShareRepository>()
-        val noteService = NoteService(noteRepository, userRepository, noteShareRepository)
+        val noteService = NoteService(noteRepository, userRepository, noteShareRepository, java.time.Clock.systemDefaultZone())
 
         val testUser =
             User(

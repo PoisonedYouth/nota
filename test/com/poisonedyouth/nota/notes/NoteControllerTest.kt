@@ -40,6 +40,7 @@ class NoteControllerTest {
                 username = "testuser",
                 mustChangePassword = false,
                 role = UserRole.USER,
+                version = 0L,
             )
 
         mockSession.setAttribute("currentUser", testUser)
@@ -65,6 +66,7 @@ class NoteControllerTest {
                     dueDate = null,
                     userId = 1L,
                     user = testUser,
+                    version = 0L,
                 ),
                 NoteDto(
                     id = 2L,
@@ -77,6 +79,7 @@ class NoteControllerTest {
                     dueDate = null,
                     userId = 1L,
                     user = testUser,
+                    version = 0L,
                 ),
             )
         every { noteService.findAllNotes(1L) } returns notes
@@ -121,6 +124,7 @@ class NoteControllerTest {
                 dueDate = null,
                 userId = 1L,
                 user = testUser,
+                version = 0L,
             )
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns noteDto
         every { noteService.archiveNote(noteId, 1L) } returns true
@@ -152,6 +156,7 @@ class NoteControllerTest {
                 dueDate = null,
                 userId = 1L,
                 user = testUser,
+                version = 0L,
             )
         val remainingNotes =
             listOf(
@@ -166,6 +171,7 @@ class NoteControllerTest {
                     dueDate = null,
                     userId = 1L,
                     user = testUser,
+                    version = 0L,
                 ),
             )
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns noteDto
@@ -207,6 +213,7 @@ class NoteControllerTest {
                     dueDate = null,
                     userId = 1L,
                     user = testUser,
+                    version = 0L,
                 ),
             )
         every { noteService.searchNotes(query, 1L) } returns searchResults
@@ -242,6 +249,7 @@ class NoteControllerTest {
                     dueDate = null,
                     userId = 1L,
                     user = testUser,
+                    version = 0L,
                 ),
             )
         every { noteService.searchNotes(query, 1L) } returns searchResults
@@ -281,6 +289,7 @@ class NoteControllerTest {
                     dueDate = null,
                     userId = 1L,
                     user = testUser,
+                    version = 0L,
                 ),
             )
         every { noteService.searchNotes("", 1L) } returns allNotes
@@ -334,6 +343,7 @@ class NoteControllerTest {
                 dueDate = now.plusDays(1),
                 userId = 1L,
                 user = testUser,
+                version = 0L,
             )
         every { noteService.findAccessibleNoteById(noteId, 1L) } returns note
         every { noteAttachmentService.listAttachments(noteId, 1L) } returns emptyList()
@@ -401,6 +411,7 @@ class NoteControllerTest {
                     dueDate = null,
                     userId = 1L,
                     user = testUser,
+                    version = 0L,
                 ),
                 NoteDto(
                     id = 2L,
@@ -412,7 +423,8 @@ class NoteControllerTest {
                     archivedAt = null,
                     dueDate = null,
                     userId = 2L,
-                    user = UserDto(2L, "otheruser", false, UserRole.USER),
+                    user = UserDto(2L, "otheruser", false, UserRole.USER, 0L),
+                    version = 0L,
                 ),
             )
         every { noteService.searchAccessibleNotes(query, 1L) } returns accessibleNotes

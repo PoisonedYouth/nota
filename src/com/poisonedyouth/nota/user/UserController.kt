@@ -38,15 +38,17 @@ class UserController(
         if (bindingResult.hasErrors()) {
             model.addAttribute("registerDto", registerDto)
             "auth/register"
-        } else try {
-            val registrationResult = userService.registerUser(registerDto)
-            model.addAttribute("user", registrationResult.user)
-            model.addAttribute("initialPassword", registrationResult.initialPassword)
-            "auth/register-success"
-        } catch (e: IllegalArgumentException) {
-            model.addAttribute("error", e.message)
-            model.addAttribute("registerDto", registerDto)
-            "auth/register"
+        } else {
+            try {
+                val registrationResult = userService.registerUser(registerDto)
+                model.addAttribute("user", registrationResult.user)
+                model.addAttribute("initialPassword", registrationResult.initialPassword)
+                "auth/register-success"
+            } catch (e: IllegalArgumentException) {
+                model.addAttribute("error", e.message)
+                model.addAttribute("registerDto", registerDto)
+                "auth/register"
+            }
         }
 
     @PostMapping("/login")

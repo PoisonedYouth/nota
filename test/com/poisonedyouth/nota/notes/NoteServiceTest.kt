@@ -10,6 +10,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.Sort
+import java.time.Clock
 import java.time.LocalDateTime
 import java.util.Optional
 
@@ -25,7 +26,7 @@ class NoteServiceTest {
         noteRepository = mockk()
         userRepository = mockk()
         noteShareRepository = mockk()
-        noteService = NoteService(noteRepository, userRepository, noteShareRepository)
+        noteService = NoteService(noteRepository, userRepository, noteShareRepository, Clock.systemDefaultZone())
 
         testUser =
             User(

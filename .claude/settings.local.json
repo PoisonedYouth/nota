@@ -57,7 +57,9 @@
       "Bash(gh release create:*)",
       "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*FileUploadSafetyValidatorTest\")",
       "Bash(SPRING_PROFILES_ACTIVE=test ./amper test)",
-      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteSanitizationAndAccessTest\")"
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*NoteSanitizationAndAccessTest\")",
+      "Bash(SPRING_PROFILES_ACTIVE=test ./amper test --include-classes=\"*AttachmentDownloadHeadersIT\" --include-classes=\"*NoteSanitizationAndAccessTest\")",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }

@@ -1,13 +1,13 @@
 package com.poisonedyouth.nota.validation
 
 import com.poisonedyouth.nota.notes.CreateNoteDto
-import com.poisonedyouth.nota.notes.UpdateNoteDto
 import com.poisonedyouth.nota.notes.ShareNoteDto
+import com.poisonedyouth.nota.notes.UpdateNoteDto
 import com.poisonedyouth.nota.user.LoginDto
 import com.poisonedyouth.nota.user.RegisterDto
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
 import jakarta.validation.Validation
+import org.junit.jupiter.api.Test
 
 class DtoValidationTest {
     private val validator = Validation.buildDefaultValidatorFactory().validator

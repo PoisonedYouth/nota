@@ -47,6 +47,7 @@ class NoteRestControllerTest {
                 username = "testuser",
                 mustChangePassword = false,
                 role = UserRole.USER,
+                version = 0L,
             )
         session.setAttribute("currentUser", user)
         return session
@@ -63,7 +64,8 @@ class NoteRestControllerTest {
             archivedAt = null,
             dueDate = LocalDateTime.now().plusDays(1),
             userId = 1L,
-            user = UserDto(1L, "testuser", false, UserRole.USER),
+            user = UserDto(1L, "testuser", false, UserRole.USER, 0L),
+            version = 0L,
         )
 
     @Test

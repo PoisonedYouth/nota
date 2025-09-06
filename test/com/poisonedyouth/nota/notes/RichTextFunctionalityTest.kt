@@ -32,7 +32,7 @@ class RichTextFunctionalityTest {
         noteRepository = mockk()
         userRepository = mockk()
         noteShareRepository = mockk()
-        noteService = NoteService(noteRepository, userRepository, noteShareRepository)
+        noteService = NoteService(noteRepository, userRepository, noteShareRepository, java.time.Clock.systemDefaultZone())
 
         every { userRepository.findById(1L) } returns Optional.of(testUser)
     }

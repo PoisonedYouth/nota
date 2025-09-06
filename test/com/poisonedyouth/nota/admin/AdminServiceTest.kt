@@ -26,7 +26,7 @@ class AdminServiceTest {
         userRepository = mockk()
         noteRepository = mockk()
         noteShareRepository = mockk()
-        adminService = AdminService(userRepository, noteRepository, noteShareRepository)
+        adminService = AdminService(userRepository, noteRepository, noteShareRepository, java.time.Clock.systemDefaultZone())
     }
 
     @Test
